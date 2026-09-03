@@ -20,6 +20,7 @@ input.player(2).jump = primary.jump || alternate.jump;
 input.pause = hasKey(keys, mappings.pause);
 input.reset = hasKey(keys, mappings.reset);
 input.quit = hasKey(keys, mappings.quit);
+input.useItem = hasKey(keys, mappings.useItem);
 end
 
 function actions = playerActions(keys, mapping)

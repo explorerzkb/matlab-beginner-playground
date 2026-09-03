@@ -19,4 +19,6 @@ input.player2Alternate.label = '备用：J / L 移动，I 跳跃';
 input.pause = 'escape';
 input.reset = 'r';
 input.quit = 'q';
+input.useItem = 'space';
+input.useItemLabel = '全局道具：长按 Space 饮用破防水';
 end

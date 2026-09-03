@@ -156,6 +156,7 @@ input.player(2).jump = mod(index, 37) == 2;
 input.pause = false;
 input.reset = false;
 input.quit = false;
+input.useItem = false;
 input.rawKeys = {};
 end
 
