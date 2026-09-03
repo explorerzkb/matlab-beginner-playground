@@ -19,6 +19,7 @@ testContinuousWorld();
 testBreakSystem();
 testConsumables();
 testTeaPickups();
+testCheckpointReset();
 fprintf('Running North Lake checks...\n');
 testWorldAnimals();
 fprintf('Running campus-network checks...\n');

@@ -21,6 +21,7 @@ assert(any(abs(state.levelState.traffic.cars(:, 1) - ...
     'Vehicles did not move during the vehicle phase.');
 
 state.levelTime = 4.4;
+state.levelState.traffic.signalClock = state.levelTime;
 state.levelState.traffic.cars(1, 1) = traffic.crosswalk(1) + 1;
 state.levelState.traffic.cars(2, 1) = traffic.crosswalk(1) + 3;
 state = stepWorldTraffic(state, world, cfg, 0);

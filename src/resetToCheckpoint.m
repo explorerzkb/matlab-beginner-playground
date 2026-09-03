@@ -13,11 +13,59 @@ for playerIndex = 1:2
     state.players(playerIndex).onGround = false;
     state.players(playerIndex).jumpHeld = false;
 end
+if strcmp(level.mechanic.type, 'continuousCampus')
+    state = resetContinuousTransients(state, level);
+end
 state.rope.currentTension = 0;
 state.rope.tautLast = false;
 state.input.resetHeldTime = 0;
 state.requestReset = false;
 state.stats.failures = state.stats.failures + 1;
+end
+
+function state = resetContinuousTransients(state, world)
+traffic = world.mechanic.traffic;
+crosswalk = traffic.crosswalk;
+cars = traffic.carData(:, 1:4);
+for carIndex = 1:size(cars, 1)
+    if traffic.carData(carIndex, 6) > 0
+        cars(carIndex, 1) = crosswalk(1) - traffic.stopLineGap - ...
+            cars(carIndex, 3);
+    else
+        cars(carIndex, 1) = crosswalk(1) + crosswalk(3) + ...
+            traffic.stopLineGap;
+    end
+end
+state.levelState.traffic.cars = cars;
+state.levelState.traffic.signalClock = ...
+    sum(traffic.signalPhaseDurations(1:2));
+state.levelState.traffic.signalPhase = 'allRedBeforePed';
+state.levelState.traffic.signalProgress = 0;
+state.levelState.traffic.carsMayMove = false;
+state.levelState.traffic.pedestriansMayCross = false;
+state.levelState.traffic.fountainClock = ...
+    traffic.fountainActiveDuration + 0.05;
+state.levelState.traffic.fountainPhase = ...
+    state.levelState.traffic.fountainClock;
+state.levelState.traffic.jetActive = false;
+state.levelState.traffic.fountainCooldowns(:) = 0;
+state.levelState.traffic.crowd = traffic.crowdData(:, 1:4);
+state.levelState.dynamicObjects.traffic.cars = cars;
+state.levelState.dynamicObjects.traffic.crowd = ...
+    traffic.crowdData(:, 1:4);
+
+state.levelState.lexue.taskElapsed = ...
+    -world.mechanic.lexue.taskResetGrace;
+state.levelState.lexue.taskCards = zeros(0, 4);
+state.levelState.dynamicObjects.lexue.taskCards = zeros(0, 4);
+state.levelState.animals.sneezeWarning = 0;
+state.levelState.animals.sneezeTarget = 0;
+state.levelState.network.credentialsTimer = 0;
+state.levelState.network.loginTimer = 0;
+state.status.hitCooldown = 0;
+state.inventory.useHeldTime = 0;
+state.inventory.useLatched = false;
+state.completed = false;
 end
 
 function state = createTrajectoryAid(state)

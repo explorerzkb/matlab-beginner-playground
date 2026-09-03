@@ -31,6 +31,7 @@ assert(all(state.players(1).vel == firstVelocity) && ...
     'Fountain retriggered during the player cooldown.');
 
 state.levelTime = world.mechanic.traffic.fountainActiveDuration + 0.1;
+state.levelState.traffic.fountainClock = state.levelTime;
 state.levelState.traffic.fountainCooldowns(:) = 0;
 state.players(1).vel = [0, 0];
 state = stepWorldTraffic(state, world, cfg, 0.01);

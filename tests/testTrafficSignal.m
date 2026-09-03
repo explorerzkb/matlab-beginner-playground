@@ -32,6 +32,7 @@ state = stepWorldTraffic(state, world, cfg, 0.5);
 assert(abs(state.stats.trafficWaitTime - 0.5) < 1e-9, ...
     'Waiting during vehicle green was not measured.');
 state.levelTime = 4.4;
+state.levelState.traffic.signalClock = state.levelTime;
 state = stepWorldTraffic(state, world, cfg, 0.5);
 assert(abs(state.stats.trafficWaitTime - 0.5) < 1e-9, ...
     'Pedestrian green incorrectly counted as waiting time.');

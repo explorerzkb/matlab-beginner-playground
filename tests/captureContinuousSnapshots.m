@@ -53,6 +53,7 @@ for index = 1:numel(sceneNames)
             state.players(1).pos = [100.3, 1.0];
             state.players(2).pos = [101.8, 1.0];
             state.levelTime = 4.4;
+            state.levelState.traffic.signalClock = state.levelTime;
             state.levelState.traffic.route = 'lower';
             state.stats.trafficRoute = '红绿灯';
         case 'lexue'

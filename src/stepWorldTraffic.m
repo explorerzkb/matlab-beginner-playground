@@ -8,6 +8,12 @@ end
 if ~isfield(state.levelState.traffic, 'fountainCooldowns')
     state.levelState.traffic.fountainCooldowns = zeros(1, 2);
 end
+if ~isfield(state.levelState.traffic, 'fountainClock')
+    state.levelState.traffic.fountainClock = state.levelTime;
+else
+    state.levelState.traffic.fountainClock = ...
+        state.levelState.traffic.fountainClock + dt;
+end
 if ~isfield(state.levelState.traffic, 'route')
     state.levelState.traffic.route = 'undecided';
     state.levelState.traffic.routeCandidate = 'none';
@@ -18,7 +24,8 @@ if ~isfield(state.levelState.traffic, 'cars')
 end
 state.levelState.traffic.fountainCooldowns = max(0, ...
     state.levelState.traffic.fountainCooldowns - dt);
-phase = mod(state.levelTime, traffic.fountainPeriod);
+phase = mod(state.levelState.traffic.fountainClock, ...
+    traffic.fountainPeriod);
 jetActive = phase < traffic.fountainActiveDuration;
 
 if jetActive
@@ -75,7 +82,14 @@ if strcmp(state.levelState.traffic.route, 'undecided')
     end
 end
 
-[signalPhase, phaseProgress] = signalAtTime(traffic, state.levelTime);
+if ~isfield(state.levelState.traffic, 'signalClock')
+    state.levelState.traffic.signalClock = state.levelTime;
+else
+    state.levelState.traffic.signalClock = ...
+        state.levelState.traffic.signalClock + dt;
+end
+[signalPhase, phaseProgress] = signalAtTime(traffic, ...
+    state.levelState.traffic.signalClock);
 state.levelState.traffic.signalPhase = signalPhase;
 state.levelState.traffic.signalProgress = phaseProgress;
 state.levelState.traffic.carsMayMove = strcmp(signalPhase, 'vehicleGreen') || ...

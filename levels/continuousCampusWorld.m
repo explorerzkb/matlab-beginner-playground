@@ -124,5 +124,6 @@ world.mechanic.lexue.taskCardData = [ ...
     176.0, 3.3, 1.35, 1.05, 1.3, 3.5, 2.8, 1, 4.5];
 world.mechanic.lexue.taskKnockback = [3.8, 4.2];
 world.mechanic.lexue.taskHorizontalSpeedCap = 5.5;
+world.mechanic.lexue.taskResetGrace = 1.2;
 world.background = 'continuousCampus';
 end

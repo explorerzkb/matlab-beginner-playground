@@ -21,6 +21,7 @@ for index = 1:size(waitingCrowd, 1)
 end
 
 state.levelTime = 5.8;
+state.levelState.traffic.signalClock = state.levelTime;
 state = stepWorldTraffic(state, world, cfg, 0);
 crossingCrowd = state.levelState.traffic.crowd;
 assert(any(arrayfun(@(index) rectanglesOverlap( ...
