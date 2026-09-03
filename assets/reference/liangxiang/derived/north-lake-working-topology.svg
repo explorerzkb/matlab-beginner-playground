@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">北湖局部空间结构工作图</title>
+  <desc id="desc">北向上、非等比例，显示北湖白桥、亭廊、北湖红桥、生态岛、动物区域、思源榭和南侧图书馆区域的大致关系。</desc>
+  <defs>
+    <style>
+      .t { font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif; fill: #1f2937; }
+      .big { font-size: 32px; font-weight: 800; }
+      .mid { font-size: 22px; font-weight: 700; }
+      .small { font-size: 16px; fill: #4d6472; }
+      .shore { fill: none; stroke: #4b8f79; stroke-width: 22; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#17384d" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1000" fill="#f8f6f0"/>
+  <text x="70" y="65" class="t big">北湖局部空间结构工作图</text>
+  <text x="70" y="100" class="t small">地图定大致方位，同框照片定局部邻接；不是测绘图，也不是已经冻结的玩家步行顺序</text>
+  <g transform="translate(1470 52)">
+    <path d="M0 48 L20 0 L40 48 Z" fill="#2f6e5a"/>
+    <text x="20" y="74" text-anchor="middle" class="t mid">北</text>
+  </g>
+
+  <rect x="75" y="135" width="1450" height="95" rx="22" fill="#eaddeb" stroke="#876b86" stroke-width="3"/>
+  <text x="800" y="177" text-anchor="middle" class="t mid">北侧：宿舍带、篮球区域与树林／建筑背景</text>
+  <text x="800" y="207" text-anchor="middle" class="t small">这一整条背景位于北湖北侧，不与南区疏桐园混用</text>
+
+  <path d="M150 330 C260 260 400 270 505 330 C610 390 695 275 820 315 C945 355 1035 260 1180 310 C1300 350 1410 350 1470 430 L1435 665 C1280 715 1120 690 980 720 C805 758 650 680 510 720 C360 765 210 700 125 620 Z" fill="#cfe9ed" stroke="#4b8f79" stroke-width="6"/>
+  <text x="790" y="520" text-anchor="middle" class="t" font-size="38" font-weight="800" fill="#39788a">北湖水面</text>
+
+  <g filter="url(#shadow)">
+    <rect x="145" y="270" width="350" height="140" rx="24" fill="#fff4df" stroke="#8d7043" stroke-width="3"/>
+    <text x="320" y="316" text-anchor="middle" class="t mid">西侧江南园林组团</text>
+    <text x="320" y="351" text-anchor="middle" class="t" font-size="20">白色拱桥 + 深色中式亭廊</text>
+    <text x="320" y="382" text-anchor="middle" class="t small">校方改造说明与同框照确认相邻</text>
+
+    <path d="M625 600 L625 475 L835 475 L835 560 L960 560" fill="none" stroke="#a84b38" stroke-width="24" stroke-linecap="square" stroke-linejoin="miter"/>
+    <rect x="595" y="585" width="405" height="78" rx="18" fill="#fff1ec" stroke="#a84b38" stroke-width="3"/>
+    <text x="797" y="618" text-anchor="middle" class="t mid">西侧进入湖中段：北湖红桥</text>
+    <text x="797" y="645" text-anchor="middle" class="t small">可步行、不是白桥延长段；未证实连通两岸</text>
+
+    <ellipse cx="1180" cy="435" rx="165" ry="96" fill="#b9d5a8" stroke="#5d8650" stroke-width="5"/>
+    <circle cx="1125" cy="405" r="32" fill="#5f8a56"/>
+    <circle cx="1185" cy="382" r="39" fill="#4c7d48"/>
+    <circle cx="1245" cy="420" r="35" fill="#668f5a"/>
+    <text x="1180" y="470" text-anchor="middle" class="t mid">东部树木小岛</text>
+    <text x="1180" y="500" text-anchor="middle" class="t small">水中生态岛，不等于动物区</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="120" y="740" width="310" height="105" rx="22" fill="#dfeaca" stroke="#6b8d55" stroke-width="3"/>
+    <text x="275" y="781" text-anchor="middle" class="t mid">西南岸孔雀绿地</text>
+    <text x="275" y="815" text-anchor="middle" class="t small">动物可移动，只冻结区域关系</text>
+
+    <rect x="470" y="740" width="370" height="105" rx="22" fill="#e8edc9" stroke="#7f9250" stroke-width="3"/>
+    <text x="655" y="781" text-anchor="middle" class="t mid">南岸偏西：动物区域</text>
+    <text x="655" y="815" text-anchor="middle" class="t small">羊驼等活动区；与湖心岛分开</text>
+
+    <rect x="1120" y="700" width="330" height="105" rx="22" fill="#eee2cb" stroke="#977c52" stroke-width="3"/>
+    <text x="1285" y="741" text-anchor="middle" class="t mid">东南岸：思源榭区域</text>
+    <text x="1285" y="775" text-anchor="middle" class="t small">较高置信；不与西侧亭廊混名</text>
+  </g>
+
+  <rect x="75" y="865" width="1450" height="55" rx="16" fill="#ead8a5" stroke="#aa7c2d" stroke-width="3"/>
+  <text x="800" y="900" text-anchor="middle" class="t mid">勤奋路／校内道路：北湖与更南侧公共建筑之间的过渡</text>
+  <rect x="360" y="936" width="880" height="48" rx="16" fill="#dce7f4" stroke="#6982a0" stroke-width="3"/>
+  <text x="800" y="968" text-anchor="middle" class="t" font-size="19" font-weight="700">再向南：徐特立图书馆与校训广场一带（不是贴湖岸背景）</text>
+</svg>
