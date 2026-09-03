@@ -8,9 +8,17 @@ if ~state.render.initialized || state.render.levelId ~= level.id
 end
 handles = state.render.handles;
 
-cameraCentre = mean([state.players(1).pos(1), state.players(2).pos(1)]);
+cameraTarget = mean([state.players(1).pos(1), state.players(2).pos(1)]);
+if ~isfield(state.render, 'cameraCentre')
+    state.render.cameraCentre = cameraTarget;
+else
+    state.render.cameraCentre = state.render.cameraCentre + ...
+        0.22 * (cameraTarget - state.render.cameraCentre);
+end
+cameraCentre = state.render.cameraCentre;
 halfView = cfg.render.viewportWidth / 2;
 cameraCentre = min(max(cameraCentre, halfView), level.worldWidth - halfView);
+state.render.cameraCentre = cameraCentre;
 xBounds = [cameraCentre - halfView, cameraCentre + halfView];
 xlim(ax, xBounds);
 ylim(ax, [-0.4, cfg.render.worldHeight]);
