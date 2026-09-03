@@ -139,4 +139,69 @@ for index = 1:2
         [rect(1) + rect(3) / 2, rect(2) + rect(4) / 2, 0], ...
         'Visible', 'on');
 end
+
+traffic = state.levelState.traffic;
+fountain = state.levelState.dynamicObjects.traffic.fountain;
+base = [fountain(1), fountain(2), fountain(3), 0.45];
+set(handles.continuous.fountainBase, 'Position', base, 'Visible', 'on');
+jetX = fountain(1) + fountain(3) / 2;
+if traffic.jetActive
+    jetTop = fountain(2) + fountain(4);
+    jetColor = [0.66, 0.94, 1.0];
+else
+    jetTop = fountain(2) + 1.0;
+    jetColor = [0.35, 0.68, 0.80];
+end
+set(handles.continuous.fountainJet, 'XData', [jetX, jetX], ...
+    'YData', [fountain(2) + 0.2, jetTop], 'Color', jetColor, ...
+    'Visible', 'on');
+set(handles.continuous.fountainLabel, 'Position', ...
+    [jetX, fountain(2) + fountain(4) + 0.28, 0], 'Visible', 'on');
+
+set(handles.continuous.signalHousing, 'Visible', 'on');
+lightPositions = [7.15, 6.08, 5.02];
+lightColors = repmat([0.27, 0.29, 0.30], 3, 1);
+switch traffic.signalPhase
+    case 'vehicleGreen'
+        lightColors(3, :) = [0.22, 0.84, 0.36];
+        signalLabel = '车行绿灯';
+    case 'yellow'
+        lightColors(2, :) = [0.96, 0.76, 0.16];
+        signalLabel = '黄灯';
+    case 'pedestrianGreen'
+        lightColors(1, :) = [0.86, 0.22, 0.20];
+        signalLabel = '行人绿灯';
+    otherwise
+        lightColors(1, :) = [0.86, 0.22, 0.20];
+        signalLabel = '全红';
+end
+for index = 1:3
+    set(handles.continuous.signalLights(index), ...
+        'XData', 105.82, 'YData', lightPositions(index), ...
+        'MarkerFaceColor', lightColors(index, :), 'Visible', 'on');
+end
+set(handles.continuous.signalLabel, 'String', signalLabel, 'Visible', 'on');
+
+switch traffic.route
+    case 'upper'
+        routeLabel = '路线：北理桥';
+        routeColor = [0.16, 0.48, 0.69];
+    case 'lower'
+        routeLabel = '路线：红绿灯';
+        routeColor = [0.56, 0.28, 0.16];
+    otherwise
+        routeLabel = '两人共同选择上桥或过街';
+        routeColor = [0.28, 0.32, 0.35];
+end
+set(handles.continuous.routeLabel, 'String', routeLabel, ...
+    'Color', routeColor, 'Visible', 'on');
+
+for index = 1:size(traffic.cars, 1)
+    set(handles.continuous.cars(index), 'Position', traffic.cars(index, :), ...
+        'Visible', 'on');
+end
+for index = 1:size(traffic.crowd, 1)
+    set(handles.continuous.crowd(index), ...
+        'Position', traffic.crowd(index, :), 'Visible', 'on');
+end
 end

@@ -59,6 +59,10 @@ for stripeX = 81:4.5:130
     plot(ax, [stripeX, min(stripeX + 2.2, 132)], [2.5, 2.5], '-', ...
         'Color', [0.95, 0.92, 0.65], 'LineWidth', 1.4);
 end
+for stripeX = 103.05:1.15:109.0
+    rectangle(ax, 'Position', [stripeX, 0.78, 0.58, 3.15], ...
+        'FaceColor', [0.94, 0.94, 0.92], 'EdgeColor', 'none');
+end
 for supportX = [92, 104, 113, 124]
     plot(ax, [supportX, supportX], [4.1, 6.0], '-', ...
         'Color', [0.31, 0.35, 0.38], 'LineWidth', 3.0);
