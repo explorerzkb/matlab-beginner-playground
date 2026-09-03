@@ -83,5 +83,8 @@ world.mechanic.traffic.fountainPeriod = 2.4;
 world.mechanic.traffic.fountainActiveDuration = 0.72;
 world.mechanic.traffic.fountainImpulse = [5.2, 15.0];
 world.mechanic.traffic.fountainCooldown = 0.9;
+world.mechanic.traffic.upperRouteZone = [90.0, 5.50, 8.0, 1.65];
+world.mechanic.traffic.lowerRouteZone = [90.0, 1.00, 8.0, 1.65];
+world.mechanic.traffic.routeHoldDuration = 0.35;
 world.background = 'continuousCampus';
 end

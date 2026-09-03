@@ -4,6 +4,9 @@ function state = stepWorldTraffic(state, world, ~, dt)
 traffic = world.mechanic.traffic;
 if ~isfield(state.levelState, 'traffic')
     state.levelState.traffic.fountainCooldowns = zeros(1, 2);
+    state.levelState.traffic.route = 'undecided';
+    state.levelState.traffic.routeCandidate = 'none';
+    state.levelState.traffic.routeTimer = 0;
 end
 state.levelState.traffic.fountainCooldowns = max(0, ...
     state.levelState.traffic.fountainCooldowns - dt);
@@ -30,7 +33,52 @@ end
 
 state.levelState.traffic.fountainPhase = phase;
 state.levelState.traffic.jetActive = jetActive;
+
+if strcmp(state.levelState.traffic.route, 'undecided')
+    upperReady = all(playersInRect(state.players, traffic.upperRouteZone));
+    lowerReady = all(playersInRect(state.players, traffic.lowerRouteZone));
+    if upperReady
+        candidate = 'upper';
+    elseif lowerReady
+        candidate = 'lower';
+    else
+        candidate = 'none';
+    end
+    if strcmp(candidate, state.levelState.traffic.routeCandidate) && ...
+            ~strcmp(candidate, 'none')
+        state.levelState.traffic.routeTimer = min( ...
+            traffic.routeHoldDuration, ...
+            state.levelState.traffic.routeTimer + dt);
+    elseif ~strcmp(candidate, 'none')
+        state.levelState.traffic.routeCandidate = candidate;
+        state.levelState.traffic.routeTimer = dt;
+    else
+        state.levelState.traffic.routeCandidate = 'none';
+        state.levelState.traffic.routeTimer = max(0, ...
+            state.levelState.traffic.routeTimer - 1.5 * dt);
+    end
+    if state.levelState.traffic.routeTimer >= traffic.routeHoldDuration
+        state.levelState.traffic.route = candidate;
+        if strcmp(candidate, 'upper')
+            state.stats.trafficRoute = '北理桥';
+        else
+            state.stats.trafficRoute = '红绿灯';
+        end
+    end
+end
+
 state.levelState.dynamicObjects.traffic.fountain = traffic.fountainRect;
+state.levelState.dynamicObjects.traffic.upperRouteZone = ...
+    traffic.upperRouteZone;
+state.levelState.dynamicObjects.traffic.lowerRouteZone = ...
+    traffic.lowerRouteZone;
+end
+
+function occupancy = playersInRect(players, rect)
+occupancy = false(1, 2);
+for playerIndex = 1:2
+    occupancy(playerIndex) = playerOverlaps(players(playerIndex), rect);
+end
 end
 
 function tf = playerOverlaps(player, rect)
