@@ -17,7 +17,7 @@ end
 
 if state.players(1).pos(2) < world.killY || ...
         state.players(2).pos(2) < world.killY
-    state.requestReset = true;
+    state = applyBreakEvent(state, cfg, 'major');
 end
 
 state.completed = playerOverlaps(state.players(1), world.finish) && ...
