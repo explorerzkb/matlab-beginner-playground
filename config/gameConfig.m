@@ -30,6 +30,7 @@ cfg.render.viewportWidth = 22;
 cfg.render.worldHeight = 13;
 cfg.render.marginY = 0.25;
 cfg.render.fontName = 'Microsoft YaHei';
+cfg.render.loginTextureStride = 2;
 
 cfg.runtime.testMode = false;
 cfg.runtime.lowPowerMode = false;

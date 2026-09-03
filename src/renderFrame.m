@@ -338,8 +338,11 @@ switch level.mechanic.type
             'Visible', 'on');
         if isequal(size(get(handles.cardImage, 'CData')), [2, 2, 3])
             [rgb, ~, alpha] = imread(cfg.assets.loginImage);
+            stride = max(1, round(cfg.render.loginTextureStride));
+            rgb = rgb(1:stride:end, 1:stride:end, :);
             set(handles.cardImage, 'CData', flipud(rgb));
             if ~isempty(alpha)
+                alpha = alpha(1:stride:end, 1:stride:end);
                 set(handles.cardImage, 'AlphaData', flipud(alpha), ...
                     'AlphaDataMapping', 'none', 'FaceAlpha', 'texturemap');
             end
