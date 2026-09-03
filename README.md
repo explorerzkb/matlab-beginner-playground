@@ -11,7 +11,8 @@
 1. [`docs/current-project-state.md`](docs/current-project-state.md)：当前阶段、已经确认的事实和最近一步；
 2. [`docs/game-spec-v1.md`](docs/game-spec-v1.md)：首版游戏的唯一产品与玩法规格；
 3. [`docs/implementation-plan.md`](docs/implementation-plan.md)：代码结构、开发顺序和阶段验收；
-4. [`assets/reference/README.md`](assets/reference/README.md)：当前关卡允许使用的设计参考。
+4. 涉及画面或场景时读取 [`docs/visual-spatial-sop.md`](docs/visual-spatial-sop.md)：图片、建模和空间合理性的强制检查；
+5. [`assets/reference/README.md`](assets/reference/README.md)：当前关卡允许使用的设计参考。现实场景任务还必须实际打开索引点名的图片，不能停在索引页。
 
 项目协作规则见 [`AGENTS.md`](AGENTS.md)，Git 与发布规则见 [`VERSIONING.md`](VERSIONING.md)。
 
