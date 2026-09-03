@@ -22,6 +22,7 @@ testTeaPickups();
 testCheckpointReset();
 fprintf('Running North Lake checks...\n');
 testWorldAnimals();
+testAlpacaShortcut();
 fprintf('Running campus-network checks...\n');
 testNetworkCheckpoint();
 testNetworkCredentials();

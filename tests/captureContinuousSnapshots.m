@@ -17,7 +17,8 @@ addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 cfg.runtime.testMode = true;
 world = continuousCampusWorld();
-sceneNames = {'origin', 'north-lake', 'north-lake-east', 'network', ...
+sceneNames = {'origin', 'north-lake', 'north-lake-shortcut', ...
+    'north-lake-east', 'network', ...
     'traffic-bridge', ...
     'traffic-signal', 'lexue', 'lexue-tasks', 'lucy'};
 fig = figure('Visible', 'off', 'Position', [50, 50, 1280, 720], ...
@@ -43,6 +44,15 @@ for index = 1:numel(sceneNames)
             state.players(2).pos = [54.4, 1.0];
             state.levelTime = 1.2;
             cameraStart = 53.0;
+        case 'north-lake-shortcut'
+            bridge = world.mechanic.animals.shortcutPlatforms;
+            state.players(1).pos = [bridge(1) + 2.0, ...
+                bridge(2) + bridge(4)];
+            state.players(2).pos = [42.0, 1.0];
+            state.levelState.animals.shortcutReached = true;
+            state.stats.alpacaShortcutUses = 1;
+            state.levelTime = 1.2;
+            cameraStart = 46.0;
         case 'network'
             username = world.mechanic.network.usernameField;
             password = world.mechanic.network.passwordField;
