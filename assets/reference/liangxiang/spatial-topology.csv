@@ -4,8 +4,6 @@ jingyuan_services,静园与学生服务区域,north_lake,北湖,southwest_of,hig
 teaching_library,综教行政楼与徐特立图书馆,north_lake,北湖,south_of,high,2022校方地图+2024学生地图+2026学生地图,北湖转数字系统事件时可采用章节过渡
 east_residential,甘棠园东食堂与勤园,north_lake,北湖,east_of,high,2024学生地图+2026学生地图,不能把勤园误放到北湖西岸
 east_canteen,东食堂,qinyuan,勤园,west_of,high,2026学生文章文字+地图,从东食堂向东接近勤园可作为真实入口
-qinyuan_road,勤园外部道路,qinyuan_sunken_court,勤园下沉球场,leads_to,high,2026学生文章连续叙述与照片01-03,可压缩距离但保留由地面进入下沉空间的层次
-qinyuan_sunken_court,勤园下沉球场,qinyuan_escalator,勤园扶梯与台阶,adjacent,high,2026学生文章连续叙述与照片02-03,适合形成双人绳索高低差
 teaching_library,综教行政楼与徐特立图书馆,wencui,文萃楼群,west_of,high,2022校方地图+2024学生地图+2026学生地图,文萃必须表现为建筑群而非孤立通用楼
 wencui,文萃楼群,wenti_defense,文体中心国防文化广场与体育馆,west_of,high,2022校方地图+2024学生地图+2026学生地图,进入顺序仍需地面连续路线核验
 gymnasium,体育馆,defense_square,国防文化广场,adjacent,high,2025航拍+2025至2026学生夜景同框,可以构成一个连续场景包

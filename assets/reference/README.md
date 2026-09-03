@@ -14,4 +14,4 @@
 
 ## 良乡校区视觉与空间参考库
 
-校园地图、2023—2026 年学生视角照片、视频索引、来源登记和派生结构图统一保存在 [`liangxiang/`](liangxiang/README.md)。关卡设计不能只从单张照片挑选地标，必须先依据 [`liangxiang/spatial-structure.md`](liangxiang/spatial-structure.md)检查真实分区、相邻关系、部分步行路线及尚未确认的结构。
+精简后的校园地图、核心区域照片、校车素材、视频索引、来源登记和派生结构图统一保存在 [`liangxiang/`](liangxiang/README.md)。这套资料服务于后续继续完成游戏的 Codex；先通过 [`liangxiang/INDEX.md`](liangxiang/INDEX.md)选择首选原图和设计用途，必要时再用 [`liangxiang/catalog.csv`](liangxiang/catalog.csv)核对文件路径与哈希。MATLAB 运行时不直接读取参考库。关卡设计不能只从单张照片挑选地标，必须先依据 [`liangxiang/spatial-structure.md`](liangxiang/spatial-structure.md)检查真实分区、相邻关系、部分步行路线及尚未确认的结构。
