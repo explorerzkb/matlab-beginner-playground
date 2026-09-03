@@ -25,6 +25,20 @@ cfg.rope.maxTension = 72;
 cfg.rope.positionCorrection = 0.62;
 cfg.rope.pullCountThreshold = 8;
 
+cfg.break.maxValue = 6;
+cfg.break.minorIncrease = 1;
+cfg.break.majorIncrease = 2;
+cfg.break.respawnValue = 3;
+cfg.break.hitCooldown = 0.8;
+
+cfg.tea.maxCarried = 2;
+cfg.tea.breakReduction = 2;
+cfg.tea.useHoldDuration = 0.35;
+cfg.tea.buffDuration = 6.0;
+cfg.tea.runAccelerationMultiplier = 1.15;
+cfg.tea.jumpMultiplier = 1.08;
+cfg.tea.knockbackMultiplier = 0.50;
+
 cfg.render.targetHz = 30;
 cfg.render.viewportWidth = 22;
 cfg.render.worldHeight = 13;
