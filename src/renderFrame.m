@@ -582,9 +582,10 @@ end
 squash = 1 / sqrt(stretch);
 tilt = max(-0.18, min(0.18, -player.vel(1) * 0.018));
 
-yNorm = linspace(0, 1, 36)';
-halfWidth = 0.47 * sin(pi * yNorm) .^ 0.66 .* (1.18 - 0.45 * yNorm);
-halfWidth([1, end]) = 0.055;
+yNorm = linspace(0, 1, 44)';
+halfWidth = 0.06 + ...
+    0.42 * sin(pi * yNorm) .^ 0.70 .* (1.15 - 0.45 * yNorm) + ...
+    0.23 * (1 - yNorm) .^ 5;
 left = [-flipud(halfWidth), flipud(yNorm)];
 right = [halfWidth(2:end), yNorm(2:end)];
 local = [left; right];
@@ -648,7 +649,14 @@ switch face.name
     case 'joy'
         set(handles.blush, 'XData', player.pos(1) + [-0.31, 0.31] * width, ...
             'YData', [mouthY + 0.08 * height, mouthY + 0.08 * height]);
-        mouthCurve = mouthY + [0.05, 0.005, -0.025, 0.005, 0.05] * height;
+        set(handles.eyeWhites, 'XData', nan, 'YData', nan);
+        set(handles.pupils, 'XData', nan, 'YData', nan);
+        set(handles.eyeLines, 'XData', player.pos(1) + ...
+            [-0.27, -0.18, -0.09, nan, 0.09, 0.18, 0.27] * width, ...
+            'YData', eyeY + [0.00, 0.055, 0.00, nan, ...
+            0.00, 0.055, 0.00] * height);
+        mouthX = player.pos(1) + [-0.18, -0.09, 0, 0.09, 0.18] * width;
+        mouthCurve = mouthY + [0.08, 0.005, -0.07, 0.005, 0.08] * height;
     case 'surprised'
         mouthX = player.pos(1) + 0.075 * width * cos(t);
         mouthCurve = mouthY + 0.085 * height * sin(t);

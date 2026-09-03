@@ -1,7 +1,21 @@
-function handles = updateContinuousMechanic(handles, state, world, ~)
+function handles = updateContinuousMechanic(handles, state, world, cfg)
 %UPDATECONTINUOUSMECHANIC Update animals and shared iced-tea pickups.
 
 animals = state.levelState.animals;
+cameraCentre = state.render.cameraCentre;
+halfView = cfg.render.viewportWidth / 2 + 1.5;
+animalRegionVisible = cameraCentre + halfView >= 12 && ...
+    cameraCentre - halfView <= 64;
+animalDetailVisible = cameraCentre + halfView >= 37 && ...
+    cameraCentre - halfView <= 43;
+trafficDetailVisible = cameraCentre + halfView >= 96 && ...
+    cameraCentre - halfView <= 148;
+networkRegionVisible = cameraCentre + halfView >= 64 && ...
+    cameraCentre - halfView <= 96;
+lexueRegionVisible = cameraCentre + halfView >= 148 && ...
+    cameraCentre - halfView <= 194;
+
+if animalRegionVisible
 for index = 1:size(animals.geeseRects, 1)
     rect = animals.geeseRects(index, :);
     t = linspace(0, 2 * pi, 20);
@@ -33,15 +47,59 @@ for index = 1:size(animals.duckRects, 1)
     set(handles.duckBeaks(index), 'XData', headX + 0.12 * rect(3), ...
         'YData', headY, 'Visible', 'on');
 end
+else
+    hideMany(handles.geese, handles.gooseNecks, handles.gooseHeads, ...
+        handles.gooseBeaks, handles.ducks, handles.duckHeads, ...
+        handles.duckBeaks);
+end
 
+if animalDetailVisible
 alpaca = animals.alpacaRect;
 head = [alpaca(1) + 1.25, alpaca(2) + 0.72, 0.72, 1.18];
-set(handles.continuous.alpacaBody, 'Position', alpaca, 'Visible', 'on');
-set(handles.continuous.alpacaHead, 'Position', head, 'Visible', 'on');
+theta = linspace(0, 2 * pi, 32);
+bodyX = alpaca(1) + alpaca(3) * (0.50 + 0.49 * cos(theta));
+bodyY = alpaca(2) + alpaca(4) * (0.46 + 0.43 * sin(theta));
+set(handles.continuous.alpacaBody, 'XData', bodyX, 'YData', bodyY, ...
+    'Visible', 'on');
+neckX = [alpaca(1) + 1.18, alpaca(1) + 1.78, ...
+    alpaca(1) + 1.74, alpaca(1) + 1.35];
+neckY = [alpaca(2) + 0.48, alpaca(2) + 0.54, ...
+    alpaca(2) + 1.62, alpaca(2) + 1.58];
+set(handles.continuous.alpacaNeck, 'XData', neckX, 'YData', neckY, ...
+    'Visible', 'on');
+headX = head(1) + head(3) * (0.50 + 0.49 * cos(theta));
+headY = head(2) + head(4) * (0.50 + 0.48 * sin(theta));
+set(handles.continuous.alpacaHead, 'XData', headX, 'YData', headY, ...
+    'Visible', 'on');
+earBaseY = head(2) + 0.96 * head(4);
+earCentres = head(1) + head(3) * [0.27, 0.70];
+for index = 1:2
+    earX = earCentres(index) + head(3) * [-0.13, 0, 0.12];
+    earY = earBaseY + head(4) * [0, 0.34, 0.01];
+    set(handles.continuous.alpacaEars(index), ...
+        'XData', earX, 'YData', earY, 'Visible', 'on');
+end
+eyeY = head(2) + 0.63 * head(4);
+set(handles.continuous.alpacaEyes, ...
+    'XData', head(1) + head(3) * [0.31, 0.65], ...
+    'YData', [eyeY, eyeY], 'Visible', 'on');
+muzzleTheta = linspace(0, 2 * pi, 24);
+muzzleX = head(1) + 0.51 * head(3) + 0.27 * head(3) * cos(muzzleTheta);
+muzzleY = head(2) + 0.33 * head(4) + 0.17 * head(4) * sin(muzzleTheta);
+set(handles.continuous.alpacaMuzzle, 'XData', muzzleX, ...
+    'YData', muzzleY, 'Visible', 'on');
+set(handles.continuous.alpacaMouth, ...
+    'XData', head(1) + head(3) * [0.41, 0.51, 0.61], ...
+    'YData', head(2) + head(4) * [0.28, 0.23, 0.28], ...
+    'Visible', 'on');
+set(handles.continuous.alpacaBlush, ...
+    'XData', head(1) + head(3) * [0.23, 0.77], ...
+    'YData', head(2) + head(4) * [0.38, 0.38], 'Visible', 'on');
 nose = world.mechanic.animals.alpacaNose;
 set(handles.continuous.alpacaNose, ...
-    'XData', nose(1) + 0.76 * nose(3), ...
-    'YData', nose(2) + 0.52 * nose(4), 'Visible', 'on');
+    'XData', head(1) + 0.51 * head(3), ...
+    'YData', head(2) + 0.38 * head(4), 'MarkerSize', 4.5, ...
+    'Visible', 'on');
 legX = alpaca(1) + [0.35, 0.35, nan, 1.45, 1.45];
 legY = alpaca(2) + [0.20, -0.32, nan, 0.20, -0.32];
 set(handles.continuous.alpacaLegs, 'XData', legX, ...
@@ -53,18 +111,41 @@ if animals.sneezeWarning > 0
     set(handles.continuous.alpacaWarning, ...
         'Position', [alpaca(1) + alpaca(3) / 2, ...
         alpaca(2) + alpaca(4) + 1.0, 0], 'Visible', 'on');
+    puffPhase = 0.08 + 0.12 * sin(5 * animals.sneezeWarning);
+    set(handles.continuous.alpacaSneezePuffs, ...
+        'XData', nose(1) + nose(3) * [0.75, 1.05, 1.38], ...
+        'YData', nose(2) + nose(4) * ([0.52, 0.68, 0.43] + puffPhase), ...
+        'MarkerSize', 7 + 8 * animals.sneezeWarning, 'Visible', 'on');
 else
     set(handles.continuous.alpacaWarning, 'Visible', 'off');
+    set(handles.continuous.alpacaSneezePuffs, 'Visible', 'off');
+end
+else
+    set(handles.continuous.alpacaBody, 'Visible', 'off');
+    set(handles.continuous.alpacaNeck, 'Visible', 'off');
+    set(handles.continuous.alpacaHead, 'Visible', 'off');
+    set(handles.continuous.alpacaEars, 'Visible', 'off');
+    set(handles.continuous.alpacaEyes, 'Visible', 'off');
+    set(handles.continuous.alpacaMuzzle, 'Visible', 'off');
+    set(handles.continuous.alpacaMouth, 'Visible', 'off');
+    set(handles.continuous.alpacaBlush, 'Visible', 'off');
+    set(handles.continuous.alpacaNose, 'Visible', 'off');
+    set(handles.continuous.alpacaLegs, 'Visible', 'off');
+    set(handles.continuous.alpacaLabel, 'Visible', 'off');
+    set(handles.continuous.alpacaWarning, 'Visible', 'off');
+    set(handles.continuous.alpacaSneezePuffs, 'Visible', 'off');
 end
 
 for index = 1:numel(world.mechanic.tea)
     pickup = world.mechanic.tea(index);
     collected = any(state.inventory.collectedTeaIds == string(pickup.id));
-    if collected
+    rect = pickup.rect;
+    pickupVisible = rect(1) + rect(3) >= cameraCentre - halfView && ...
+        rect(1) <= cameraCentre + halfView;
+    if collected || ~pickupVisible
         set(handles.continuous.tea(index), 'Visible', 'off');
         set(handles.continuous.teaLabel(index), 'Visible', 'off');
     else
-        rect = pickup.rect;
         set(handles.continuous.tea(index), 'Position', rect, 'Visible', 'on');
         set(handles.continuous.teaLabel(index), 'Position', ...
             [rect(1) + rect(3) / 2, rect(2) + rect(4) + 0.18, 0], ...
@@ -72,6 +153,7 @@ for index = 1:numel(world.mechanic.tea)
     end
 end
 
+if networkRegionVisible
 networkData = state.levelState.dynamicObjects.network;
 fieldRects = [networkData.usernameField; networkData.passwordField];
 for index = 1:2
@@ -157,7 +239,21 @@ for index = 1:2
         [rect(1) + rect(3) / 2, rect(2) + rect(4) / 2, 0], ...
         'Visible', 'on');
 end
+else
+    hideMany(handles.continuous.networkFields, ...
+        handles.continuous.networkFieldLabels, ...
+        handles.continuous.networkCheckbox, ...
+        handles.continuous.networkCheckboxLabel, ...
+        handles.continuous.networkLogin, ...
+        handles.continuous.networkLoginLabel, ...
+        handles.continuous.networkGate, ...
+        handles.continuous.networkSelfService, ...
+        handles.continuous.networkSelfServiceLabel, ...
+        handles.continuous.rechargePads, ...
+        handles.continuous.rechargeLabels);
+end
 
+if trafficDetailVisible
 traffic = state.levelState.traffic;
 fountain = state.levelState.dynamicObjects.traffic.fountain;
 base = [fountain(1), fountain(2), fountain(3), 0.45];
@@ -229,14 +325,53 @@ set(handles.continuous.routeLabel, 'String', routeLabel, ...
     'Color', routeColor, 'Visible', 'on');
 
 for index = 1:size(traffic.cars, 1)
-    set(handles.continuous.cars(index), 'Position', traffic.cars(index, :), ...
+    rect = traffic.cars(index, :);
+    set(handles.continuous.cars(index), 'Position', rect, ...
         'Visible', 'on');
+    if trafficDetailVisible
+        direction = world.mechanic.traffic.carData(index, 6);
+        if direction > 0
+            windowX = rect(1) + rect(3) * [0.35, 0.73, 0.66, 0.43];
+        else
+            windowX = rect(1) + rect(3) * [0.27, 0.65, 0.57, 0.34];
+        end
+        windowY = rect(2) + rect(4) * [0.62, 0.62, 0.88, 0.88];
+        set(handles.continuous.carWindows(index), ...
+            'XData', windowX, 'YData', windowY, 'Visible', 'on');
+        set(handles.continuous.carWheels(index), ...
+            'XData', rect(1) + rect(3) * [0.24, 0.77], ...
+            'YData', rect(2) + rect(4) * [0.05, 0.05], 'Visible', 'on');
+    else
+        set(handles.continuous.carWindows(index), 'Visible', 'off');
+        set(handles.continuous.carWheels(index), 'Visible', 'off');
+    end
 end
 for index = 1:size(traffic.crowd, 1)
-    set(handles.continuous.crowd(index), ...
-        'Position', traffic.crowd(index, :), 'Visible', 'on');
+    rect = traffic.crowd(index, :);
+    colors = [0.56, 0.48, 0.76; 0.30, 0.61, 0.67; 0.83, 0.51, 0.38];
+    set(handles.continuous.crowd(index), 'Position', rect, ...
+        'FaceColor', colors(mod(index - 1, 3) + 1, :), 'Visible', 'on');
+    if trafficDetailVisible
+        set(handles.continuous.crowdHeads(index), ...
+            'XData', rect(1) + rect(3) / 2, ...
+            'YData', rect(2) + 0.88 * rect(4), 'Visible', 'on');
+    else
+        set(handles.continuous.crowdHeads(index), 'Visible', 'off');
+    end
+end
+else
+    hideMany(handles.continuous.fountainBase, ...
+        handles.continuous.fountainJet, handles.continuous.fountainLabel, ...
+        handles.continuous.signalHousing, handles.continuous.signalLights, ...
+        handles.continuous.signalLabel, handles.continuous.routeLabel, ...
+        handles.continuous.pedestrianBarrier, ...
+        handles.continuous.pedestrianBarrierLabel, ...
+        handles.continuous.cars, handles.continuous.carWindows, ...
+        handles.continuous.carWheels, handles.continuous.crowd, ...
+        handles.continuous.crowdHeads);
 end
 
+if lexueRegionVisible
 lexue = state.levelState.lexue;
 lexueObjects = state.levelState.dynamicObjects.lexue;
 remainingDigits = sprintf('%06d', min(999999, lexue.remaining));
@@ -307,6 +442,24 @@ for index = 1:numel(handles.taskCards)
     else
         set(handles.taskCards(index), 'Visible', 'off');
         set(handles.taskTexts(index), 'Visible', 'off');
+    end
+end
+else
+    hideMany(handles.continuous.countdownPlatforms, ...
+        handles.continuous.countdownLabels, ...
+        handles.continuous.lexueStartButton, ...
+        handles.continuous.lexueStartLabel, ...
+        handles.continuous.lexueGate, handles.continuous.courseCard, ...
+        handles.continuous.courseCardLabel, handles.taskCards, ...
+        handles.taskTexts);
+end
+end
+
+function hideMany(varargin)
+for groupIndex = 1:nargin
+    objects = varargin{groupIndex};
+    if ~isempty(objects)
+        set(objects, 'Visible', 'off');
     end
 end
 end
