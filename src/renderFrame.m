@@ -183,6 +183,11 @@ handles.bottleText = text(ax, 0, 0, '破防水', ...
     'HorizontalAlignment', 'center', 'FontWeight', 'bold', ...
     'FontName', cfg.render.fontName, 'Color', [0.08, 0.26, 0.48], ...
     'Visible', 'off');
+if strcmp(level.mechanic.type, 'continuousCampus')
+    handles.continuous = initializeContinuousHandles(ax, level, cfg);
+else
+    handles.continuous = struct();
+end
 
 handles.hud = text(ax, 0, 0, '', 'FontName', cfg.render.fontName, ...
     'FontWeight', 'bold', 'FontSize', 12, ...
@@ -311,6 +316,9 @@ end
 
 function handles = updateMechanic(handles, state, level, cfg)
 switch level.mechanic.type
+    case 'continuousCampus'
+        handles = updateContinuousMechanic(handles, state, level, cfg);
+
     case 'geese'
         rects = state.levelState.dynamicObjects.geese;
         for index = 1:size(rects, 1)
