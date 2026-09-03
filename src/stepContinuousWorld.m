@@ -7,6 +7,7 @@ regionIndex = findRegionIndex(centreX, world.regions);
 state.world.previousRegionIndex = state.world.activeRegionIndex;
 state.world.activeRegionIndex = regionIndex;
 state.levelState.activeRegionId = world.regions(regionIndex).id;
+state = collectTeaPickups(state, world);
 
 minimumX = min(state.players(1).pos(1), state.players(2).pos(1));
 for index = state.checkpointIndex + 1:numel(world.checkpoints)
