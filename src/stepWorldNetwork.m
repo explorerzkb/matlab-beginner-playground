@@ -63,12 +63,26 @@ if ~state.levelState.network.authenticated
     state.levelState.colliders = [state.levelState.colliders; network.authGate];
 end
 
+if ~isfield(state.levelState.network, 'elevatorRect')
+    state.levelState.network.elevatorRect = network.elevatorBase;
+end
+previousElevator = state.levelState.network.elevatorRect;
+elevator = network.elevatorBase;
+elevator(2) = elevator(2) + network.elevatorAmplitude * 0.5 * ...
+    (1 + sin(2 * pi * state.levelTime / network.elevatorPeriod - pi / 2));
+state = carryPlayersWithPlatform(state, previousElevator, elevator);
+state.levelState.network.elevatorRect = elevator;
+state.levelState.colliders = removeRect(state.levelState.colliders, ...
+    previousElevator);
+state.levelState.colliders = [state.levelState.colliders; elevator];
+
 state.levelState.dynamicObjects.network.usernameField = ...
     network.usernameField;
 state.levelState.dynamicObjects.network.passwordField = ...
     network.passwordField;
 state.levelState.dynamicObjects.network.loginButton = network.loginButton;
 state.levelState.dynamicObjects.network.authGate = network.authGate;
+state.levelState.dynamicObjects.network.elevator = elevator;
 end
 
 function rects = removeRect(rects, target)
