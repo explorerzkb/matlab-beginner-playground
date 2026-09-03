@@ -8,8 +8,8 @@ end
 
 switch state.levelState.activeRegionId
     case 'origin'
-        label = ['P1：A/D/W　P2：←/→/↑　长按 Space 饮用共享冰红茶' ...
-            '　两人被普通绳连接'];
+        label = ['P1  [A] [D] [W]　 P2  [←] [→] [↑]　 ' ...
+            '[按住 Space] 共饮冰红茶　 两人被普通绳连接'];
     case 'northLake'
         label = ['地面观察鹅鸭空档；靠近羊驼鼻子等预告，' ...
             '喷嚏会把一只梨送上红桥捷径'];
