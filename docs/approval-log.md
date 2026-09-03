@@ -33,6 +33,7 @@
 | 核验远端 SHA 与 GitHub 作者归属 | `git ls-remote` 与 GitHub 提交接口 | 远端和本地均为 `6496ce8`；账号为 `explorerzkb`，邮箱为 `explorerzkb@gmail.com` | 只读远端数据，未创建 Pull Request 或 Release |
 | 保存后续接续状态 | README、CHANGELOG、`docs/current-project-state.md` | 成功，形成独立进度提交 `8b5cd1d` | 明确记录已推送基线、待测事项和未提交重力实验 |
 | 保护来源未确认的工作树改动 | `config/gameConfig.m` 中重力 `-10` → `-20` | 保留原状，未暂存、未提交、未推送 | 避免误删或把未确认调参混入已验证基线 |
+| 按用户确认提交重力调参 | 重力 `-10` → `-20`，提交 `9949558` | Code Analyzer 0 问题、统一冒烟测试通过后独立提交 | 用户说明用途是降低单人同时测试双角色的操作负担 |
 
 ## 本轮明确未执行
 
