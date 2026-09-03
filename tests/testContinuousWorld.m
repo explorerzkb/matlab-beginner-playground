@@ -20,16 +20,17 @@ state = stepLevel(state, world, cfg, 0.1);
 assert(state.checkpointIndex == 3, ...
     'Campus-network checkbox did not become a checkpoint.');
 
-state.players(1).pos = [77, 1];
-state.players(2).pos = [78, 1];
+networkExit = world.checkpoints(4).spawn;
+state.players(1).pos = networkExit(1, :);
+state.players(2).pos = networkExit(2, :);
 state = stepLevel(state, world, cfg, 0.1);
 assert(strcmp(state.levelState.activeRegionId, 'network'), ...
     'Crossing global coordinates did not update the active region.');
 assert(state.checkpointIndex == 4, ...
     'Continuous checkpoint progress did not advance for both players.');
 
-state.players(1).pos = [181, 1];
-state.players(2).pos = [182, 1];
+state.players(1).pos = world.finish(1:2) + [0.8, 0];
+state.players(2).pos = world.finish(1:2) + [1.8, 0];
 state.levelState.lexue.homeActive = true;
 state.levelState.lexue.courseCardReached = true;
 state = stepLevel(state, world, cfg, 0.1);

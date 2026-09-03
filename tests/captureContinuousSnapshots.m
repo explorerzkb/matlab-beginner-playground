@@ -17,7 +17,8 @@ addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 cfg.runtime.testMode = true;
 world = continuousCampusWorld();
-sceneNames = {'origin', 'north-lake', 'network', 'traffic-bridge', ...
+sceneNames = {'origin', 'north-lake', 'north-lake-east', 'network', ...
+    'traffic-bridge', ...
     'traffic-signal', 'lexue', 'lexue-tasks', 'lucy'};
 fig = figure('Visible', 'off', 'Position', [50, 50, 1280, 720], ...
     'Color', [0.08, 0.12, 0.15]);
@@ -33,38 +34,44 @@ for index = 1:numel(sceneNames)
             state.players(1).pos = [4.1, 1.0];
             state.players(2).pos = [7.8, 1.0];
         case 'north-lake'
-            state.players(1).pos = [34.2, 1.0];
-            state.players(2).pos = [37.4, 1.0];
+            state.players(1).pos = [24.2, 1.0];
+            state.players(2).pos = [27.4, 1.0];
             state.levelTime = 1.2;
+            cameraStart = 25.5;
+        case 'north-lake-east'
+            state.players(1).pos = [51.2, 1.0];
+            state.players(2).pos = [54.4, 1.0];
+            state.levelTime = 1.2;
+            cameraStart = 53.0;
         case 'network'
             username = world.mechanic.network.usernameField;
             password = world.mechanic.network.passwordField;
             state.players(1).pos = [username(1) + 1.0, username(2)];
             state.players(2).pos = [password(1) + 1.0, password(2)];
             state.levelState.network.credentialsTimer = 0.72;
-            cameraStart = 64.5;
+            cameraStart = 80.5;
         case 'traffic-bridge'
-            state.players(1).pos = [91.7, 5.5];
-            state.players(2).pos = [95.1, 5.5];
+            state.players(1).pos = [107.7, 5.5];
+            state.players(2).pos = [111.1, 5.5];
             state.levelState.traffic.route = 'upper';
             state.stats.trafficRoute = '北理桥';
-            cameraStart = 92.0;
+            cameraStart = 108.0;
         case 'traffic-signal'
-            state.players(1).pos = [100.3, 1.0];
-            state.players(2).pos = [101.8, 1.0];
+            state.players(1).pos = [116.3, 1.0];
+            state.players(2).pos = [117.8, 1.0];
             state.levelTime = 4.4;
             state.levelState.traffic.signalClock = state.levelTime;
             state.levelState.traffic.route = 'lower';
             state.stats.trafficRoute = '红绿灯';
         case 'lexue'
-            state.players(1).pos = [140.3, 1.93];
-            state.players(2).pos = [143.7, 3.33];
+            state.players(1).pos = [156.3, 1.93];
+            state.players(2).pos = [159.7, 3.33];
             state.levelState.lexue.entered = true;
             state.levelState.lexue.elapsed = 0.82;
             state.levelState.lexue.lastFlipIndex = 0;
         case 'lexue-tasks'
-            state.players(1).pos = [162.9, 2.48];
-            state.players(2).pos = [164.6, 2.48];
+            state.players(1).pos = [178.9, 2.48];
+            state.players(2).pos = [180.6, 2.48];
             state.levelState.lexue.entered = true;
             state.levelState.lexue.elapsed = 6;
             state.levelState.lexue.lastFlipIndex = 6;
@@ -73,8 +80,8 @@ for index = 1:numel(sceneNames)
             state.levelState.lexue.courseCardReached = true;
             state.levelState.lexue.taskElapsed = 5;
         case 'lucy'
-            state.players(1).pos = [180.6, 1.0];
-            state.players(2).pos = [182.0, 1.0];
+            state.players(1).pos = [196.6, 1.0];
+            state.players(2).pos = [198.0, 1.0];
             state.levelState.lexue.entered = true;
             state.levelState.lexue.elapsed = 6;
             state.levelState.lexue.lastFlipIndex = 6;

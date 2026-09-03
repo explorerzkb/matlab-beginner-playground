@@ -11,7 +11,8 @@ switch state.levelState.activeRegionId
         label = ['P1：A/D/W　P2：←/→/↑　长按 Space 饮用共享冰红茶' ...
             '　两人被普通绳连接'];
     case 'northLake'
-        label = '鹅会移动；靠近羊驼鼻子等喷嚏助推，也可以稳稳绕过去';
+        label = ['鹅和鸭的体型、速度不同；观察空档再走，' ...
+            '也可靠近羊驼鼻子等待助推'];
     case 'network'
         label = ['两人分别站用户名和密码 → 踩记住密码存档 → ' ...
             '共同站登录；充值和自助服务都是物理控件'];

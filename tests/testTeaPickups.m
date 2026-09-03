@@ -9,18 +9,21 @@ cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
 state = createInitialState(world, cfg, []);
 
-state.players(1).pos = [30.5, 1.0];
+firstTea = world.mechanic.tea(1).rect;
+state.players(1).pos = [firstTea(1) + firstTea(3) / 2, firstTea(2)];
 state = collectTeaPickups(state, world);
 state = collectTeaPickups(state, world);
 assert(state.inventory.teaCount == 1 && state.stats.teaCollected == 1, ...
     'The same tea pickup was collected more than once.');
 
-state.players(1).pos = [79.1, 1.0];
+secondTea = world.mechanic.tea(2).rect;
+state.players(1).pos = [secondTea(1) + secondTea(3) / 2, secondTea(2)];
 state = collectTeaPickups(state, world);
 assert(state.inventory.teaCount == 2, ...
     'Second unique tea did not fill the shared inventory.');
 
-state.players(1).pos = [130.5, 3.45];
+thirdTea = world.mechanic.tea(3).rect;
+state.players(1).pos = [thirdTea(1) + thirdTea(3) / 2, thirdTea(2)];
 state = collectTeaPickups(state, world);
 assert(state.inventory.teaCount == 2 && ...
     numel(state.inventory.collectedTeaIds) == 2, ...

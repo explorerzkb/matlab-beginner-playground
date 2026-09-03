@@ -9,8 +9,9 @@ cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
 lexue = world.mechanic.lexue;
 state = createInitialState(world, cfg, []);
-state.players(1).pos = [140, 1];
-state.players(2).pos = [141, 1];
+lexueStart = world.regions(5).xRange(1);
+state.players(1).pos = [lexueStart + 1, 1];
+state.players(2).pos = [lexueStart + 2, 1];
 
 state = stepWorldLexue(state, world, cfg, 0.82);
 assert(state.levelState.lexue.flipWarning, ...

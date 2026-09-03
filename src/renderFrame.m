@@ -121,11 +121,19 @@ for playerIndex = 1:2
     handles.players(playerIndex) = createPear(ax, playerIndex, cfg);
 end
 
-handles.geese = gobjects(2, 1);
-handles.gooseNecks = gobjects(2, 1);
-handles.gooseHeads = gobjects(2, 1);
-handles.gooseBeaks = gobjects(2, 1);
-for index = 1:2
+gooseCount = 2;
+duckCount = 0;
+if strcmp(level.mechanic.type, 'continuousCampus')
+    gooseCount = size(level.mechanic.animals.geese, 1);
+    duckCount = size(level.mechanic.animals.ducks, 1);
+elseif strcmp(level.mechanic.type, 'geese')
+    gooseCount = size(level.mechanic.geese, 1);
+end
+handles.geese = gobjects(gooseCount, 1);
+handles.gooseNecks = gobjects(gooseCount, 1);
+handles.gooseHeads = gobjects(gooseCount, 1);
+handles.gooseBeaks = gobjects(gooseCount, 1);
+for index = 1:gooseCount
     handles.geese(index) = patch(ax, nan, nan, [0.97, 0.97, 0.93], ...
         'EdgeColor', cfg.presentation.colors.ink, 'LineWidth', 1.2, ...
         'Visible', 'off');
@@ -138,6 +146,20 @@ for index = 1:2
     handles.gooseBeaks(index) = plot(ax, nan, nan, '>', ...
         'MarkerSize', 5, 'MarkerFaceColor', [0.96, 0.55, 0.12], ...
         'MarkerEdgeColor', [0.55, 0.26, 0.06], 'Visible', 'off');
+end
+handles.ducks = gobjects(duckCount, 1);
+handles.duckHeads = gobjects(duckCount, 1);
+handles.duckBeaks = gobjects(duckCount, 1);
+for index = 1:duckCount
+    handles.ducks(index) = patch(ax, nan, nan, [0.61, 0.39, 0.20], ...
+        'EdgeColor', [0.24, 0.20, 0.13], 'LineWidth', 1.1, ...
+        'Visible', 'off');
+    handles.duckHeads(index) = plot(ax, nan, nan, 'o', ...
+        'MarkerSize', 7, 'MarkerFaceColor', [0.18, 0.46, 0.32], ...
+        'MarkerEdgeColor', [0.10, 0.24, 0.18], 'Visible', 'off');
+    handles.duckBeaks(index) = plot(ax, nan, nan, '>', ...
+        'MarkerSize', 4, 'MarkerFaceColor', [0.95, 0.64, 0.16], ...
+        'MarkerEdgeColor', [0.55, 0.31, 0.06], 'Visible', 'off');
 end
 
 handles.cardImage = surface(ax, nan(2), nan(2), zeros(2), ...
@@ -235,7 +257,7 @@ end
 function drawStaticBackground(ax, level, cfg)
 switch level.background
     case 'continuousCampus'
-        drawContinuousBackground(ax, cfg);
+        drawContinuousBackground(ax, level, cfg);
 
     case 'northLake'
         patch(ax, [0, 44, 44, 0], [0.25, 0.25, 5.2, 5.2], ...

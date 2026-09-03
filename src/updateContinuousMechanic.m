@@ -20,6 +20,20 @@ for index = 1:size(animals.geeseRects, 1)
         'YData', headY, 'Visible', 'on');
 end
 
+for index = 1:size(animals.duckRects, 1)
+    rect = animals.duckRects(index, :);
+    t = linspace(0, 2 * pi, 20);
+    x = rect(1) + rect(3) * (0.48 + 0.46 * cos(t));
+    y = rect(2) + rect(4) * (0.44 + 0.36 * sin(t));
+    set(handles.ducks(index), 'XData', x, 'YData', y, 'Visible', 'on');
+    headX = rect(1) + 0.82 * rect(3);
+    headY = rect(2) + 0.83 * rect(4);
+    set(handles.duckHeads(index), 'XData', headX, ...
+        'YData', headY, 'Visible', 'on');
+    set(handles.duckBeaks(index), 'XData', headX + 0.12 * rect(3), ...
+        'YData', headY, 'Visible', 'on');
+end
+
 alpaca = animals.alpacaRect;
 head = [alpaca(1) + 1.25, alpaca(2) + 0.72, 0.72, 1.18];
 set(handles.continuous.alpacaBody, 'Position', alpaca, 'Visible', 'on');
@@ -178,9 +192,11 @@ switch traffic.signalPhase
         lightColors(1, :) = [0.86, 0.22, 0.20];
         signalLabel = '全红';
 end
+signalX = world.mechanic.traffic.crosswalk(1) + ...
+    0.43 * world.mechanic.traffic.crosswalk(3);
 for index = 1:3
     set(handles.continuous.signalLights(index), ...
-        'XData', 105.82, 'YData', lightPositions(index), ...
+        'XData', signalX, 'YData', lightPositions(index), ...
         'MarkerFaceColor', lightColors(index, :), 'Visible', 'on');
 end
 set(handles.continuous.signalLabel, 'String', signalLabel, 'Visible', 'on');

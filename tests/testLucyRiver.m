@@ -9,8 +9,8 @@ cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
 state = createInitialState(world, cfg, []);
 state.status.breakValue = 5;
-state.players(1).pos = [181, 1];
-state.players(2).pos = [177, 1];
+state.players(1).pos = world.finish(1:2) + [0.8, 0];
+state.players(2).pos = world.finish(1:2) + [-2.0, 0];
 
 state = stepLevel(state, world, cfg, 0);
 assert(state.status.breakValue == 0 && ...
@@ -19,7 +19,7 @@ assert(state.status.breakValue == 0 && ...
 assert(~state.completed, ...
     'A single player incorrectly completed the continuous journey.');
 
-state.players(2).pos = [182, 1];
+state.players(2).pos = world.finish(1:2) + [1.8, 0];
 state = stepLevel(state, world, cfg, 0);
 assert(~state.completed, ...
     'Lucy River bypassed the cooperative Lexue interaction.');

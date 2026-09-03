@@ -1,5 +1,5 @@
 function state = stepWorldAnimals(state, world, ~, dt)
-%STEPWORLDANIMALS Move geese and apply the optional alpaca sneeze boost.
+%STEPWORLDANIMALS Move lake animals and apply the optional alpaca boost.
 
 data = world.mechanic.animals;
 if ~isfield(state.levelState, 'animals')
@@ -8,18 +8,13 @@ if ~isfield(state.levelState, 'animals')
     state.levelState.animals.sneezeTarget = 0;
 end
 
-geese = data.geese;
-geeseRects = zeros(size(geese, 1), 4);
-for index = 1:size(geese, 1)
-    row = geese(index, :);
-    x = row(1) + row(6) * 0.5 * ...
-        (1 + sin(2 * pi * state.levelTime / row(5) + row(7)));
-    geeseRects(index, :) = [x, row(2), row(3), row(4)];
-end
+geeseRects = movingAnimalRects(data.geese, state.levelTime);
+duckRects = movingAnimalRects(data.ducks, state.levelTime);
 state.levelState.animals.geeseRects = geeseRects;
+state.levelState.animals.duckRects = duckRects;
 state.levelState.animals.alpacaRect = data.alpacaRect;
 state.levelState.colliders = [state.levelState.colliders; ...
-    geeseRects; data.alpacaRect];
+    geeseRects; duckRects; data.alpacaRect];
 
 state.levelState.animals.sneezeCooldown = max(0, ...
     state.levelState.animals.sneezeCooldown - dt);
@@ -49,6 +44,16 @@ elseif state.levelState.animals.sneezeCooldown == 0
             break;
         end
     end
+end
+end
+
+function rects = movingAnimalRects(data, levelTime)
+rects = zeros(size(data, 1), 4);
+for index = 1:size(data, 1)
+    row = data(index, :);
+    x = row(1) + row(6) * 0.5 * ...
+        (1 + sin(2 * pi * levelTime / row(5) + row(7)));
+    rects(index, :) = [x, row(2), row(3), row(4)];
 end
 end
 
