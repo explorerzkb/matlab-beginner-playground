@@ -6,6 +6,8 @@
 
 - [`bit-campus-network-login-2026.png`](bit-campus-network-login-2026.png)：第二关校园网卡片的真实视觉锚点；
 - [`liangxiang/INDEX.md`](liangxiang/INDEX.md)：第一关北湖、第二关北理桥章节转场所需的地图、照片和空间边界。
+- [`identity/README.md`](identity/README.md)：官方校徽与标志比例、色彩和留白规范。
+- [`landmarks/README.md`](landmarks/README.md)：文博馆、良乡文化体育中心与教育展示物外观证据；这些材料不自动证明空间邻接。
 - `private/lexue/`：用户于 2026-09-03 提供的乐学首页与选课倒计时原始截图的本机私有副本。两图均含姓名、学院或访问日期，只作 2852×1654 像素布局参考；该目录由 `.gitignore` 排除，不进入 Git、运行时资产或发布包。
 
 艾比特导航、任务卡、破防水和 `Lucy 河`目前没有可直接复用的本地视觉材料。实现时先使用原创平涂占位图，不得从历史区随意恢复不明来源素材。
@@ -20,4 +22,4 @@
 - 乐学与选课原图保存在 `assets/reference/private/lexue/`，只能用于本机布局核对。程序化重绘必须在相同位置脱敏覆盖姓名、头像、学院、课程、日期等个人内容；
 - 不让 `startGame.m`、关卡加载器或资源扫描器访问 `assets/reference/` 或 `archive/`。
 
-未进入首版的校车、体育馆、文博中心、操场、学生服务中心、文萃专项地图以及旧索引已经封存在 `archive/snapshots/2026-09-03-preimplementation/`，默认不得读取。
+旧索引与历史方案仍封存在 `archive/snapshots/2026-09-03-preimplementation/`，默认不得读取。2026-09-04 用户重新明确要求加入文博馆、文化体育中心、坦克、飞机和校徽；本轮只使用当前目录中新核验的公开参考，不从历史方案恢复空间关系。
