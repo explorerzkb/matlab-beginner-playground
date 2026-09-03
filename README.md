@@ -2,7 +2,7 @@
 
 一个面向 MATLAB 初学者的本地双人二维平台游戏。两位玩家共用一把键盘，控制两只能力相同、由普通绳连接的小梨，从 MATLAB 坐标轴进入一张连续校园地图，经过北湖、校园网页面、南北交通和乐学任务，最终共同到达 Lucy 河。
 
-当前第二轮已经完成机制与必要状态反馈：地图不会在区域之间黑屏、显示关卡卡或重建角色；破防值、冰红茶、绳、检查点和路线选择贯穿全局。现有平涂画面只用于验证玩法与空间关系，不代表最终校园美术质量。
+当前第三轮试玩返工已经完成并推送：地图不会在区域之间黑屏、显示关卡卡或重建角色；破防值、冰红茶、绳、检查点和路线选择贯穿全局。车流通行、北湖长度、羊驼捷径和页面原位布局均已有直接测试。现有平涂画面只用于验证玩法与空间关系，不代表最终校园美术质量。
 
 ## 启动
 
@@ -33,10 +33,10 @@ startGame('LowPowerMode', true)
 
 ```text
 MATLAB 坐标轴
-  → 北湖：移动鹅与可选羊驼喷嚏助推
+  → 北湖：四只鹅、四只鸭与可落上红桥的羊驼喷嚏捷径
   → 校园网：双人字段、记住密码存档、共同登录、充值弹板、自助服务升降台
   → 南北交通：喷泉／北理桥上层路线，或红绿灯／车辆／候灯人群下层路线
-  → 乐学：倒计时数字平台、共同开始选课、我的课程存档、分批通知任务
+  → 乐学：原位六格倒计时、共同开始选课、原位我的课程存档、分批通知任务
   → Lucy 河：清空当前破防并结算连续轨迹
 ```
 
@@ -53,7 +53,7 @@ runPerformanceCheck
 
 `runSmokeTests` 覆盖输入、碰撞、普通绳、连续区域、破防与冰红茶、全部校园机关、两条交通路线、安全复活、十分钟等价物理步进，以及不可见窗口的创建与清理。`runPerformanceCheck` 在乐学任务全开的连续世界重场景进行 1280×720 强制绘制。
 
-2026-09-04 的开发机最新结果为：MATLAB R2025b Code Analyzer 0 问题、统一冒烟测试通过、重场景约 66.3 FPS（前一次为 65.5 FPS，属于正常测量波动）。它们是 Mac 代码级证据，不替代目标 Windows 电脑上的多键冲突、125%／150% 缩放、连续三局和真人可玩性验收。
+2026-09-04 的开发机最新结果为：MATLAB R2025b Code Analyzer 0 问题、统一冒烟测试通过、重场景约 23.7 FPS @ 1280×720，通过 20 FPS 低配门槛但低于约 30 FPS 的常规目标。它们是 Mac 代码级证据，不替代目标 Windows 电脑上的多键冲突、125%／150% 缩放、连续三局和真人可玩性验收。
 
 ## 当前有效入口
 
@@ -65,7 +65,7 @@ runPerformanceCheck
 4. [`docs/visual-spatial-sop.md`](docs/visual-spatial-sop.md)：画面、场景与空间证据规则；
 5. [`assets/reference/README.md`](assets/reference/README.md)：允许使用的设计参考及其边界。
 
-第二轮机制截图和“不等于最终美术”的逐项结论见 [`docs/visuals/continuous-world-round2-review.md`](docs/visuals/continuous-world-round2-review.md)。项目协作规则见 [`AGENTS.md`](AGENTS.md)，Git 与发布规则见 [`VERSIONING.md`](VERSIONING.md)。
+第三轮十张机制截图和“不等于最终美术”的逐项结论见 [`docs/visuals/continuous-world-round3-review.md`](docs/visuals/continuous-world-round3-review.md)。第二轮复核只保留为被真人试玩推翻前的历史证据。项目协作规则见 [`AGENTS.md`](AGENTS.md)，Git 与发布规则见 [`VERSIONING.md`](VERSIONING.md)。
 
 ## 项目结构
 
