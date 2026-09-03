@@ -2,6 +2,10 @@ function state = stepPhysics(state, input, level, cfg, dt)
 %STEPPHYSICS Fixed-step two-player movement, collision, and rope dynamics.
 
 colliders = state.levelState.colliders;
+oneWayPlatforms = zeros(0, 4);
+if isfield(state.levelState, 'oneWayPlatforms')
+    oneWayPlatforms = state.levelState.oneWayPlatforms;
+end
 runMultiplier = 1;
 jumpMultiplier = 1;
 if state.inventory.buffTimer > 0
@@ -40,7 +44,10 @@ for playerIndex = 1:2
 
     player.vel(2) = max(player.vel(2) + cfg.physics.gravity * dt, ...
         cfg.physics.maxFallSpeed);
+    oldPosition = player.pos;
     player = resolveCollisions(player, colliders, dt);
+    player = resolveOneWayPlatforms(player, oldPosition, ...
+        oneWayPlatforms, cfg.physics.collisionEpsilon);
     player.pos(1) = min(max(player.pos(1), player.size(1) / 2), ...
         level.worldWidth - player.size(1) / 2);
     state.players(playerIndex) = player;

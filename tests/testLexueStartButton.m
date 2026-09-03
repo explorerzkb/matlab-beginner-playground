@@ -23,7 +23,7 @@ assert(state.stats.selectionAttempts == 1 && ...
     'Early joint attempt was not counted or did not keep the gate closed.');
 
 state.levelState.lexue.selectionOpen = true;
-state.players(2).pos = [151, 3.23];
+state.players(2).pos = [lexue.selectionPageRect(1) + 0.5, 1.0];
 state = stepWorldLexue(state, world, cfg, 0.8);
 assert(~state.levelState.lexue.homeActive, ...
     'A single player incorrectly activated course selection.');

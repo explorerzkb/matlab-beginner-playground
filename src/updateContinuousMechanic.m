@@ -239,7 +239,7 @@ end
 
 lexue = state.levelState.lexue;
 lexueObjects = state.levelState.dynamicObjects.lexue;
-remainingDigits = sprintf('%04d', min(9999, lexue.remaining));
+remainingDigits = sprintf('%06d', min(999999, lexue.remaining));
 if lexue.selectionOpen
     countdownColor = [0.35, 0.74, 0.47];
 elseif lexue.flipWarning
@@ -247,12 +247,12 @@ elseif lexue.flipWarning
 else
     countdownColor = [0.48, 0.66, 0.90];
 end
-for index = 1:4
+for index = 1:numel(handles.continuous.countdownPlatforms)
     rect = lexueObjects.countdownPlatforms(index, :);
     set(handles.continuous.countdownPlatforms(index), 'Position', rect, ...
         'FaceColor', countdownColor, 'Visible', 'on');
     set(handles.continuous.countdownLabels(index), 'Position', ...
-        [rect(1) + rect(3) / 2, rect(2) + rect(4) + 0.42, 0], ...
+        [rect(1) + rect(3) / 2, rect(2) + rect(4) / 2, 0], ...
         'String', remainingDigits(index), 'Visible', 'on');
 end
 
@@ -293,8 +293,8 @@ end
 set(handles.continuous.courseCard, 'Position', courseCard, ...
     'FaceColor', courseColor, 'Visible', 'on');
 set(handles.continuous.courseCardLabel, 'Position', ...
-    [courseCard(1) + courseCard(3) / 2, ...
-    courseCard(2) + courseCard(4) + 0.25, 0], 'Visible', 'on');
+    [courseCard(1) + 0.18, ...
+    courseCard(2) + courseCard(4) / 2, 0], 'Visible', 'on');
 
 taskCards = lexueObjects.taskCards;
 for index = 1:numel(handles.taskCards)

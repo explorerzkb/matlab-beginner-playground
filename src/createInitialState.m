@@ -72,6 +72,7 @@ state.levelState.network.authenticated = false;
 state.levelState.network.feedback = 'idle';
 
 state.levelState.colliders = level.platforms;
+state.levelState.oneWayPlatforms = zeros(0, 4);
 state.levelState.dynamicObjects = struct();
 state.levelState.routeActive = false;
 state.levelState.routeTimer = 0;

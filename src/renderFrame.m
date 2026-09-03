@@ -14,6 +14,17 @@ if strcmp(level.mechanic.type, 'continuousCampus') && ...
         strcmp(state.levelState.activeRegionId, 'network')
     page = level.mechanic.network.pageRect;
     cameraTarget = page(1) + page(3) / 2;
+elseif strcmp(level.mechanic.type, 'continuousCampus') && ...
+        isfield(state.levelState, 'activeRegionId') && ...
+        strcmp(state.levelState.activeRegionId, 'lexue') && ...
+        isfield(state.levelState, 'lexue')
+    if ~state.levelState.lexue.homeActive
+        page = level.mechanic.lexue.selectionPageRect;
+        cameraTarget = page(1) + page(3) / 2;
+    elseif cameraTarget >= level.mechanic.lexue.homePageRect(1) - 1.0
+        page = level.mechanic.lexue.homePageRect;
+        cameraTarget = page(1) + page(3) / 2;
+    end
 end
 if ~isfield(state.render, 'cameraCentre')
     state.render.cameraCentre = cameraTarget;

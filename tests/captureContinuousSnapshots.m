@@ -1,10 +1,10 @@
 function captureContinuousSnapshots(outputFolder)
-%CAPTURECONTINUOUSSNAPSHOTS Render deterministic round-two QA frames.
+%CAPTURECONTINUOUSSNAPSHOTS Render deterministic round-three QA frames.
 
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 if nargin < 1
     outputFolder = fullfile(projectRoot, 'docs', 'visuals', ...
-        'runtime-snapshots-round2');
+        'runtime-snapshots-round3');
 end
 if ~isfolder(outputFolder)
     mkdir(outputFolder);
@@ -20,7 +20,7 @@ world = continuousCampusWorld();
 sceneNames = {'origin', 'north-lake', 'north-lake-shortcut', ...
     'north-lake-east', 'network', ...
     'traffic-bridge', ...
-    'traffic-signal', 'lexue', 'lexue-tasks', 'lucy'};
+    'traffic-signal', 'lexue-selection', 'lexue-home', 'lucy'};
 fig = figure('Visible', 'off', 'Position', [50, 50, 1280, 720], ...
     'Color', [0.08, 0.12, 0.15]);
 cleanupGuard = onCleanup(@() closeFigure(fig));
@@ -74,15 +74,23 @@ for index = 1:numel(sceneNames)
             state.levelState.traffic.signalClock = state.levelTime;
             state.levelState.traffic.route = 'lower';
             state.stats.trafficRoute = '红绿灯';
-        case 'lexue'
-            state.players(1).pos = [156.3, 1.93];
-            state.players(2).pos = [159.7, 3.33];
+        case 'lexue-selection'
+            tiles = world.mechanic.lexue.countdownPlatforms;
+            state.players(1).pos = [tiles(1, 1) + tiles(1, 3) / 2, ...
+                tiles(1, 2) + tiles(1, 4)];
+            state.players(2).pos = [tiles(4, 1) + tiles(4, 3) / 2, ...
+                tiles(4, 2) + tiles(4, 4)];
             state.levelState.lexue.entered = true;
             state.levelState.lexue.elapsed = 0.82;
             state.levelState.lexue.lastFlipIndex = 0;
-        case 'lexue-tasks'
-            state.players(1).pos = [178.9, 2.48];
-            state.players(2).pos = [180.6, 2.48];
+            page = world.mechanic.lexue.selectionPageRect;
+            cameraStart = page(1) + page(3) / 2;
+        case 'lexue-home'
+            course = world.mechanic.lexue.courseCardPlatform;
+            state.players(1).pos = [course(1) + 0.30 * course(3), ...
+                course(2) + course(4)];
+            state.players(2).pos = [course(1) + 0.70 * course(3), ...
+                course(2) + course(4)];
             state.levelState.lexue.entered = true;
             state.levelState.lexue.elapsed = 6;
             state.levelState.lexue.lastFlipIndex = 6;
@@ -90,6 +98,8 @@ for index = 1:numel(sceneNames)
             state.levelState.lexue.homeActive = true;
             state.levelState.lexue.courseCardReached = true;
             state.levelState.lexue.taskElapsed = 5;
+            page = world.mechanic.lexue.homePageRect;
+            cameraStart = page(1) + page(3) / 2;
         case 'lucy'
             state.players(1).pos = [196.6, 1.0];
             state.players(2).pos = [198.0, 1.0];
