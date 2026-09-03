@@ -101,6 +101,7 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
         substeps = 0;
         while accumulator >= cfg.physics.fixedDt && ...
                 substeps < cfg.physics.maxSubsteps
+            state = stepConsumables(state, input, cfg, cfg.physics.fixedDt);
             state = stepPhysics(state, input, level, cfg, cfg.physics.fixedDt);
             state = stepLevel(state, level, cfg, cfg.physics.fixedDt);
             accumulator = accumulator - cfg.physics.fixedDt;
@@ -134,6 +135,7 @@ duration = max(0.18, cfg.runtime.testDuration);
 steps = ceil(duration / cfg.physics.fixedDt);
 for index = 1:steps
     input = syntheticInput(index);
+    state = stepConsumables(state, input, cfg, cfg.physics.fixedDt);
     state = stepPhysics(state, input, level, cfg, cfg.physics.fixedDt);
     state = stepLevel(state, level, cfg, cfg.physics.fixedDt);
     if state.requestReset
