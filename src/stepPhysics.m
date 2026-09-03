@@ -14,6 +14,10 @@ if state.inventory.buffTimer > 0
 end
 for playerIndex = 1:2
     player = state.players(playerIndex);
+    player.visualImpactTimer = max(0, player.visualImpactTimer - dt);
+    if player.visualImpactTimer == 0
+        player.visualImpactKind = 'none';
+    end
     actions = input.player(playerIndex);
     moveIntent = double(actions.right) - double(actions.left);
     player.moveIntent = moveIntent;
@@ -48,6 +52,13 @@ for playerIndex = 1:2
     player = resolveCollisions(player, colliders, dt);
     player = resolveOneWayPlatforms(player, oldPosition, ...
         oneWayPlatforms, cfg.physics.collisionEpsilon);
+    if player.hitCeiling
+        player.visualImpactTimer = 0.30;
+        player.visualImpactKind = 'head';
+    elseif player.hitWall
+        player.visualImpactTimer = 0.24;
+        player.visualImpactKind = 'wall';
+    end
     player.pos(1) = min(max(player.pos(1), player.size(1) / 2), ...
         level.worldWidth - player.size(1) / 2);
     state.players(playerIndex) = player;

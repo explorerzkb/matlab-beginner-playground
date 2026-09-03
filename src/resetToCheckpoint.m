@@ -12,6 +12,10 @@ for playerIndex = 1:2
     state.players(playerIndex).vel = [0, 0];
     state.players(playerIndex).onGround = false;
     state.players(playerIndex).jumpHeld = false;
+    state.players(playerIndex).hitWall = false;
+    state.players(playerIndex).hitCeiling = false;
+    state.players(playerIndex).visualImpactTimer = 0;
+    state.players(playerIndex).visualImpactKind = 'none';
 end
 if strcmp(level.mechanic.type, 'continuousCampus')
     state = resetContinuousTransients(state, level);

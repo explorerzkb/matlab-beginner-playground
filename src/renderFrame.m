@@ -41,9 +41,12 @@ xlim(ax, xBounds);
 ylim(ax, [-0.4, cfg.render.worldHeight]);
 
 for playerIndex = 1:2
+    otherIndex = 3 - playerIndex;
+    ropeDirection = state.players(otherIndex).pos - ...
+        state.players(playerIndex).pos;
     handles.players(playerIndex) = updatePear( ...
         handles.players(playerIndex), state.players(playerIndex), ...
-        playerIndex, cfg);
+        playerIndex, ropeDirection, state.rope.currentTension, cfg);
 end
 
 anchor1 = state.players(1).pos + ...
@@ -259,8 +262,13 @@ uistack(handles.rope, 'top');
 for playerIndex = 1:2
     uistack(handles.players(playerIndex).shadow, 'top');
     uistack(handles.players(playerIndex).body, 'top');
+    uistack(handles.players(playerIndex).highlight, 'top');
     uistack(handles.players(playerIndex).speckles, 'top');
-    uistack(handles.players(playerIndex).eyes, 'top');
+    uistack(handles.players(playerIndex).blush, 'top');
+    uistack(handles.players(playerIndex).eyeWhites, 'top');
+    uistack(handles.players(playerIndex).pupils, 'top');
+    uistack(handles.players(playerIndex).eyeLines, 'top');
+    uistack(handles.players(playerIndex).brows, 'top');
     uistack(handles.players(playerIndex).mouth, 'top');
     uistack(handles.players(playerIndex).badge, 'top');
     uistack(handles.players(playerIndex).ring, 'top');
@@ -474,8 +482,11 @@ end
 
 function handles = emptyPlayerHandles()
 handles = struct('shadow', gobjects(1), 'body', gobjects(1), ...
-    'speckles', gobjects(1), 'eyes', gobjects(1), ...
-    'mouth', gobjects(1), 'badge', gobjects(1), 'ring', gobjects(1));
+    'highlight', gobjects(1), 'speckles', gobjects(1), ...
+    'blush', gobjects(1), 'eyeWhites', gobjects(1), ...
+    'pupils', gobjects(1), 'eyeLines', gobjects(1), ...
+    'brows', gobjects(1), 'mouth', gobjects(1), ...
+    'badge', gobjects(1), 'ring', gobjects(1));
 end
 
 function handles = createPear(ax, playerIndex, cfg)
@@ -490,11 +501,24 @@ else
     badgeMarker = 'd';
 end
 handles.body = patch(ax, nan, nan, bodyColor, ...
-    'EdgeColor', cfg.presentation.colors.ink, 'LineWidth', 1.8);
+    'EdgeColor', cfg.presentation.colors.ink, 'LineWidth', 2.2, ...
+    'LineJoin', 'round');
+handles.highlight = patch(ax, nan, nan, [1, 1, 1], ...
+    'EdgeColor', 'none', 'FaceAlpha', 0.18);
 handles.speckles = plot(ax, nan, nan, '.', ...
-    'Color', 0.62 * bodyColor, 'MarkerSize', 5);
-handles.eyes = plot(ax, nan, nan, '.', 'Color', cfg.presentation.colors.ink, ...
-    'MarkerSize', 14);
+    'Color', 0.58 * bodyColor, 'MarkerSize', 7);
+handles.blush = plot(ax, nan, nan, '.', 'Color', [0.93, 0.39, 0.39], ...
+    'MarkerSize', 16);
+handles.eyeWhites = plot(ax, nan, nan, 'o', ...
+    'MarkerFaceColor', [1.00, 0.98, 0.91], ...
+    'MarkerEdgeColor', cfg.presentation.colors.ink, ...
+    'MarkerSize', 6.4, 'LineWidth', 1.0);
+handles.pupils = plot(ax, nan, nan, '.', 'Color', cfg.presentation.colors.ink, ...
+    'MarkerSize', 11);
+handles.eyeLines = plot(ax, nan, nan, '-', ...
+    'Color', cfg.presentation.colors.ink, 'LineWidth', 1.8);
+handles.brows = plot(ax, nan, nan, '-', ...
+    'Color', cfg.presentation.colors.ink, 'LineWidth', 1.5);
 handles.mouth = plot(ax, nan, nan, '-', 'Color', cfg.presentation.colors.ink, ...
     'LineWidth', 1.3);
 handles.badge = plot(ax, nan, nan, badgeMarker, ...
@@ -505,41 +529,95 @@ handles.ring = plot(ax, nan, nan, 'o', 'MarkerFaceColor', 'none', ...
     'LineWidth', 1.2);
 end
 
-function handles = updatePear(handles, player, playerIndex, ~)
+function handles = updatePear(handles, player, playerIndex, ...
+        ropeDirection, ropeTension, ~)
 height = player.size(2);
 width = player.size(1);
-stretch = 1 + min(0.08, abs(player.vel(2)) * 0.006);
+stretch = 1 + min(0.12, abs(player.vel(2)) * 0.009);
+if player.onGround && abs(player.vel(1)) > 1.0
+    stretch = 0.96;
+end
 squash = 1 / sqrt(stretch);
-tilt = max(-0.14, min(0.14, -player.vel(1) * 0.014));
+tilt = max(-0.18, min(0.18, -player.vel(1) * 0.018));
 
-local = [ ...
-    -0.08, 1.00; -0.31, 0.89; -0.48, 0.66; -0.50, 0.34; ...
-    -0.35, 0.10;  0.00, 0.00;  0.35, 0.10;  0.50, 0.34; ...
-     0.48, 0.66;  0.31, 0.89;  0.08, 1.00];
+yNorm = linspace(0, 1, 36)';
+halfWidth = 0.47 * sin(pi * yNorm) .^ 0.66 .* (1.18 - 0.45 * yNorm);
+halfWidth([1, end]) = 0.055;
+left = [-flipud(halfWidth), flipud(yNorm)];
+right = [halfWidth(2:end), yNorm(2:end)];
+local = [left; right];
 local(:, 1) = local(:, 1) * width * squash;
 local(:, 2) = local(:, 2) * height * stretch;
 rotation = [cos(tilt), -sin(tilt); sin(tilt), cos(tilt)];
 points = local * rotation' + player.pos;
 set(handles.body, 'XData', points(:, 1), 'YData', points(:, 2));
+
+highlightLocal = [-0.29, 0.30; -0.34, 0.48; -0.25, 0.72; ...
+    -0.11, 0.88; -0.03, 0.76; -0.14, 0.54; -0.14, 0.34];
+highlightLocal(:, 1) = highlightLocal(:, 1) * width * squash;
+highlightLocal(:, 2) = highlightLocal(:, 2) * height * stretch;
+highlightPoints = highlightLocal * rotation' + player.pos;
+set(handles.highlight, 'XData', highlightPoints(:, 1), ...
+    'YData', highlightPoints(:, 2));
 set(handles.speckles, ...
-    'XData', player.pos(1) + [-0.23, 0.18, 0.30] * width, ...
-    'YData', player.pos(2) + [0.34, 0.40, 0.25] * height);
+    'XData', player.pos(1) + [-0.27, 0.22, 0.31, -0.18] * width, ...
+    'YData', player.pos(2) + [0.29, 0.37, 0.24, 0.18] * height);
 
 t = linspace(0, 2 * pi, 20);
-shadowWidth = width * (0.43 + 0.05 * double(player.onGround));
+airHeight = max(0, min(3, player.pos(2) - 1));
+shadowWidth = width * (0.48 + 0.06 * double(player.onGround) - 0.04 * airHeight);
 set(handles.shadow, 'XData', player.pos(1) + shadowWidth * cos(t), ...
-    'YData', player.pos(2) - 0.06 + 0.07 * sin(t));
+    'YData', player.pos(2) - 0.07 - 0.03 * airHeight + 0.075 * sin(t), ...
+    'FaceAlpha', 0.24 - 0.04 * airHeight);
 
-eyeY = player.pos(2) + 0.72 * height;
-set(handles.eyes, 'XData', player.pos(1) + [-0.16, 0.16] * width, ...
-    'YData', [eyeY, eyeY]);
-mouthY = player.pos(2) + 0.50 * height;
-if player.vel(2) < -6
-    mouthX = player.pos(1) + [-0.10, 0, 0.10] * width;
-    mouthCurve = mouthY + [0, -0.05, 0];
-else
-    mouthX = player.pos(1) + [-0.10, 0, 0.10] * width;
-    mouthCurve = mouthY + [0, 0.04, 0];
+face = pearExpressionState(player, ropeDirection, ropeTension);
+eyeCentresX = player.pos(1) + [-0.17, 0.17] * width;
+eyeY = player.pos(2) + 0.69 * height;
+set(handles.eyeWhites, 'XData', eyeCentresX, 'YData', [eyeY, eyeY]);
+set(handles.pupils, 'XData', eyeCentresX + face.gaze(1) * width, ...
+    'YData', [eyeY, eyeY] + face.gaze(2) * height);
+set(handles.eyeLines, 'XData', nan, 'YData', nan);
+set(handles.brows, 'XData', nan, 'YData', nan);
+set(handles.blush, 'XData', nan, 'YData', nan);
+
+mouthY = player.pos(2) + 0.45 * height;
+mouthX = player.pos(1) + [-0.13, -0.06, 0, 0.06, 0.13] * width;
+switch face.name
+    case 'pain'
+        set(handles.eyeWhites, 'XData', nan, 'YData', nan);
+        set(handles.pupils, 'XData', nan, 'YData', nan);
+        eyeX = player.pos(1) + [-0.25, -0.11, nan, 0.11, 0.25] * width;
+        eyeLineY = eyeY + [0.05, -0.04, nan, -0.04, 0.05] * height;
+        set(handles.eyeLines, 'XData', eyeX, 'YData', eyeLineY);
+        set(handles.brows, 'XData', player.pos(1) + ...
+            [-0.28, -0.11, nan, 0.11, 0.28] * width, ...
+            'YData', eyeY + [0.13, 0.08, nan, 0.08, 0.13] * height);
+        mouthCurve = mouthY + [0.01, 0.05, 0.00, 0.05, 0.01] * height;
+    case 'pulled'
+        pullSign = sign(face.gaze(1));
+        if pullSign == 0
+            pullSign = 1;
+        end
+        set(handles.brows, 'XData', player.pos(1) + ...
+            [-0.27, -0.10, nan, 0.10, 0.27] * width, ...
+            'YData', eyeY + [0.11, 0.05, nan, 0.05, 0.11] * height);
+        mouthCurve = mouthY + [0, 0.025, -0.015, 0.025, 0] * height;
+        mouthX = mouthX + 0.035 * pullSign * width;
+    case 'joy'
+        set(handles.blush, 'XData', player.pos(1) + [-0.31, 0.31] * width, ...
+            'YData', [mouthY + 0.08 * height, mouthY + 0.08 * height]);
+        mouthCurve = mouthY + [0.05, 0.005, -0.025, 0.005, 0.05] * height;
+    case 'surprised'
+        mouthX = player.pos(1) + 0.075 * width * cos(t);
+        mouthCurve = mouthY + 0.085 * height * sin(t);
+    case 'playful'
+        set(handles.blush, 'XData', player.pos(1) + [-0.31, 0.31] * width, ...
+            'YData', [mouthY + 0.07 * height, mouthY + 0.07 * height]);
+        mouthCurve = mouthY + [0.025, -0.015, -0.045, -0.01, 0.04] * height;
+    otherwise
+        set(handles.blush, 'XData', player.pos(1) + [-0.31, 0.31] * width, ...
+            'YData', [mouthY + 0.07 * height, mouthY + 0.07 * height]);
+        mouthCurve = mouthY + [0.035, -0.005, -0.025, -0.005, 0.035] * height;
 end
 set(handles.mouth, 'XData', mouthX, 'YData', mouthCurve);
 set(handles.badge, 'XData', player.pos(1), ...

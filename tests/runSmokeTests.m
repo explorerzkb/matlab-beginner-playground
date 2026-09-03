@@ -15,6 +15,7 @@ fprintf('Running input-mapping checks...\n');
 testInputMappings();
 fprintf('Running shared physics and state checks...\n');
 testPhysics();
+testPearExpressions();
 testMovingPlatform();
 testContinuousWorld();
 testBreakSystem();

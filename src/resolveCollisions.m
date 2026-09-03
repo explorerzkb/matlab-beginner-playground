@@ -2,6 +2,9 @@ function player = resolveCollisions(player, colliders, dt)
 %RESOLVECOLLISIONS Resolve a player AABB against axis-aligned rectangles.
 % Player position is bottom-centre; collider rows are [x y width height].
 
+player.hitWall = false;
+player.hitCeiling = false;
+
 if isempty(colliders)
     player.pos = player.pos + player.vel * dt;
     player.onGround = false;
@@ -26,10 +29,14 @@ player.pos(1) = player.pos(1) + player.vel(1) * dt;
 for index = 1:size(colliders, 1)
     rect = colliders(index, :);
     if overlaps(player.pos, halfWidth, height, rect)
+        impactSpeed = abs(player.vel(1));
         if player.vel(1) > 0
             player.pos(1) = rect(1) - halfWidth;
         elseif player.vel(1) < 0
             player.pos(1) = rect(1) + rect(3) + halfWidth;
+        end
+        if impactSpeed > 1.2
+            player.hitWall = true;
         end
         player.vel(1) = 0;
     end
@@ -47,8 +54,12 @@ for index = 1:size(colliders, 1)
             player.vel(2) = 0;
             player.onGround = true;
         elseif player.vel(2) > 0 && oldTop <= rect(2) + 0.08
+            impactSpeed = player.vel(2);
             player.pos(2) = rect(2) - height;
             player.vel(2) = 0;
+            if impactSpeed > 1.2
+                player.hitCeiling = true;
+            end
         else
             player = resolveEmbedded(player, rect, halfWidth, height);
         end
