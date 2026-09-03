@@ -1,8 +1,8 @@
-# MATLAB Beginner Playground
+# 绳系双梨：良乡校园协作记
 
-一个面向 MATLAB 初学者的双人二维平台游戏课程项目。两位玩家共用一把键盘，控制两只由普通绳连接的原创小梨，在良乡校园与数字界面交叠的关卡中合作前进。
+一个面向 MATLAB 初学者的本地双人二维平台游戏。两位玩家共用一把键盘，控制两只能力相同、由普通绳连接的小梨，从 MATLAB 坐标轴进入一张连续校园地图，经过北湖、校园网页面、南北交通和乐学任务，最终共同到达 Lucy 河。
 
-项目已经完成首版代码与第一轮程序化校园视觉：包含五秒双人按键检测、数据点序章、四个连续关卡、普通绳物理、检查点、暂停／重置／退出、轨迹统计与 MATLAB 曲线结算，并加入可辨认的校园建筑、桥梁、道路、绿化、路灯、导视和校园生活细节。当前代码已在 macOS 的 MATLAB R2025b 通过自动化与逐关截图检查；最终美术观感、Windows 双人实机手感、键盘冲突和帧率仍由用户与目标电脑验收。
+当前第二轮已经完成机制与必要状态反馈：地图不会在区域之间黑屏、显示关卡卡或重建角色；破防值、冰红茶、绳、检查点和路线选择贯穿全局。现有平涂画面只用于验证玩法与空间关系，不代表最终校园美术质量。
 
 ## 启动
 
@@ -14,7 +14,33 @@ startGame
 
 Windows 11 也可以双击 `startGame.bat`。它会优先使用系统 `PATH` 中的 MATLAB；如果找不到，则尝试标准的 `C:\Program Files\MATLAB\R2025b\bin\matlab.exe`。
 
-默认键位：玩家一使用 `A/D/W`，玩家二使用方向键；若方向键组合冲突，玩家二可改用 `J/L/I`。`Esc` 暂停，按住 `R` 0.8 秒重置本关，`Q` 退出。低性能模式可在 MATLAB 中运行 `startGame('LowPowerMode', true)`，把目标渲染率降到约 20 FPS。
+## 操作
+
+- 玩家一：`A / D / W`；
+- 玩家二：方向键；若键盘组合冲突，可改用 `J / L / I`；
+- 全局道具：长按 `Space` 约 0.35 秒饮用一瓶共享的热带风味冰红茶；
+- `Esc` 暂停，按住 `R` 0.8 秒回到最近检查点，`Q` 退出。
+
+冰红茶最多携带两瓶，会让当前破防值减 2，并给予约六秒的小幅跑跳强化和环境抗击退。它不会倒扣已经发生的共同复活次数。
+
+低性能模式可运行：
+
+```matlab
+startGame('LowPowerMode', true)
+```
+
+## 当前流程
+
+```text
+MATLAB 坐标轴
+  → 北湖：移动鹅与可选羊驼喷嚏助推
+  → 校园网：双人字段、记住密码存档、共同登录、充值弹板、自助服务升降台
+  → 南北交通：喷泉／北理桥上层路线，或红绿灯／车辆／候灯人群下层路线
+  → 乐学：倒计时数字平台、共同开始选课、我的课程存档、分批通知任务
+  → Lucy 河：清空当前破防并结算连续轨迹
+```
+
+游戏不会读取真实校园账号、发起选课或校园网请求，也不依赖 Symbolic Math Toolbox。
 
 ## 自动检查
 
@@ -22,38 +48,39 @@ Windows 11 也可以双击 `startGame.bat`。它会优先使用系统 `PATH` 中
 addpath('tests')
 runCodeChecks
 runSmokeTests
+runPerformanceCheck
 ```
 
-`runSmokeTests` 会验证四关数据、碰撞、松绳／张力规则、双人机关、破防水、十分钟等价物理步进，以及不可见窗口下的四关创建与清理。它是本机代码级证据，不替代两位玩家在目标 Windows 键盘上的连续试玩。
+`runSmokeTests` 覆盖输入、碰撞、普通绳、连续区域、破防与冰红茶、全部校园机关、两条交通路线、安全复活、十分钟等价物理步进，以及不可见窗口的创建与清理。`runPerformanceCheck` 在乐学任务全开的连续世界重场景进行 1280×720 强制绘制。
+
+2026-09-04 的开发机结果为：MATLAB R2025b Code Analyzer 0 问题、统一冒烟测试通过、重场景约 65.5 FPS。它们是 Mac 代码级证据，不替代目标 Windows 电脑上的多键冲突、125%／150% 缩放、连续三局和真人可玩性验收。
 
 ## 当前有效入口
 
-按以下顺序阅读即可，不要从历史文档恢复旧需求：
+按以下顺序阅读，不要从历史区恢复旧需求：
 
-1. [`docs/current-project-state.md`](docs/current-project-state.md)：当前阶段、已经确认的事实和最近一步；
-2. [`docs/game-spec-v1.md`](docs/game-spec-v1.md)：首版游戏的唯一产品与玩法规格；
-3. [`docs/implementation-plan.md`](docs/implementation-plan.md)：代码结构、开发顺序和阶段验收；
-4. 涉及画面或场景时读取 [`docs/visual-spatial-sop.md`](docs/visual-spatial-sop.md)：图片、建模和空间合理性的强制检查；
-5. [`assets/reference/README.md`](assets/reference/README.md)：当前关卡允许使用的设计参考。现实场景任务还必须实际打开索引点名的图片，不能停在索引页。
+1. [`docs/current-project-state.md`](docs/current-project-state.md)：当前阶段、验证证据和待办；
+2. [`docs/game-spec-v1.md`](docs/game-spec-v1.md)：文件名因兼容保留，内容是当前连续世界 v2 规格；
+3. [`docs/implementation-plan.md`](docs/implementation-plan.md)：代码结构、开发顺序和阶段门；
+4. [`docs/visual-spatial-sop.md`](docs/visual-spatial-sop.md)：画面、场景与空间证据规则；
+5. [`assets/reference/README.md`](assets/reference/README.md)：允许使用的设计参考及其边界。
 
-项目协作规则见 [`AGENTS.md`](AGENTS.md)，Git 与发布规则见 [`VERSIONING.md`](VERSIONING.md)。
-
-## 历史区
-
-`archive/snapshots/2026-09-03-preimplementation/` 保存研究阶段的盲审、候选方案、创意发散、画风预览和未采用素材。它只用于追溯，不是当前需求来源。后续开发者和 Codex 默认不得读取或搜索其中内容。
+第二轮机制截图和“不等于最终美术”的逐项结论见 [`docs/visuals/continuous-world-round2-review.md`](docs/visuals/continuous-world-round2-review.md)。项目协作规则见 [`AGENTS.md`](AGENTS.md)，Git 与发布规则见 [`VERSIONING.md`](VERSIONING.md)。
 
 ## 项目结构
 
 ```text
 startGame.m              MATLAB 内的唯一启动入口
 startGame.bat            Windows 双击启动入口
-src/                     主循环、输入、物理、碰撞和渲染
-config/                  键位、画面、音量和性能档
-levels/                  四个正式关卡的数据
-assets/game/             游戏运行时实际加载的图像和音频
-tests/                   不进入完整游戏即可运行的检查
-docs/                    当前规格、计划和验证状态
-archive/                 默认禁止读取的历史快照
+config/                  键位、物理、道具、画面和性能配置
+levels/continuousCampusWorld.m
+                         当前唯一运行世界的数据
+src/                     主循环、输入、物理、机关、碰撞和渲染
+assets/game/             游戏运行时实际加载的资源
+assets/reference/        只供设计研究，不得由运行时代码读取
+tests/                   直接机制测试、统一检查、性能和截图工具
+docs/                    当前规格、计划、视觉证据和状态
+archive/                 默认禁止读取的不可变历史快照
 ```
 
-`assets/reference/` 只供设计和制作正式美术时参考；MATLAB 运行时只能读取 `assets/game/`。
+当前本地开发分支为 `codex/gameplay-round-2`。远端推送仍可能被 GitHub 的私人邮箱保护拒绝；项目要求的新提交作者邮箱固定为 `explorerzkb@gmail.com`，不得为绕过保护而改用其他邮箱。
