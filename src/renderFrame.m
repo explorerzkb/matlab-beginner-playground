@@ -221,6 +221,9 @@ end
 
 function drawStaticBackground(ax, level, cfg)
 switch level.background
+    case 'continuousCampus'
+        drawContinuousBackground(ax, cfg);
+
     case 'northLake'
         patch(ax, [0, 44, 44, 0], [0.25, 0.25, 5.2, 5.2], ...
             cfg.presentation.colors.water, 'EdgeColor', 'none', ...
