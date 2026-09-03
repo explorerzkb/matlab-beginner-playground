@@ -1,15 +1,38 @@
 # MATLAB Beginner Playground
 
-一组面向 MATLAB 初学者的轻量小游戏与练习，用来边玩边熟悉变量、数组、条件判断、循环、函数和绘图。
+一个面向 MATLAB 初学者的双人二维平台游戏课程项目。两位玩家共用一把键盘，控制两只由普通绳连接的原创小梨，在良乡校园与数字界面交叠的关卡中合作前进。
 
-项目仍在起步阶段，玩法和目录结构会随着学习逐步调整。
+项目已经结束创意发散，进入实现阶段。当前还没有可运行的游戏代码；首版范围、关卡和技术边界已经冻结，接下来从灰盒原型开始开发。
 
-迁移电脑、开启新任务或接手开发时，首先阅读[当前项目状态与接续入口](docs/current-project-state.md)。该文件只保存当前有效结论、尚未冻结的高影响问题、技术边界和文档读取顺序；它不是聊天逐字备份。更完整的未决假设和旧方案冲突见[游戏方案默认假设审计 01](docs/assumption-audit-01.md)。
+## 当前有效入口
 
-历史目标、约束和北理工校园素材调查记录在[项目简报](docs/project-brief.md)中。[良乡校区视觉与空间参考库](assets/reference/liangxiang/INDEX.md)保存核心区域照片、视频索引和来源登记；[校园空间结构与关卡转译约束](assets/reference/liangxiang/spatial-structure.md)进一步区分已经确认的方位／邻接、只能参考外观的材料和仍需连续路线核对的缺口。每一段正式关卡在美术和编码前都要填写[关卡场景空间卡](docs/scene-space-card-template.md)。双人角色已经确定为[可爱小生物型的小🍐](docs/character-direction-01.md)，具体轮廓、配色、脸和动画风格仍待样张确认。
+按以下顺序阅读即可，不要从历史文档恢复旧需求：
 
-其余 `docs/` 文件主要保存校园文化调查、候选方案、盲审和方向变化，供需要追溯理由时查阅，不应越过当前状态文件直接成为开发依据。项目协作与语言规则见[AGENTS.md](AGENTS.md)。
+1. [`docs/current-project-state.md`](docs/current-project-state.md)：当前阶段、已经确认的事实和最近一步；
+2. [`docs/game-spec-v1.md`](docs/game-spec-v1.md)：首版游戏的唯一产品与玩法规格；
+3. [`docs/implementation-plan.md`](docs/implementation-plan.md)：代码结构、开发顺序和阶段验收；
+4. [`assets/reference/README.md`](assets/reference/README.md)：当前关卡允许使用的设计参考。
 
-## 版本管理
+项目协作规则见 [`AGENTS.md`](AGENTS.md)，Git 与发布规则见 [`VERSIONING.md`](VERSIONING.md)。
 
-版本管理、分支、提交信息和发布规则见 [VERSIONING.md](VERSIONING.md)。
+## 历史区
+
+`archive/snapshots/2026-09-03-preimplementation/` 保存研究阶段的盲审、候选方案、创意发散、画风预览和未采用素材。它只用于追溯，不是当前需求来源。后续开发者和 Codex 默认不得读取或搜索其中内容。
+
+## 当前与目标结构
+
+目前仓库只有规格、参考资料和历史存档。实现阶段将逐步形成：
+
+```text
+startGame.m              MATLAB 内的唯一启动入口
+startGame.bat            Windows 双击启动入口
+src/                     主循环、输入、物理、碰撞和渲染
+config/                  键位、画面、音量和性能档
+levels/                  四个正式关卡的数据
+assets/game/             游戏运行时实际加载的图像和音频
+tests/                   不进入完整游戏即可运行的检查
+docs/                    当前规格、计划和验证状态
+archive/                 默认禁止读取的历史快照
+```
+
+`assets/reference/` 只供设计和制作正式美术时参考；MATLAB 运行时只能读取 `assets/game/`。
