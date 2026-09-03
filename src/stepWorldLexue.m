@@ -1,4 +1,4 @@
-function state = stepWorldLexue(state, world, ~, dt)
+function state = stepWorldLexue(state, world, cfg, dt)
 %STEPWORLDLEXUE Advance the physical course-selection page.
 
 lexue = world.mechanic.lexue;
@@ -12,6 +12,10 @@ if ~isfield(state.levelState, 'lexue')
     state.levelState.lexue.homeActive = false;
     state.levelState.lexue.feedback = 'countdown';
     state.levelState.lexue.courseCardReached = false;
+end
+if ~isfield(state.levelState.lexue, 'taskElapsed')
+    state.levelState.lexue.taskElapsed = 0;
+    state.levelState.lexue.taskCards = zeros(0, 4);
 end
 
 centreX = mean([state.players(1).pos(1), state.players(2).pos(1)]);
@@ -81,6 +85,60 @@ if state.levelState.lexue.homeActive && ...
     state.levelState.lexue.courseCardReached = true;
 end
 
+if state.levelState.lexue.homeActive
+    state.levelState.lexue.taskElapsed = ...
+        state.levelState.lexue.taskElapsed + dt;
+end
+cardData = lexue.taskCardData;
+active = state.levelState.lexue.taskElapsed >= cardData(:, 9);
+activeData = cardData(active, :);
+taskCards = zeros(size(activeData, 1), 4);
+for cardIndex = 1:size(activeData, 1)
+    row = activeData(cardIndex, :);
+    offset = row(5) * sin(2 * pi * ...
+        state.levelState.lexue.taskElapsed / row(6) + row(7));
+    taskCards(cardIndex, :) = row(1:4);
+    if row(8) == 1
+        taskCards(cardIndex, 2) = taskCards(cardIndex, 2) + offset;
+    else
+        taskCards(cardIndex, 1) = taskCards(cardIndex, 1) + offset;
+    end
+end
+state.levelState.lexue.taskCards = taskCards;
+
+knockbackMultiplier = 1;
+if state.inventory.buffTimer > 0
+    knockbackMultiplier = cfg.tea.knockbackMultiplier;
+end
+hitPlayer = 0;
+hitCard = 0;
+for cardIndex = 1:size(taskCards, 1)
+    touching = playersInRect(state.players, taskCards(cardIndex, :));
+    hitPlayer = find(touching, 1, 'first');
+    if ~isempty(hitPlayer)
+        hitCard = cardIndex;
+        break;
+    end
+end
+if ~isempty(hitPlayer) && hitPlayer > 0
+    [state, applied] = applyBreakEvent(state, cfg, 'minor');
+    if applied
+        card = taskCards(hitCard, :);
+        direction = sign(state.players(hitPlayer).pos(1) - ...
+            (card(1) + card(3) / 2));
+        if direction == 0
+            direction = -1;
+        end
+        state.players(hitPlayer).vel(1) = min(max( ...
+            state.players(hitPlayer).vel(1) + direction * ...
+            lexue.taskKnockback(1) * knockbackMultiplier, ...
+            -lexue.taskHorizontalSpeedCap), lexue.taskHorizontalSpeedCap);
+        state.players(hitPlayer).vel(2) = max( ...
+            state.players(hitPlayer).vel(2), ...
+            lexue.taskKnockback(2) * knockbackMultiplier);
+    end
+end
+
 state.levelState.colliders = [state.levelState.colliders; ...
     lexue.countdownPlatforms; lexue.startButtonPlatform; ...
     lexue.courseCardPlatform];
@@ -100,6 +158,8 @@ state.levelState.dynamicObjects.lexue.startButton = ...
 state.levelState.dynamicObjects.lexue.selectionGate = lexue.selectionGate;
 state.levelState.dynamicObjects.lexue.courseCard = ...
     lexue.courseCardPlatform;
+state.levelState.dynamicObjects.lexue.taskCards = taskCards;
+state.levelState.dynamicObjects.lexue.notificationCount = 50;
 end
 
 function rects = removeRect(rects, target)
