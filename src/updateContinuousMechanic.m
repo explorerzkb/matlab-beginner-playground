@@ -204,4 +204,77 @@ for index = 1:size(traffic.crowd, 1)
     set(handles.continuous.crowd(index), ...
         'Position', traffic.crowd(index, :), 'Visible', 'on');
 end
+
+lexue = state.levelState.lexue;
+lexueObjects = state.levelState.dynamicObjects.lexue;
+remainingDigits = sprintf('%04d', min(9999, lexue.remaining));
+if lexue.selectionOpen
+    countdownColor = [0.35, 0.74, 0.47];
+elseif lexue.flipWarning
+    countdownColor = [0.91, 0.57, 0.18];
+else
+    countdownColor = [0.48, 0.66, 0.90];
+end
+for index = 1:4
+    rect = lexueObjects.countdownPlatforms(index, :);
+    set(handles.continuous.countdownPlatforms(index), 'Position', rect, ...
+        'FaceColor', countdownColor, 'Visible', 'on');
+    set(handles.continuous.countdownLabels(index), 'Position', ...
+        [rect(1) + rect(3) / 2, rect(2) + rect(4) + 0.42, 0], ...
+        'String', remainingDigits(index), 'Visible', 'on');
+end
+
+button = lexueObjects.startButton;
+switch lexue.feedback
+    case 'countdown'
+        startColor = [0.50, 0.58, 0.67];
+        startLabel = sprintf('等待倒计时 %ds', lexue.remaining);
+    case 'holding'
+        startColor = [0.91, 0.62, 0.18];
+        progress = lexue.startTimer / world.mechanic.lexue.startHoldDuration;
+        startLabel = sprintf('开始选课 %.0f%%', 100 * progress);
+    case 'success'
+        startColor = [0.30, 0.72, 0.44];
+        startLabel = '已进入乐学';
+    otherwise
+        startColor = [0.20, 0.50, 0.84];
+        startLabel = '两人共同开始选课';
+end
+set(handles.continuous.lexueStartButton, 'Position', button, ...
+    'FaceColor', startColor, 'Visible', 'on');
+set(handles.continuous.lexueStartLabel, 'Position', ...
+    [button(1) + button(3) / 2, button(2) + button(4) / 2, 0], ...
+    'String', startLabel, 'Visible', 'on');
+
+if lexue.homeActive
+    set(handles.continuous.lexueGate, 'Visible', 'off');
+else
+    set(handles.continuous.lexueGate, 'Position', ...
+        lexueObjects.selectionGate, 'Visible', 'on');
+end
+courseCard = lexueObjects.courseCard;
+if lexue.courseCardReached
+    courseColor = [0.55, 0.86, 0.63];
+else
+    courseColor = [0.84, 0.91, 0.99];
+end
+set(handles.continuous.courseCard, 'Position', courseCard, ...
+    'FaceColor', courseColor, 'Visible', 'on');
+set(handles.continuous.courseCardLabel, 'Position', ...
+    [courseCard(1) + courseCard(3) / 2, ...
+    courseCard(2) + courseCard(4) + 0.25, 0], 'Visible', 'on');
+
+taskCards = lexueObjects.taskCards;
+for index = 1:numel(handles.taskCards)
+    if index <= size(taskCards, 1)
+        rect = taskCards(index, :);
+        set(handles.taskCards(index), 'Position', rect, 'Visible', 'on');
+        set(handles.taskTexts(index), 'Position', ...
+            [rect(1) + rect(3) / 2, rect(2) + rect(4) / 2, 0], ...
+            'Visible', 'on');
+    else
+        set(handles.taskCards(index), 'Visible', 'off');
+        set(handles.taskTexts(index), 'Visible', 'off');
+    end
+end
 end
