@@ -14,8 +14,11 @@
 - `lexue-interaction-source-review.md`：两张私有乐学参考图的像素框、脱敏和使用边界；原图不在 Git 中。
 - `continuous-world-round3-review.md`：第三轮车流、动物、页面布局与十张运行帧的当前复核。
 - `runtime-snapshots-round3/`：MATLAB R2025b 导出的十张第三轮机制截图。
+- `final-art-asset-notes.md`：最终手绘背景、官方校徽与现实参考的用途和空间边界。
+- `final-visual-acceptance.md`：最终视觉阶段的逐项目视、工程验证和未完成边界。
+- `runtime-snapshots-final/`：当前 MATLAB R2025b 直接导出的 11 张世界、3 张表情和 2 张界面证据。
 - `continuous-world-round2-review.md` 与 `runtime-snapshots-round2/`：被后续真人试玩部分推翻的第二轮历史证据，不得作为当前验收结论。
 - `runtime-scene-implementation-review.md`：四关程序绘制场景所用证据、真假分层和逐项复核；
 - `runtime-snapshots/`：MATLAB R2025b 直接导出的四关 16:9 与第二关 3:2 验收截图。
 
-只有同时拥有设计说明和复核记录、且所有硬性失败项已经关闭的版本，才可以标为“通过空间检查”。通过空间检查仍不等于已经在 MATLAB 中实现或通过 Windows 实机验证。
+只有同时拥有设计说明和复核记录、且所有硬性失败项已经关闭的版本，才可以标为“通过空间检查”。最终截图证明当前代码已经在开发机 MATLAB 中实现，但仍不等于通过 Windows 实机与真人双人验收。

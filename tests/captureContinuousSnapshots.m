@@ -1,10 +1,10 @@
 function captureContinuousSnapshots(outputFolder)
-%CAPTURECONTINUOUSSNAPSHOTS Render deterministic round-three QA frames.
+%CAPTURECONTINUOUSSNAPSHOTS Render deterministic final-art QA frames.
 
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 if nargin < 1
     outputFolder = fullfile(projectRoot, 'docs', 'visuals', ...
-        'runtime-snapshots-round3');
+        'runtime-snapshots-final', 'world');
 end
 if ~isfolder(outputFolder)
     mkdir(outputFolder);
@@ -20,7 +20,8 @@ world = continuousCampusWorld();
 sceneNames = {'origin', 'north-lake', 'north-lake-shortcut', ...
     'north-lake-east', 'network', ...
     'traffic-bridge', ...
-    'traffic-signal', 'lexue-selection', 'lexue-home', 'lucy'};
+    'traffic-signal', 'museum-emblem', ...
+    'lexue-selection', 'lexue-home', 'lucy'};
 fig = figure('Visible', 'off', 'Position', [50, 50, 1280, 720], ...
     'Color', [0.08, 0.12, 0.15]);
 cleanupGuard = onCleanup(@() closeFigure(fig));
@@ -50,6 +51,7 @@ for index = 1:numel(sceneNames)
                 bridge(2) + bridge(4)];
             state.players(2).pos = [42.0, 1.0];
             state.levelState.animals.shortcutReached = true;
+            state.levelState.animals.sneezeWarning = 0.35;
             state.stats.alpacaShortcutUses = 1;
             state.levelTime = 1.2;
             cameraStart = 46.0;
@@ -74,6 +76,12 @@ for index = 1:numel(sceneNames)
             state.levelState.traffic.signalClock = state.levelTime;
             state.levelState.traffic.route = 'lower';
             state.stats.trafficRoute = '红绿灯';
+        case 'museum-emblem'
+            state.players(1).pos = [135.0, 1.0];
+            state.players(2).pos = [138.4, 1.0];
+            state.levelState.traffic.route = 'upper';
+            state.stats.trafficRoute = '北理桥';
+            cameraStart = 135.5;
         case 'lexue-selection'
             tiles = world.mechanic.lexue.countdownPlatforms;
             state.players(1).pos = [tiles(1, 1) + tiles(1, 3) / 2, ...

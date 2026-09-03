@@ -50,6 +50,7 @@ for index = 1:numel(sceneNames)
     state.render.cameraCentre = mean([state.players(1).pos(1), ...
         state.players(2).pos(1)]);
     state = renderFrame(fig, ax, state, world, cfg); %#ok<NASGU>
+    set(findall(ax, 'Type', 'text'), 'Visible', 'off');
     drawnow;
     fullPath = fullfile(outputFolder, [sceneNames{index}, '-full.png']);
     closePath = fullfile(outputFolder, [sceneNames{index}, '.png']);
@@ -58,6 +59,7 @@ for index = 1:numel(sceneNames)
     rows = round(size(rgb, 1) * 0.20):round(size(rgb, 1) * 0.82);
     columns = round(size(rgb, 2) * 0.23):round(size(rgb, 2) * 0.77);
     imwrite(rgb(rows, columns, :), closePath);
+    delete(fullPath);
 end
 fprintf('WROTE %d PEAR EXPRESSION SNAPSHOTS TO %s\n', ...
     numel(sceneNames), outputFolder);
