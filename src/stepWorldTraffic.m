@@ -117,6 +117,35 @@ if carHit
     state = applyBreakEvent(state, cfg, 'major');
 end
 
+crowd = traffic.crowdData(:, 1:4);
+if state.levelState.traffic.pedestriansMayCross
+    travelDistance = traffic.crosswalk(3) + 1.6;
+    for crowdIndex = 1:size(crowd, 1)
+        offset = traffic.crowdData(crowdIndex, 5);
+        crowd(crowdIndex, 1) = traffic.crosswalk(1) - 0.8 + mod( ...
+            (phaseProgress + offset) * travelDistance, travelDistance);
+    end
+end
+pushMultiplier = 1;
+if state.inventory.buffTimer > 0
+    pushMultiplier = cfg.tea.knockbackMultiplier;
+end
+for crowdIndex = 1:size(crowd, 1)
+    touchingPlayers = playersInRect(state.players, crowd(crowdIndex, :));
+    for playerIndex = find(touchingPlayers)
+        direction = sign(state.players(playerIndex).pos(1) - ...
+            (crowd(crowdIndex, 1) + crowd(crowdIndex, 3) / 2));
+        if direction == 0
+            direction = 1;
+        end
+        state.players(playerIndex).vel(1) = min(max( ...
+            state.players(playerIndex).vel(1) + direction * ...
+            traffic.crowdPushAcceleration * pushMultiplier * dt, ...
+            -traffic.crowdPushSpeedCap), traffic.crowdPushSpeedCap);
+    end
+end
+state.levelState.traffic.crowd = crowd;
+
 state.levelState.dynamicObjects.traffic.fountain = traffic.fountainRect;
 state.levelState.dynamicObjects.traffic.upperRouteZone = ...
     traffic.upperRouteZone;
@@ -124,6 +153,7 @@ state.levelState.dynamicObjects.traffic.lowerRouteZone = ...
     traffic.lowerRouteZone;
 state.levelState.dynamicObjects.traffic.crosswalk = traffic.crosswalk;
 state.levelState.dynamicObjects.traffic.cars = cars;
+state.levelState.dynamicObjects.traffic.crowd = crowd;
 end
 
 function cars = parkCarsOutsideCrosswalk(cars, traffic)
