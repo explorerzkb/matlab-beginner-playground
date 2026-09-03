@@ -33,6 +33,18 @@ input.useItem = false;
 state = stepConsumables(state, input, cfg, cfg.physics.fixedDt);
 assert(~state.inventory.useLatched, ...
     'Releasing the use key did not clear its latch.');
+
+normalState = createInitialState(continuousCampusWorld(), cfg, []);
+boostedState = normalState;
+boostedState.inventory.buffTimer = 1;
+moveInput = emptyInput();
+moveInput.player(1).right = true;
+normalState = stepPhysics(normalState, moveInput, ...
+    continuousCampusWorld(), cfg, cfg.physics.fixedDt);
+boostedState = stepPhysics(boostedState, moveInput, ...
+    continuousCampusWorld(), cfg, cfg.physics.fixedDt);
+assert(boostedState.players(1).vel(1) > normalState.players(1).vel(1), ...
+    'Active tea boost did not increase run acceleration.');
 end
 
 function input = emptyInput()

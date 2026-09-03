@@ -2,6 +2,12 @@ function state = stepPhysics(state, input, level, cfg, dt)
 %STEPPHYSICS Fixed-step two-player movement, collision, and rope dynamics.
 
 colliders = state.levelState.colliders;
+runMultiplier = 1;
+jumpMultiplier = 1;
+if state.inventory.buffTimer > 0
+    runMultiplier = cfg.tea.runAccelerationMultiplier;
+    jumpMultiplier = cfg.tea.jumpMultiplier;
+end
 for playerIndex = 1:2
     player = state.players(playerIndex);
     actions = input.player(playerIndex);
@@ -15,7 +21,8 @@ for playerIndex = 1:2
     end
 
     if moveIntent ~= 0
-        player.vel(1) = player.vel(1) + moveIntent * acceleration * dt;
+        player.vel(1) = player.vel(1) + ...
+            moveIntent * acceleration * runMultiplier * dt;
     elseif player.onGround
         player.vel(1) = approachZero(player.vel(1), cfg.physics.groundFriction * dt);
     else
@@ -26,7 +33,7 @@ for playerIndex = 1:2
 
     jumpPressed = actions.jump && ~player.jumpHeld;
     if jumpPressed && player.onGround
-        player.vel(2) = cfg.physics.jumpSpeed;
+        player.vel(2) = cfg.physics.jumpSpeed * jumpMultiplier;
         player.onGround = false;
     end
     player.jumpHeld = actions.jump;
