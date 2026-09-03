@@ -110,5 +110,9 @@ world.mechanic.lexue.countdownPlatforms = [ ...
 world.mechanic.lexue.countdownDuration = 6.0;
 world.mechanic.lexue.flipWarningDuration = 0.22;
 world.mechanic.lexue.flipImpulse = 4.6;
+world.mechanic.lexue.startButtonPlatform = [153.6, 2.0, 4.8, 0.48];
+world.mechanic.lexue.startButtonZone = [153.6, 2.48, 4.8, 0.74];
+world.mechanic.lexue.startHoldDuration = 0.6;
+world.mechanic.lexue.selectionGate = [159.15, 0.0, 0.55, 10.5];
 world.background = 'continuousCampus';
 end
