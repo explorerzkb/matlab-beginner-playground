@@ -16,5 +16,5 @@ style.colors.uiBlue = [0.18, 0.48, 0.78];
 style.colors.muted = [0.48, 0.55, 0.58];
 
 style.title = '绳系双梨：良乡校园协作记';
-style.subtitle = '两只小梨，一根普通绳，四段校园意外';
+style.subtitle = '两只小梨，一根普通绳，一趟连续校园旅程';
 end

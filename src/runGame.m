@@ -23,27 +23,16 @@ while restartRequested && isgraphics(fig)
         if ~runInputCheck(fig, ax, cfg)
             return;
         end
-        if ~runPrologue(fig, ax, cfg)
-            return;
-        end
     end
 
     stats = [];
-    levelLoaders = {@level01NorthLake, @level02NetworkBridge, ...
-        @level03IbitNavigation, @level04DeadlineStorm};
+    levelLoaders = {@continuousCampusWorld};
     sessionQuit = false;
 
     for levelIndex = 1:numel(levelLoaders)
         level = levelLoaders{levelIndex}();
         state = createInitialState(level, cfg, stats);
         state = stepLevel(state, level, cfg, 0);
-
-        if ~cfg.runtime.testMode
-            if ~showLevelCard(fig, ax, level, cfg)
-                sessionQuit = true;
-                break;
-            end
-        end
 
         if cfg.runtime.testMode
             state = runTestLevel(fig, ax, state, level, cfg);
@@ -141,7 +130,7 @@ end
 end
 
 function state = runTestLevel(fig, ax, state, level, cfg)
-duration = max(0.18, cfg.runtime.testDuration / 4);
+duration = max(0.18, cfg.runtime.testDuration);
 steps = ceil(duration / cfg.physics.fixedDt);
 for index = 1:steps
     input = syntheticInput(index);
