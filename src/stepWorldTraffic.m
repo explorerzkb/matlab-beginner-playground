@@ -3,7 +3,12 @@ function state = stepWorldTraffic(state, world, ~, dt)
 
 traffic = world.mechanic.traffic;
 if ~isfield(state.levelState, 'traffic')
+    state.levelState.traffic = struct();
+end
+if ~isfield(state.levelState.traffic, 'fountainCooldowns')
     state.levelState.traffic.fountainCooldowns = zeros(1, 2);
+end
+if ~isfield(state.levelState.traffic, 'route')
     state.levelState.traffic.route = 'undecided';
     state.levelState.traffic.routeCandidate = 'none';
     state.levelState.traffic.routeTimer = 0;
@@ -67,11 +72,37 @@ if strcmp(state.levelState.traffic.route, 'undecided')
     end
 end
 
+[signalPhase, phaseProgress] = signalAtTime(traffic, state.levelTime);
+state.levelState.traffic.signalPhase = signalPhase;
+state.levelState.traffic.signalProgress = phaseProgress;
+state.levelState.traffic.carsMayMove = strcmp(signalPhase, 'vehicleGreen') || ...
+    strcmp(signalPhase, 'yellow');
+state.levelState.traffic.pedestriansMayCross = ...
+    strcmp(signalPhase, 'pedestrianGreen');
+if strcmp(state.levelState.traffic.route, 'lower') && ...
+        ~state.levelState.traffic.pedestriansMayCross && ...
+        any(playersInRect(state.players, traffic.waitingZone))
+    state.stats.trafficWaitTime = state.stats.trafficWaitTime + dt;
+end
+
 state.levelState.dynamicObjects.traffic.fountain = traffic.fountainRect;
 state.levelState.dynamicObjects.traffic.upperRouteZone = ...
     traffic.upperRouteZone;
 state.levelState.dynamicObjects.traffic.lowerRouteZone = ...
     traffic.lowerRouteZone;
+state.levelState.dynamicObjects.traffic.crosswalk = traffic.crosswalk;
+end
+
+function [phase, progress] = signalAtTime(traffic, time)
+durations = traffic.signalPhaseDurations;
+cycleTime = mod(time, sum(durations));
+phaseIndex = find(cycleTime < cumsum(durations), 1, 'first');
+if isempty(phaseIndex)
+    phaseIndex = numel(durations);
+end
+phaseStart = sum(durations(1:phaseIndex - 1));
+phase = traffic.signalPhaseNames{phaseIndex};
+progress = (cycleTime - phaseStart) / durations(phaseIndex);
 end
 
 function occupancy = playersInRect(players, rect)

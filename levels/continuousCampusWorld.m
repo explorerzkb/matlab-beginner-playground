@@ -86,5 +86,11 @@ world.mechanic.traffic.fountainCooldown = 0.9;
 world.mechanic.traffic.upperRouteZone = [90.0, 5.50, 8.0, 1.65];
 world.mechanic.traffic.lowerRouteZone = [90.0, 1.00, 8.0, 1.65];
 world.mechanic.traffic.routeHoldDuration = 0.35;
+world.mechanic.traffic.signalPhaseNames = { ...
+    'vehicleGreen', 'yellow', 'allRedBeforePed', ...
+    'pedestrianGreen', 'allRedBeforeCars'};
+world.mechanic.traffic.signalPhaseDurations = [3.0, 0.8, 0.5, 3.0, 0.5];
+world.mechanic.traffic.waitingZone = [99.4, 1.0, 3.4, 1.65];
+world.mechanic.traffic.crosswalk = [102.8, 1.0, 7.0, 1.65];
 world.background = 'continuousCampus';
 end
