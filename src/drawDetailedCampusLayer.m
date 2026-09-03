@@ -63,10 +63,15 @@ drawCampusSign(ax, 19.1, 7.5, {'良乡东路', '北区  ↔  南区'}, ...
     [0.12, 0.34, 0.49], cfg);
 
 % Repeated paving joints make the strip read as a campus road, not a bar.
-for x = 0:1.6:46
-    plot(ax, [x, x + 0.65], [5.63, 5.63], '-', ...
-        'Color', [0.50, 0.40, 0.24], 'LineWidth', 1.0);
-end
+% Keep them in one line object so camera motion does not redraw dozens of
+% independent graphics objects.
+jointStarts = 0:1.6:46;
+jointX = reshape([jointStarts; jointStarts + 0.65; ...
+    nan(size(jointStarts))], 1, []);
+jointY = reshape([5.63 * ones(size(jointStarts)); ...
+    5.63 * ones(size(jointStarts)); nan(size(jointStarts))], 1, []);
+plot(ax, jointX, jointY, '-', 'Color', [0.50, 0.40, 0.24], ...
+    'LineWidth', 1.0);
 end
 
 function drawNavigationCampus(ax, cfg)
@@ -140,16 +145,30 @@ marginTop = 0.48;
 doorWidth = min(0.75, width / 5);
 windowWidth = max(0.20, (width - 2 * marginX) / columns * 0.55);
 windowHeight = max(0.16, (height - 0.95) / rows * 0.42);
+windowCount = rows * columns;
+windowVertices = zeros(4 * windowCount, 2);
+windowFaces = zeros(windowCount, 4);
+windowIndex = 0;
 for row = 1:rows
     windowY = y + height - marginTop - row * ((height - 0.85) / rows);
     for column = 1:columns
         centreX = x + marginX + (column - 0.5) * ...
             ((width - 2 * marginX) / columns);
-        rectangle(ax, 'Position', [centreX - windowWidth / 2, windowY, ...
-            windowWidth, windowHeight], 'FaceColor', [0.70, 0.88, 0.94], ...
-            'EdgeColor', [0.36, 0.53, 0.61], 'LineWidth', 0.6);
+        windowIndex = windowIndex + 1;
+        firstVertex = 4 * (windowIndex - 1) + 1;
+        vertexIndices = firstVertex:(firstVertex + 3);
+        left = centreX - windowWidth / 2;
+        right = centreX + windowWidth / 2;
+        bottom = windowY;
+        top = windowY + windowHeight;
+        windowVertices(vertexIndices, :) = [ ...
+            left, bottom; right, bottom; right, top; left, top];
+        windowFaces(windowIndex, :) = vertexIndices;
     end
 end
+patch(ax, 'Faces', windowFaces, 'Vertices', windowVertices, ...
+    'FaceColor', [0.70, 0.88, 0.94], ...
+    'EdgeColor', [0.36, 0.53, 0.61], 'LineWidth', 0.6);
 rectangle(ax, 'Position', [x + width / 2 - doorWidth / 2, y, ...
     doorWidth, min(0.65, height * 0.28)], 'FaceColor', accentColor, ...
     'EdgeColor', accentColor);
