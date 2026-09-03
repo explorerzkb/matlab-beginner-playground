@@ -68,5 +68,12 @@ world.mechanic.network.authGate = [65.45, 0.0, 0.55, 10.5];
 world.mechanic.network.elevatorBase = [71.35, 1.0, 4.0, 0.45];
 world.mechanic.network.elevatorAmplitude = 3.1;
 world.mechanic.network.elevatorPeriod = 4.0;
+world.mechanic.network.rechargePads = [ ...
+    66.35, 4.75, 1.70, 0.65; ...
+    68.75, 4.75, 1.70, 0.65];
+world.mechanic.network.rechargeImpulses = [-2.6, 8.2; 4.2, 9.0];
+world.mechanic.network.rechargeCooldown = 0.8;
+world.mechanic.network.rechargeMaxHorizontal = 8.0;
+world.mechanic.network.rechargeMaxVertical = 11.0;
 world.background = 'continuousCampus';
 end
