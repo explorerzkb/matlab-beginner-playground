@@ -106,11 +106,10 @@ function handles = initializeScene(ax, level, cfg)
 cla(ax);
 hold(ax, 'on');
 set(ax, 'Color', cfg.presentation.colors.sky, ...
-    'XTick', 0:2:level.worldWidth, 'YTick', 0:2:12, ...
-    'XGrid', 'on', 'YGrid', 'on', ...
-    'GridColor', [1, 1, 1], 'GridAlpha', 0.28, ...
+    'XTick', [], 'YTick', [], ...
+    'XGrid', 'off', 'YGrid', 'off', ...
     'Layer', 'top', 'FontName', cfg.render.fontName, ...
-    'Box', 'on', 'LineWidth', 1.2);
+    'Box', 'off', 'LineWidth', 1.2);
 axis(ax, 'manual');
 
 drawStaticBackground(ax, level, cfg);
@@ -118,10 +117,12 @@ drawStaticBackground(ax, level, cfg);
 handles.platforms = gobjects(size(level.platforms, 1), 1);
 for index = 1:size(level.platforms, 1)
     rect = level.platforms(index, :);
+    [faceColor, edgeColor] = platformPalette(rect, level, cfg);
     handles.platforms(index) = rectangle(ax, 'Position', rect, ...
-        'FaceColor', cfg.presentation.colors.platform, ...
-        'EdgeColor', cfg.presentation.colors.platformEdge, ...
+        'FaceColor', faceColor, ...
+        'EdgeColor', edgeColor, ...
         'LineWidth', 1.8, 'Curvature', 0.04);
+    drawPlatformTrim(ax, rect, edgeColor);
 end
 
 handles.finish = rectangle(ax, 'Position', level.finish, ...
@@ -277,6 +278,47 @@ uistack(handles.hud, 'top');
 uistack(handles.instruction, 'top');
 uistack(handles.checkpointText, 'top');
 uistack(handles.pauseText, 'top');
+end
+
+function [faceColor, edgeColor] = platformPalette(rect, level, cfg)
+faceColor = cfg.presentation.colors.platform;
+edgeColor = cfg.presentation.colors.platformEdge;
+if ~strcmp(level.mechanic.type, 'continuousCampus')
+    return;
+end
+
+centreX = rect(1) + rect(3) / 2;
+if centreX < 64
+    faceColor = [0.61, 0.47, 0.28];
+    edgeColor = [0.18, 0.29, 0.16];
+elseif centreX < 96
+    faceColor = [0.74, 0.84, 0.88];
+    edgeColor = [0.20, 0.38, 0.50];
+elseif centreX < 148
+    faceColor = [0.66, 0.62, 0.53];
+    edgeColor = [0.25, 0.27, 0.25];
+else
+    faceColor = [0.66, 0.77, 0.87];
+    edgeColor = [0.18, 0.34, 0.55];
+end
+end
+
+function drawPlatformTrim(ax, rect, edgeColor)
+topY = rect(2) + rect(4);
+centreX = rect(1) + rect(3) / 2;
+if centreX < 64 && rect(2) < 1.2
+    plot(ax, [rect(1), rect(1) + rect(3)], [topY, topY], '-', ...
+        'Color', [0.20, 0.38, 0.16], 'LineWidth', 5.0);
+    dots = linspace(rect(1) + 0.12, rect(1) + rect(3) - 0.12, ...
+        max(3, round(rect(3) * 1.7)));
+    plot(ax, dots, topY + 0.035 + 0.025 * sin(3.1 * dots), '.', ...
+        'Color', [0.46, 0.65, 0.25], 'MarkerSize', 8);
+else
+    trimColor = min(1, edgeColor + 0.34);
+    plot(ax, [rect(1) + 0.05, rect(1) + rect(3) - 0.05], ...
+        [topY - 0.035, topY - 0.035], '-', ...
+        'Color', trimColor, 'LineWidth', 2.0);
+end
 end
 
 function drawStaticBackground(ax, level, cfg)

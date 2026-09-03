@@ -45,6 +45,7 @@ cfg.render.worldHeight = 13;
 cfg.render.marginY = 0.25;
 cfg.render.fontName = 'Microsoft YaHei';
 cfg.render.loginTextureStride = 2;
+cfg.render.backgroundTextureStride = 2;
 
 cfg.runtime.testMode = false;
 cfg.runtime.lowPowerMode = false;
@@ -59,4 +60,14 @@ cfg.input = inputConfig();
 cfg.presentation = presentationConfig();
 cfg.assets.loginImage = fullfile(projectRoot, 'assets', 'game', ...
     'images', 'campus-network-login.png');
+cfg.assets.northLakeWest = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'backgrounds', 'north-lake-west-painted.jpg');
+cfg.assets.northLakeEast = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'backgrounds', 'north-lake-east-painted.jpg');
+cfg.assets.sportsDefense = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'backgrounds', 'sports-defense-painted.jpg');
+cfg.assets.museum = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'backgrounds', 'museum-painted.jpg');
+cfg.assets.bitEmblem = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'bit-emblem.jpg');
 end
