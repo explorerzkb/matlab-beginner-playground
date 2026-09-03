@@ -25,14 +25,14 @@ end
 
 function state = resetContinuousTransients(state, world)
 traffic = world.mechanic.traffic;
-crosswalk = traffic.crosswalk;
 cars = traffic.carData(:, 1:4);
 for carIndex = 1:size(cars, 1)
     if traffic.carData(carIndex, 6) > 0
-        cars(carIndex, 1) = crosswalk(1) - traffic.stopLineGap - ...
-            cars(carIndex, 3);
+        cars(carIndex, 2) = traffic.crosswalk(2) - ...
+            traffic.stopLineGap - cars(carIndex, 4);
     else
-        cars(carIndex, 1) = crosswalk(1) + crosswalk(3) + ...
+        cars(carIndex, 2) = traffic.crosswalk(2) + ...
+            traffic.crosswalk(4) + ...
             traffic.stopLineGap;
     end
 end

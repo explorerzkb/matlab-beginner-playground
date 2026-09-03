@@ -52,17 +52,18 @@ for rowY = [7.9, 7.25, 6.6]
         'Color', [0.66, 0.72, 0.78], 'LineWidth', 1.2);
 end
 
-% North-to-south transition: road below and supported bridge above.
+% North-to-south transition: an east-west walkway crosses a north-south road.
 patch(ax, [80, 132, 132, 80], [0.65, 0.65, 4.1, 4.1], ...
-    [0.40, 0.44, 0.47], 'EdgeColor', 'none', 'FaceAlpha', 0.84);
-for stripeX = 81:4.5:130
-    plot(ax, [stripeX, min(stripeX + 2.2, 132)], [2.5, 2.5], '-', ...
-        'Color', [0.95, 0.92, 0.65], 'LineWidth', 1.4);
-end
-for stripeX = 103.05:1.15:109.0
-    rectangle(ax, 'Position', [stripeX, 0.78, 0.58, 3.15], ...
+    [0.78, 0.75, 0.68], 'EdgeColor', 'none', 'FaceAlpha', 0.82);
+rectangle(ax, 'Position', [102.65, 0.65, 7.30, 4.20], ...
+    'FaceColor', [0.34, 0.38, 0.41], 'EdgeColor', [0.20, 0.23, 0.25], ...
+    'LineWidth', 1.2);
+for stripeY = 1.08:0.40:2.48
+    rectangle(ax, 'Position', [102.88, stripeY, 6.84, 0.17], ...
         'FaceColor', [0.94, 0.94, 0.92], 'EdgeColor', 'none');
 end
+plot(ax, [106.3, 106.3], [2.85, 4.65], '--', ...
+    'Color', [0.95, 0.92, 0.65], 'LineWidth', 1.4);
 for supportX = [92, 104, 113, 124]
     plot(ax, [supportX, supportX], [4.1, 6.0], '-', ...
         'Color', [0.31, 0.35, 0.38], 'LineWidth', 3.0);

@@ -185,6 +185,18 @@ for index = 1:3
 end
 set(handles.continuous.signalLabel, 'String', signalLabel, 'Visible', 'on');
 
+barrier = state.levelState.dynamicObjects.traffic.pedestrianBarrier;
+if traffic.pedestriansMayCross
+    set(handles.continuous.pedestrianBarrier, 'Visible', 'off');
+    set(handles.continuous.pedestrianBarrierLabel, 'Visible', 'off');
+else
+    set(handles.continuous.pedestrianBarrier, 'Position', barrier, ...
+        'Visible', 'on');
+    set(handles.continuous.pedestrianBarrierLabel, 'Position', ...
+        [barrier(1) - 0.18, barrier(2) + barrier(4) + 0.18, 0], ...
+        'Visible', 'on');
+end
+
 switch traffic.route
     case 'upper'
         routeLabel = '路线：北理桥';

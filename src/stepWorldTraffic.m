@@ -96,6 +96,10 @@ state.levelState.traffic.carsMayMove = strcmp(signalPhase, 'vehicleGreen') || ..
     strcmp(signalPhase, 'yellow');
 state.levelState.traffic.pedestriansMayCross = ...
     strcmp(signalPhase, 'pedestrianGreen');
+if ~state.levelState.traffic.pedestriansMayCross
+    state.levelState.colliders = [state.levelState.colliders; ...
+        traffic.pedestrianBarrier];
+end
 if strcmp(state.levelState.traffic.route, 'lower') && ...
         ~state.levelState.traffic.pedestriansMayCross && ...
         any(playersInRect(state.players, traffic.waitingZone))
@@ -106,13 +110,13 @@ cars = state.levelState.traffic.cars;
 if state.levelState.traffic.carsMayMove
     for carIndex = 1:size(cars, 1)
         row = traffic.carData(carIndex, :);
-        cars(carIndex, 1) = cars(carIndex, 1) + ...
+        cars(carIndex, 2) = cars(carIndex, 2) + ...
             row(5) * row(6) * dt;
-        if row(6) > 0 && cars(carIndex, 1) > row(8)
-            cars(carIndex, 1) = row(7) - cars(carIndex, 3);
+        if row(6) > 0 && cars(carIndex, 2) > row(8)
+            cars(carIndex, 2) = row(7) - cars(carIndex, 4);
         elseif row(6) < 0 && ...
-                cars(carIndex, 1) + cars(carIndex, 3) < row(7)
-            cars(carIndex, 1) = row(8);
+                cars(carIndex, 2) + cars(carIndex, 4) < row(7)
+            cars(carIndex, 2) = row(8);
         end
     end
 else
@@ -121,10 +125,15 @@ end
 state.levelState.traffic.cars = cars;
 
 carHit = false;
-for carIndex = 1:size(cars, 1)
-    if any(playersInRect(state.players, cars(carIndex, :)))
-        carHit = true;
-        break;
+if state.levelState.traffic.carsMayMove
+    for carIndex = 1:size(cars, 1)
+        carInCrosswalk = rectanglesOverlap(cars(carIndex, :), ...
+            traffic.crosswalk);
+        if carInCrosswalk && ...
+                any(playersInRect(state.players, cars(carIndex, :)))
+            carHit = true;
+            break;
+        end
     end
 end
 if carHit
@@ -166,26 +175,35 @@ state.levelState.dynamicObjects.traffic.upperRouteZone = ...
 state.levelState.dynamicObjects.traffic.lowerRouteZone = ...
     traffic.lowerRouteZone;
 state.levelState.dynamicObjects.traffic.crosswalk = traffic.crosswalk;
+state.levelState.dynamicObjects.traffic.pedestrianBarrier = ...
+    traffic.pedestrianBarrier;
 state.levelState.dynamicObjects.traffic.cars = cars;
 state.levelState.dynamicObjects.traffic.crowd = crowd;
 end
 
 function cars = parkCarsOutsideCrosswalk(cars, traffic)
 crosswalk = traffic.crosswalk;
-crossingLeft = crosswalk(1);
-crossingRight = crosswalk(1) + crosswalk(3);
+crossingBottom = crosswalk(2);
+crossingTop = crosswalk(2) + crosswalk(4);
 for carIndex = 1:size(cars, 1)
     direction = traffic.carData(carIndex, 6);
-    carLeft = cars(carIndex, 1);
-    carRight = carLeft + cars(carIndex, 3);
-    overlapsCrossing = carRight > crossingLeft && carLeft < crossingRight;
+    carBottom = cars(carIndex, 2);
+    carTop = carBottom + cars(carIndex, 4);
+    overlapsCrossing = carTop > crossingBottom && carBottom < crossingTop;
     if overlapsCrossing && direction > 0
-        cars(carIndex, 1) = crossingLeft - ...
-            traffic.stopLineGap - cars(carIndex, 3);
+        cars(carIndex, 2) = crossingBottom - ...
+            traffic.stopLineGap - cars(carIndex, 4);
     elseif overlapsCrossing
-        cars(carIndex, 1) = crossingRight + traffic.stopLineGap;
+        cars(carIndex, 2) = crossingTop + traffic.stopLineGap;
     end
 end
+end
+
+function tf = rectanglesOverlap(first, second)
+tf = first(1) + first(3) > second(1) && ...
+    first(1) < second(1) + second(3) && ...
+    first(2) + first(4) > second(2) && ...
+    first(2) < second(2) + second(4);
 end
 
 function [phase, progress] = signalAtTime(traffic, time)

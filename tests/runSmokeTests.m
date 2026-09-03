@@ -34,6 +34,7 @@ testTrafficRoutes();
 testTrafficSignal();
 testTrafficCars();
 testTrafficCrowd();
+testTrafficTraversal();
 fprintf('Running Lexue and Lucy checks...\n');
 testLexueCountdown();
 testLexueStartButton();

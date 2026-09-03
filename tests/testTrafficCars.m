@@ -16,14 +16,14 @@ state.levelTime = 0;
 state = stepWorldTraffic(state, world, cfg, 0);
 startCars = state.levelState.traffic.cars;
 state = stepWorldTraffic(state, world, cfg, 0.25);
-assert(any(abs(state.levelState.traffic.cars(:, 1) - ...
-    startCars(:, 1)) > 1e-9), ...
+assert(any(abs(state.levelState.traffic.cars(:, 2) - ...
+    startCars(:, 2)) > 1e-9), ...
     'Vehicles did not move during the vehicle phase.');
 
 state.levelTime = 4.4;
 state.levelState.traffic.signalClock = state.levelTime;
-state.levelState.traffic.cars(1, 1) = traffic.crosswalk(1) + 1;
-state.levelState.traffic.cars(2, 1) = traffic.crosswalk(1) + 3;
+state.levelState.traffic.cars(1, 2) = traffic.crosswalk(2) + 0.2;
+state.levelState.traffic.cars(2, 2) = traffic.crosswalk(2) + 0.5;
 state = stepWorldTraffic(state, world, cfg, 0);
 assert(~state.levelState.traffic.carsMayMove, ...
     'Vehicles remained enabled during pedestrian green.');
@@ -34,13 +34,26 @@ for carIndex = 1:size(state.levelState.traffic.cars, 1)
 end
 
 state.levelTime = 0;
+state.levelState.traffic.signalClock = 0;
 state.status.hitCooldown = 0;
+state.levelState.traffic.cars(1, 2) = traffic.crosswalk(2) + 0.1;
 car = state.levelState.traffic.cars(1, :);
 state.players(1).pos = [car(1) + car(3) / 2, car(2)];
 state = stepWorldTraffic(state, world, cfg, 0);
 assert(state.requestReset && state.status.breakValue == ...
     cfg.break.majorIncrease, ...
     'Vehicle collision did not cause one major break event.');
+
+state = createInitialState(world, cfg, []);
+state.levelTime = 4.5;
+state.levelState.traffic.signalClock = state.levelTime;
+state = stepWorldTraffic(state, world, cfg, 0);
+state.players(1).pos = [traffic.waitingZone(1) + 0.6, 1];
+state.players(2).pos = [traffic.waitingZone(1) + 1.6, 1];
+state.status.hitCooldown = 0;
+state = stepWorldTraffic(state, world, cfg, 0);
+assert(~state.requestReset, ...
+    'Safely waiting players were hit by stopped traffic.');
 end
 
 function tf = rectanglesOverlap(first, second)
