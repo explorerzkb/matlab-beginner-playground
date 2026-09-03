@@ -8,7 +8,12 @@
 - 用户提供的乐学首页截图，2852×1654，SHA-256：`070fb850b0f51167bd055270790edd0f00b9f8d3ddc78c2b2eac3248f9078e9c`；
 - 用户提供的选课倒计时截图，2852×1654，SHA-256：`54ce483f80bd5357403e7a28aaf4a77c1895b12e704a309f7aab896dc6ebe8e1`。
 
-两张原图位于用户桌面，不复制到 `assets/reference/` 或 `assets/game/`。
+两张原图已经按用户 2026-09-04 的最新要求复制到本机私有参考目录，不复制到 `assets/game/`，也不提交 Git：
+
+- `assets/reference/private/lexue/lexue-homepage-personal-reference.png`：乐学首页；
+- `assets/reference/private/lexue/course-selection-countdown-personal-reference.png`：选课倒计时。
+
+该目录由项目根目录 `.gitignore` 排除。原始像素只用于布局核对；姓名、头像、学院、课程、日期等个人信息不得进入运行时重绘或发布包。
 
 ## 它们能够证明的界面元素
 
