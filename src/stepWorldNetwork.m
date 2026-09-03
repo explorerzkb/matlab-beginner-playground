@@ -25,10 +25,58 @@ if ~state.levelState.network.credentialsReady
     end
 end
 
+bothOnLogin = all(playersInRect(state.players, network.loginButton));
+if bothOnLogin && ~state.levelState.network.loginPressLatched
+    state.stats.networkAttempts = state.stats.networkAttempts + 1;
+    state.levelState.network.loginPressLatched = true;
+end
+if ~bothOnLogin
+    state.levelState.network.loginPressLatched = false;
+end
+
+if state.levelState.network.authenticated
+    state.levelState.network.feedback = 'success';
+elseif ~state.levelState.network.credentialsReady
+    state.levelState.network.loginTimer = 0;
+    if bothOnLogin
+        state.levelState.network.feedback = 'needCredentials';
+    else
+        state.levelState.network.feedback = 'idle';
+    end
+elseif bothOnLogin
+    state.levelState.network.feedback = 'holding';
+    state.levelState.network.loginTimer = min(network.loginHoldDuration, ...
+        state.levelState.network.loginTimer + dt);
+    if state.levelState.network.loginTimer >= network.loginHoldDuration
+        state.levelState.network.authenticated = true;
+        state.levelState.network.feedback = 'success';
+    end
+else
+    state.levelState.network.loginTimer = max(0, ...
+        state.levelState.network.loginTimer - 1.5 * dt);
+    state.levelState.network.feedback = 'ready';
+end
+
+state.levelState.colliders = removeRect( ...
+    state.levelState.colliders, network.authGate);
+if ~state.levelState.network.authenticated
+    state.levelState.colliders = [state.levelState.colliders; network.authGate];
+end
+
 state.levelState.dynamicObjects.network.usernameField = ...
     network.usernameField;
 state.levelState.dynamicObjects.network.passwordField = ...
     network.passwordField;
+state.levelState.dynamicObjects.network.loginButton = network.loginButton;
+state.levelState.dynamicObjects.network.authGate = network.authGate;
+end
+
+function rects = removeRect(rects, target)
+if isempty(rects)
+    return;
+end
+matching = all(abs(rects - target) < 1e-9, 2);
+rects(matching, :) = [];
 end
 
 function occupancy = playersInRect(players, rect)

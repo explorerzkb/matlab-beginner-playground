@@ -63,5 +63,8 @@ world.mechanic.animals.sneezeImpulse = [6.2, 8.5];
 world.mechanic.network.usernameField = [55.25, 2.25, 2.05, 0.72];
 world.mechanic.network.passwordField = [57.70, 2.25, 2.05, 0.72];
 world.mechanic.network.credentialsHoldDuration = 1.0;
+world.mechanic.network.loginButton = [61.15, 3.45, 3.90, 0.72];
+world.mechanic.network.loginHoldDuration = 0.6;
+world.mechanic.network.authGate = [65.45, 0.0, 0.55, 10.5];
 world.background = 'continuousCampus';
 end
