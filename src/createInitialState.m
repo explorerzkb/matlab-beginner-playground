@@ -64,6 +64,7 @@ state.world.previousRegionIndex = 1;
 state.levelState.network.credentialsTimer = 0;
 state.levelState.network.credentialsReady = false;
 state.levelState.network.fieldOccupancy = [0, 0];
+state.levelState.network.rememberChecked = false;
 state.levelState.network.loginTimer = 0;
 state.levelState.network.loginPressLatched = false;
 state.levelState.network.authenticated = false;

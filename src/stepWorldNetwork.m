@@ -2,6 +2,10 @@ function state = stepWorldNetwork(state, world, ~, dt)
 %STEPWORLDNETWORK Advance cooperative controls in the campus-network page.
 
 network = world.mechanic.network;
+if ~state.levelState.network.rememberChecked && ...
+        any(playersInRect(state.players, network.rememberCheckbox))
+    state.levelState.network.rememberChecked = true;
+end
 usernamePlayers = playersInRect(state.players, network.usernameField);
 passwordPlayers = playersInRect(state.players, network.passwordField);
 state.levelState.network.fieldOccupancy = [sum(usernamePlayers), ...
@@ -109,6 +113,8 @@ state.levelState.dynamicObjects.network.usernameField = ...
     network.usernameField;
 state.levelState.dynamicObjects.network.passwordField = ...
     network.passwordField;
+state.levelState.dynamicObjects.network.rememberCheckbox = ...
+    network.rememberCheckbox;
 state.levelState.dynamicObjects.network.loginButton = network.loginButton;
 state.levelState.dynamicObjects.network.authGate = network.authGate;
 state.levelState.dynamicObjects.network.elevator = elevator;

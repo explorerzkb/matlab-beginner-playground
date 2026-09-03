@@ -13,8 +13,10 @@ state = stepWorldNetwork(state, world, cfg, dt);
 
 minimumX = min(state.players(1).pos(1), state.players(2).pos(1));
 for index = state.checkpointIndex + 1:numel(world.checkpoints)
-    if minimumX >= world.checkpoints(index).x
+    if checkpointSatisfied(state, world.checkpoints(index), minimumX)
         state.checkpointIndex = index;
+    else
+        break;
     end
 end
 
@@ -45,6 +47,16 @@ end
 % it for break events, timed traffic, and consumables.
 if cfg.break.maxValue <= 0
     error('matlabHi:InvalidBreakConfig', '破防值上限必须为正数。');
+end
+end
+
+function tf = checkpointSatisfied(state, checkpoint, minimumX)
+switch checkpoint.trigger
+    case 'networkCheckbox'
+        tf = minimumX >= checkpoint.x && ...
+            state.levelState.network.rememberChecked;
+    otherwise
+        tf = minimumX >= checkpoint.x;
 end
 end
 
