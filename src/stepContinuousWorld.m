@@ -57,6 +57,9 @@ switch checkpoint.trigger
     case 'networkCheckbox'
         tf = minimumX >= checkpoint.x && ...
             state.levelState.network.rememberChecked;
+    case 'lexueCourseCard'
+        tf = minimumX >= checkpoint.x && ...
+            state.levelState.lexue.courseCardReached;
     otherwise
         tf = minimumX >= checkpoint.x;
 end

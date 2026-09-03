@@ -11,6 +11,7 @@ if ~isfield(state.levelState, 'lexue')
     state.levelState.lexue.startPressLatched = false;
     state.levelState.lexue.homeActive = false;
     state.levelState.lexue.feedback = 'countdown';
+    state.levelState.lexue.courseCardReached = false;
 end
 
 centreX = mean([state.players(1).pos(1), state.players(2).pos(1)]);
@@ -75,9 +76,14 @@ else
         state.levelState.lexue.startTimer - 1.5 * dt);
     state.levelState.lexue.feedback = 'ready';
 end
+if state.levelState.lexue.homeActive && ...
+        any(playersInRect(state.players, lexue.courseCardZone))
+    state.levelState.lexue.courseCardReached = true;
+end
 
 state.levelState.colliders = [state.levelState.colliders; ...
-    lexue.countdownPlatforms; lexue.startButtonPlatform];
+    lexue.countdownPlatforms; lexue.startButtonPlatform; ...
+    lexue.courseCardPlatform];
 state.levelState.colliders = removeRect( ...
     state.levelState.colliders, lexue.selectionGate);
 if ~state.levelState.lexue.homeActive
@@ -92,6 +98,8 @@ state.levelState.dynamicObjects.lexue.countdownPlatforms = ...
 state.levelState.dynamicObjects.lexue.startButton = ...
     lexue.startButtonPlatform;
 state.levelState.dynamicObjects.lexue.selectionGate = lexue.selectionGate;
+state.levelState.dynamicObjects.lexue.courseCard = ...
+    lexue.courseCardPlatform;
 end
 
 function rects = removeRect(rects, target)
