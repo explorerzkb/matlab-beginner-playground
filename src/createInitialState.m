@@ -61,6 +61,9 @@ state.inventory.useHeldTime = 0;
 state.inventory.useLatched = false;
 state.world.activeRegionIndex = 1;
 state.world.previousRegionIndex = 1;
+state.levelState.network.credentialsTimer = 0;
+state.levelState.network.credentialsReady = false;
+state.levelState.network.fieldOccupancy = [0, 0];
 
 state.levelState.colliders = level.platforms;
 state.levelState.dynamicObjects = struct();

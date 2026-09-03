@@ -60,5 +60,8 @@ world.mechanic.animals.alpacaNose = [40.45, 1.55, 0.85, 0.75];
 world.mechanic.animals.sneezeWarning = 0.45;
 world.mechanic.animals.sneezeCooldown = 2.5;
 world.mechanic.animals.sneezeImpulse = [6.2, 8.5];
+world.mechanic.network.usernameField = [55.25, 2.25, 2.05, 0.72];
+world.mechanic.network.passwordField = [57.70, 2.25, 2.05, 0.72];
+world.mechanic.network.credentialsHoldDuration = 1.0;
 world.background = 'continuousCampus';
 end
