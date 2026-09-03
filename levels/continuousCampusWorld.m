@@ -78,5 +78,10 @@ world.mechanic.network.rechargeImpulses = [-2.6, 8.2; 4.2, 9.0];
 world.mechanic.network.rechargeCooldown = 0.8;
 world.mechanic.network.rechargeMaxHorizontal = 8.0;
 world.mechanic.network.rechargeMaxVertical = 11.0;
+world.mechanic.traffic.fountainRect = [82.2, 1.0, 3.3, 3.0];
+world.mechanic.traffic.fountainPeriod = 2.4;
+world.mechanic.traffic.fountainActiveDuration = 0.72;
+world.mechanic.traffic.fountainImpulse = [5.2, 15.0];
+world.mechanic.traffic.fountainCooldown = 0.9;
 world.background = 'continuousCampus';
 end
