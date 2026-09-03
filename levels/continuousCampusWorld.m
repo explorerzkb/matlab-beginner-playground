@@ -92,5 +92,9 @@ world.mechanic.traffic.signalPhaseNames = { ...
 world.mechanic.traffic.signalPhaseDurations = [3.0, 0.8, 0.5, 3.0, 0.5];
 world.mechanic.traffic.waitingZone = [99.4, 1.0, 3.4, 1.65];
 world.mechanic.traffic.crosswalk = [102.8, 1.0, 7.0, 1.65];
+world.mechanic.traffic.carData = [ ...
+     96.0, 1.0, 1.9, 1.05, 3.8,  1, 96.0, 113.0; ...
+    111.5, 1.0, 2.1, 1.05, 3.3, -1, 95.0, 113.5];
+world.mechanic.traffic.stopLineGap = 0.25;
 world.background = 'continuousCampus';
 end

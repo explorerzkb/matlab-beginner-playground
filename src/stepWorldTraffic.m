@@ -1,4 +1,4 @@
-function state = stepWorldTraffic(state, world, ~, dt)
+function state = stepWorldTraffic(state, world, cfg, dt)
 %STEPWORLDTRAFFIC Advance the fountain and later road/bridge mechanics.
 
 traffic = world.mechanic.traffic;
@@ -12,6 +12,9 @@ if ~isfield(state.levelState.traffic, 'route')
     state.levelState.traffic.route = 'undecided';
     state.levelState.traffic.routeCandidate = 'none';
     state.levelState.traffic.routeTimer = 0;
+end
+if ~isfield(state.levelState.traffic, 'cars')
+    state.levelState.traffic.cars = traffic.carData(:, 1:4);
 end
 state.levelState.traffic.fountainCooldowns = max(0, ...
     state.levelState.traffic.fountainCooldowns - dt);
@@ -85,12 +88,60 @@ if strcmp(state.levelState.traffic.route, 'lower') && ...
     state.stats.trafficWaitTime = state.stats.trafficWaitTime + dt;
 end
 
+cars = state.levelState.traffic.cars;
+if state.levelState.traffic.carsMayMove
+    for carIndex = 1:size(cars, 1)
+        row = traffic.carData(carIndex, :);
+        cars(carIndex, 1) = cars(carIndex, 1) + ...
+            row(5) * row(6) * dt;
+        if row(6) > 0 && cars(carIndex, 1) > row(8)
+            cars(carIndex, 1) = row(7) - cars(carIndex, 3);
+        elseif row(6) < 0 && ...
+                cars(carIndex, 1) + cars(carIndex, 3) < row(7)
+            cars(carIndex, 1) = row(8);
+        end
+    end
+else
+    cars = parkCarsOutsideCrosswalk(cars, traffic);
+end
+state.levelState.traffic.cars = cars;
+
+carHit = false;
+for carIndex = 1:size(cars, 1)
+    if any(playersInRect(state.players, cars(carIndex, :)))
+        carHit = true;
+        break;
+    end
+end
+if carHit
+    state = applyBreakEvent(state, cfg, 'major');
+end
+
 state.levelState.dynamicObjects.traffic.fountain = traffic.fountainRect;
 state.levelState.dynamicObjects.traffic.upperRouteZone = ...
     traffic.upperRouteZone;
 state.levelState.dynamicObjects.traffic.lowerRouteZone = ...
     traffic.lowerRouteZone;
 state.levelState.dynamicObjects.traffic.crosswalk = traffic.crosswalk;
+state.levelState.dynamicObjects.traffic.cars = cars;
+end
+
+function cars = parkCarsOutsideCrosswalk(cars, traffic)
+crosswalk = traffic.crosswalk;
+crossingLeft = crosswalk(1);
+crossingRight = crosswalk(1) + crosswalk(3);
+for carIndex = 1:size(cars, 1)
+    direction = traffic.carData(carIndex, 6);
+    carLeft = cars(carIndex, 1);
+    carRight = carLeft + cars(carIndex, 3);
+    overlapsCrossing = carRight > crossingLeft && carLeft < crossingRight;
+    if overlapsCrossing && direction > 0
+        cars(carIndex, 1) = crossingLeft - ...
+            traffic.stopLineGap - cars(carIndex, 3);
+    elseif overlapsCrossing
+        cars(carIndex, 1) = crossingRight + traffic.stopLineGap;
+    end
+end
 end
 
 function [phase, progress] = signalAtTime(traffic, time)
