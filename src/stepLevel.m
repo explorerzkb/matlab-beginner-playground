@@ -1,4 +1,4 @@
-function state = stepLevel(state, level, ~, dt)
+function state = stepLevel(state, level, cfg, dt)
 %STEPLEVEL Update level mechanics, checkpoints, failure, and completion.
 
 state.levelTime = state.levelTime + dt;
@@ -7,6 +7,10 @@ state.levelState.colliders = level.platforms;
 dynamicHazards = level.hazards;
 
 switch level.mechanic.type
+    case 'continuousCampus'
+        state = stepContinuousWorld(state, level, cfg, dt);
+        return;
+
     case 'geese'
         geeseData = level.mechanic.geese;
         geeseRects = zeros(size(geeseData, 1), 4);
