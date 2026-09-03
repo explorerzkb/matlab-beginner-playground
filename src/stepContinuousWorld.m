@@ -11,6 +11,7 @@ state = collectTeaPickups(state, world);
 state = stepWorldAnimals(state, world, cfg, dt);
 state = stepWorldNetwork(state, world, cfg, dt);
 state = stepWorldTraffic(state, world, cfg, dt);
+state = stepWorldLexue(state, world, cfg, dt);
 
 minimumX = min(state.players(1).pos(1), state.players(2).pos(1));
 for index = state.checkpointIndex + 1:numel(world.checkpoints)
