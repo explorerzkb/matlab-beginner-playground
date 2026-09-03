@@ -45,6 +45,7 @@
 | 推送第三轮原子提交 | `git push origin codex/gameplay-round-2` | 交通、动物、页面和证据提交均与远端同步 | 未强推、未合并 `main`、未创建 PR、Release 或标签 |
 | 保存第三轮接续文档 | README、CHANGELOG、当前状态与视觉索引，提交 `e9c1a02` | 成功并推送 | 明确保留目标 Windows、真人试玩、最终校园美术和常规 30 FPS 尚未完成 |
 | 核验第三轮远端与提交身份 | 本地 HEAD、远端分支 SHA、`origin/main..HEAD` 作者邮箱与提交计数 | 截至 `e9c1a02` 本地与远端 SHA 一致；邮箱唯一为 `explorerzkb@gmail.com` | 相对首版原子基线 64 个提交，相对远端 `main` 99 个提交；只读远端检查 |
+| 尝试在已启动 MATLAB 会话做界面侧启动确认 | Computer Use 读取当前 Mac 应用状态 | 未执行；Mac 处于锁屏状态且自动解锁失败 | 未绕过锁屏、未输入口令、未改变现有 MATLAB 会话；本轮只保留已完成的独立批处理证据 |
 
 ## 本轮明确未执行
 
