@@ -27,8 +27,15 @@ if state.players(1).pos(2) < world.killY || ...
     state = applyBreakEvent(state, cfg, 'major');
 end
 
-state.completed = playerOverlaps(state.players(1), world.finish) && ...
-    playerOverlaps(state.players(2), world.finish);
+player1InLucy = playerOverlaps(state.players(1), world.finish);
+player2InLucy = playerOverlaps(state.players(2), world.finish);
+state.levelState.lucy.touched = player1InLucy || player2InLucy;
+if state.levelState.lucy.touched
+    state.status.breakValue = 0;
+end
+state.completed = player1InLucy && player2InLucy && ...
+    state.levelState.lexue.homeActive && ...
+    state.levelState.lexue.courseCardReached;
 
 state.trajectorySampleClock = state.trajectorySampleClock + dt;
 if state.trajectorySampleClock >= 0.1

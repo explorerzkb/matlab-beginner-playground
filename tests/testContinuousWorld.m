@@ -30,6 +30,8 @@ assert(state.checkpointIndex == 4, ...
 
 state.players(1).pos = [181, 1];
 state.players(2).pos = [182, 1];
+state.levelState.lexue.homeActive = true;
+state.levelState.lexue.courseCardReached = true;
 state = stepLevel(state, world, cfg, 0.1);
 assert(state.completed, 'Both players inside Lucy River did not finish.');
 assert(size(state.levelTrajectory, 1) == 3, ...
