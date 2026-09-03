@@ -2,6 +2,8 @@ function testInputMappings()
 %TESTINPUTMAPPINGS Verify primary, alternate, pause, reset, and quit keys.
 
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
+addpath(fullfile(projectRoot, 'config'));
+addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 fig = figure('Visible', 'off');
 cleanupGuard = onCleanup(@() cleanupGame(fig));
