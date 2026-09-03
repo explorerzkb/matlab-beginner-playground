@@ -29,6 +29,10 @@
 | 审计原子提交与作者邮箱 | 截至日志提交前的 `0ffe87a` | 首版 35 个、第二轮及其文档 50 个，共 85 个；作者邮箱唯一为 `explorerzkb@gmail.com` | 只读 Git 历史；本日志随后单独形成第 86 个提交 |
 | 重试推送第二轮分支 | `git push -u origin codex/gameplay-round-2` | 失败，远端再次返回 `GH007` | 远端分支仍不存在；未绕过邮箱保护，本地提交不受影响 |
 | 读取远端分支状态 | `git ls-remote --heads origin codex/gameplay-round-2` | 无结果，确认远端未建立该分支 | 只读网络请求 |
+| 用户再次要求后推送完整第二轮分支 | `git push -u origin codex/gameplay-round-2`，成功点 `6496ce8` | 成功，远端同名分支建立并开始跟踪 | 发布 86 个本地原子提交；没有强推或改写历史 |
+| 核验远端 SHA 与 GitHub 作者归属 | `git ls-remote` 与 GitHub 提交接口 | 远端和本地均为 `6496ce8`；账号为 `explorerzkb`，邮箱为 `explorerzkb@gmail.com` | 只读远端数据，未创建 Pull Request 或 Release |
+| 保存后续接续状态 | README、CHANGELOG、`docs/current-project-state.md` | 成功，形成独立进度提交 `8b5cd1d` | 明确记录已推送基线、待测事项和未提交重力实验 |
+| 保护来源未确认的工作树改动 | `config/gameConfig.m` 中重力 `-10` → `-20` | 保留原状，未暂存、未提交、未推送 | 避免误删或把未确认调参混入已验证基线 |
 
 ## 本轮明确未执行
 
