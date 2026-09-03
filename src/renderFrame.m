@@ -9,6 +9,12 @@ end
 handles = state.render.handles;
 
 cameraTarget = mean([state.players(1).pos(1), state.players(2).pos(1)]);
+if strcmp(level.mechanic.type, 'continuousCampus') && ...
+        isfield(state.levelState, 'activeRegionId') && ...
+        strcmp(state.levelState.activeRegionId, 'network')
+    page = level.mechanic.network.pageRect;
+    cameraTarget = page(1) + page(3) / 2;
+end
 if ~isfield(state.render, 'cameraCentre')
     state.render.cameraCentre = cameraTarget;
 else

@@ -14,8 +14,8 @@ assert(strcmp(state.levelState.activeRegionId, 'origin'), ...
     'World did not begin in the MATLAB origin region.');
 
 checkbox = world.mechanic.network.rememberCheckbox;
-state.players(1).pos = [checkbox(1) + 0.5, checkbox(2)];
-state.players(2).pos = [checkbox(1) + 1.2, checkbox(2)];
+state.players(1).pos = [checkbox(1) + 0.25, checkbox(2)];
+state.players(2).pos = [checkbox(1) + checkbox(3) - 0.25, checkbox(2)];
 state = stepLevel(state, world, cfg, 0.1);
 assert(state.checkpointIndex == 3, ...
     'Campus-network checkbox did not become a checkpoint.');

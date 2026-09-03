@@ -10,6 +10,7 @@ addpath(fullfile(projectRoot, 'tests'));
 
 fprintf('Running level-data checks...\n');
 testLevelData();
+testPixelRectToWorld();
 fprintf('Running input-mapping checks...\n');
 testInputMappings();
 fprintf('Running shared physics and state checks...\n');
@@ -24,6 +25,7 @@ fprintf('Running North Lake checks...\n');
 testWorldAnimals();
 testAlpacaShortcut();
 fprintf('Running campus-network checks...\n');
+testNetworkPixelLayout();
 testNetworkCheckpoint();
 testNetworkCredentials();
 testNetworkLogin();

@@ -67,18 +67,12 @@ if ~state.levelState.network.authenticated
     state.levelState.colliders = [state.levelState.colliders; network.authGate];
 end
 
-if ~isfield(state.levelState.network, 'elevatorRect')
-    state.levelState.network.elevatorRect = network.elevatorBase;
-end
-previousElevator = state.levelState.network.elevatorRect;
-elevator = network.elevatorBase;
-elevator(2) = elevator(2) + network.elevatorAmplitude * 0.5 * ...
-    (1 + sin(2 * pi * state.levelTime / network.elevatorPeriod - pi / 2));
-state = carryPlayersWithPlatform(state, previousElevator, elevator);
-state.levelState.network.elevatorRect = elevator;
-state.levelState.colliders = removeRect(state.levelState.colliders, ...
-    previousElevator);
-state.levelState.colliders = [state.levelState.colliders; elevator];
+selfService = network.selfServiceButton;
+state.levelState.network.selfServiceRect = selfService;
+pageControls = [network.usernameField; network.passwordField; ...
+    network.rememberCheckbox; network.loginButton; selfService; ...
+    network.rechargePads];
+state.levelState.colliders = [state.levelState.colliders; pageControls];
 
 if ~isfield(state.levelState.network, 'rechargeCooldowns')
     state.levelState.network.rechargeCooldowns = zeros(2, 2);
@@ -117,7 +111,7 @@ state.levelState.dynamicObjects.network.rememberCheckbox = ...
     network.rememberCheckbox;
 state.levelState.dynamicObjects.network.loginButton = network.loginButton;
 state.levelState.dynamicObjects.network.authGate = network.authGate;
-state.levelState.dynamicObjects.network.elevator = elevator;
+state.levelState.dynamicObjects.network.selfServiceButton = selfService;
 state.levelState.dynamicObjects.network.rechargePads = network.rechargePads;
 end
 
@@ -132,7 +126,11 @@ end
 function occupancy = playersInRect(players, rect)
 occupancy = false(1, 2);
 for playerIndex = 1:2
-    occupancy(playerIndex) = playerOverlaps(players(playerIndex), rect);
+    player = players(playerIndex);
+    occupancy(playerIndex) = player.pos(1) >= rect(1) && ...
+        player.pos(1) <= rect(1) + rect(3) && ...
+        player.pos(2) >= rect(2) - 0.08 && ...
+        player.pos(2) <= rect(2) + rect(4) + 0.08;
 end
 end
 

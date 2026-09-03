@@ -59,7 +59,8 @@ for index = 1:numel(sceneNames)
             state.players(1).pos = [username(1) + 1.0, username(2)];
             state.players(2).pos = [password(1) + 1.0, password(2)];
             state.levelState.network.credentialsTimer = 0.72;
-            cameraStart = 80.5;
+            page = world.mechanic.network.pageRect;
+            cameraStart = page(1) + page(3) / 2;
         case 'traffic-bridge'
             state.players(1).pos = [107.7, 5.5];
             state.players(2).pos = [111.1, 5.5];
