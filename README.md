@@ -83,4 +83,4 @@ docs/                    当前规格、计划、视觉证据和状态
 archive/                 默认禁止读取的不可变历史快照
 ```
 
-当前本地开发分支为 `codex/gameplay-round-2`。远端推送仍可能被 GitHub 的私人邮箱保护拒绝；项目要求的新提交作者邮箱固定为 `explorerzkb@gmail.com`，不得为绕过保护而改用其他邮箱。
+当前开发分支为 `codex/gameplay-round-2`，已推送并跟踪同名远端分支。GitHub 提交接口确认作者归属账号 `explorerzkb`，提交邮箱为项目固定的 `explorerzkb@gmail.com`。
