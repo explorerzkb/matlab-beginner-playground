@@ -30,4 +30,9 @@ state.players(2).pos = [pageExit + 1, 1];
 state = resetToCheckpoint(state, world);
 assert(norm(state.players(1).pos - world.checkpoints(3).spawn(1, :)) < ...
     1e-9, 'Reset did not use the page checkbox checkpoint.');
+noticeTop = world.mechanic.network.noticePanel(2) + ...
+    world.mechanic.network.noticePanel(4);
+positions = vertcat(state.players.pos);
+assert(all(abs(positions(:, 2) - noticeTop) < 1e-9), ...
+    'The remember-password checkpoint no longer respawns on the notice panel.');
 end

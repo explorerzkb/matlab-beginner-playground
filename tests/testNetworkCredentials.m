@@ -1,5 +1,5 @@
 function testNetworkCredentials()
-%TESTNETWORKCREDENTIALS Verify two players must occupy distinct fields.
+%TESTNETWORKCREDENTIALS Verify one pear brushing username autofills both fields.
 
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(projectRoot, 'config'));
@@ -9,21 +9,19 @@ cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
 state = createInitialState(world, cfg, []);
 username = world.mechanic.network.usernameField;
-password = world.mechanic.network.passwordField;
-
-state.players(1).pos = [username(1) + 0.6, username(2)];
-state.players(2).pos = [username(1) + 1.4, username(2)];
-state = stepWorldNetwork(state, world, cfg, 1.1);
+halfWidth = state.players(1).size(1) / 2;
+state.players(1).pos = [username(1) - halfWidth - 0.02, username(2)];
+state = stepWorldNetwork(state, world, cfg, 0.1);
 assert(~state.levelState.network.credentialsReady, ...
-    'Two players in the same field incorrectly completed credentials.');
+    'Credentials filled before a pear body entered the username field.');
 
-state.players(2).pos = [password(1) + 1.0, password(2)];
-state = stepWorldNetwork(state, world, cfg, 0.45);
-assert(~state.levelState.network.credentialsReady, ...
-    'Credentials completed before the configured cooperative hold.');
-state = stepWorldNetwork(state, world, cfg, 0.55);
+state.players(1).pos(1) = username(1) - halfWidth + 0.02;
+state = stepWorldNetwork(state, world, cfg, 0.01);
 assert(state.levelState.network.credentialsReady, ...
-    'Distinct players did not complete the cooperative credentials.');
-assert(all(state.levelState.network.fieldOccupancy == [1, 1]), ...
-    'Field occupancy was not exposed for rendering feedback.');
+    'A pear body crossing username did not autofill the credentials.');
+assert(state.levelState.network.fieldOccupancy(1) == 1, ...
+    'Body-overlap occupancy was not exposed for rendering feedback.');
+assert(numel(cfg.network.groupStudentIds) == 3 && ...
+    strcmp(cfg.network.passwordMask, '**********'), ...
+    'Autofill configuration does not contain three IDs and ten stars.');
 end

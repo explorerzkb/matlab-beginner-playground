@@ -182,9 +182,17 @@ end
 if networkRegionVisible
 networkData = state.levelState.dynamicObjects.network;
 fieldRects = [networkData.usernameField; networkData.passwordField];
+if state.levelState.network.credentialsReady
+    fieldTexts = {strjoin(cfg.network.groupStudentIds, ' · '), ...
+        cfg.network.passwordMask};
+else
+    fieldTexts = {'小梨经过这里自动填写', ''};
+end
 for index = 1:2
     occupancy = state.levelState.network.fieldOccupancy(index);
-    if occupancy == 1
+    if state.levelState.network.credentialsReady
+        color = [0.60, 0.88, 0.67];
+    elseif occupancy == 1
         color = [0.60, 0.88, 0.67];
     elseif occupancy > 1
         color = [0.96, 0.60, 0.55];
@@ -196,8 +204,10 @@ for index = 1:2
         'FaceColor', color, 'Visible', 'on');
     set(handles.continuous.networkFieldLabels(index), 'Position', ...
         [rect(1) + rect(3) / 2, rect(2) + rect(4) / 2, 0], ...
-        'Visible', 'on');
+        'String', fieldTexts{index}, 'Visible', 'on');
 end
+set(handles.continuous.networkFieldLabels(1), 'FontSize', 6.0);
+set(handles.continuous.networkFieldLabels(2), 'FontSize', 9.5);
 
 checkbox = networkData.rememberCheckbox;
 if state.levelState.network.rememberChecked
@@ -217,18 +227,22 @@ login = networkData.loginButton;
 switch state.levelState.network.feedback
     case 'needCredentials'
         loginColor = [0.87, 0.31, 0.27];
-        loginLabel = '请先双人填写';
+        loginLabel = '先蹭用户名';
     case 'ready'
         loginColor = [0.49, 0.70, 0.84];
-        loginLabel = '两人站稳登录';
-    case 'holding'
+        loginLabel = '双梨登录';
+    case 'needPartner'
         loginColor = [0.91, 0.68, 0.22];
-        progress = state.levelState.network.loginTimer / ...
-            world.mechanic.network.loginHoldDuration;
-        loginLabel = sprintf('登录 %.0f%%', 100 * progress);
+        loginLabel = '还差一梨';
+    case 'lagWarning'
+        loginColor = [0.95, 0.72, 0.18];
+        loginLabel = '网络卡顿…';
+    case 'lagOutage'
+        loginColor = [0.67, 0.76, 0.82];
+        loginLabel = '';
     case 'success'
         loginColor = [0.35, 0.75, 0.45];
-        loginLabel = '认证成功';
+        loginLabel = '已登录';
     otherwise
         loginColor = [0.67, 0.76, 0.82];
         loginLabel = '登录';
@@ -246,25 +260,48 @@ else
         'Visible', 'on');
 end
 selfService = networkData.selfServiceButton;
-set(handles.continuous.networkSelfService, 'Position', selfService, ...
-    'Visible', 'on');
-set(handles.continuous.networkSelfServiceLabel, 'Position', ...
-    [selfService(1) + selfService(3) / 2, ...
-    selfService(2) + selfService(4) / 2, 0], ...
-    'Visible', 'on');
-for index = 1:2
-    rect = networkData.rechargePads(index, :);
-    if state.levelState.network.rechargeFlash(index) > 0
-        color = [0.95, 0.80, 0.24];
-    else
-        color = [0.31, 0.75, 0.86];
+if strcmp(state.levelState.network.lagPhase, 'outage')
+    hideMany(handles.continuous.networkLogin, ...
+        handles.continuous.networkLoginLabel, ...
+        handles.continuous.networkSelfService, ...
+        handles.continuous.networkSelfServiceLabel);
+    outageRects = [login; selfService];
+    for index = 1:2
+        set(handles.continuous.networkOutageMasks(index), ...
+            'Position', outageRects(index, :), 'Visible', 'on');
     end
-    set(handles.continuous.rechargePads(index), 'Position', rect, ...
-        'FaceColor', color, 'Visible', 'on');
-    set(handles.continuous.rechargeLabels(index), 'Position', ...
-        [rect(1) + rect(3) / 2, rect(2) + rect(4) / 2, 0], ...
-        'Visible', 'on');
+    lagText = '校园网卡了！登录和自助服务掉线';
+elseif strcmp(state.levelState.network.lagPhase, 'warning')
+    hideMany(handles.continuous.networkOutageMasks);
+    set(handles.continuous.networkSelfService, 'Position', selfService, ...
+        'FaceColor', [0.95, 0.72, 0.18], 'Visible', 'on');
+    set(handles.continuous.networkSelfServiceLabel, 'Position', ...
+        [selfService(1) + selfService(3) / 2, ...
+        selfService(2) + selfService(4) / 2, 0], ...
+        'String', '网络卡顿…', 'Visible', 'on');
+    lagText = '校园网卡了……按钮要掉线！';
+else
+    hideMany(handles.continuous.networkOutageMasks);
+    set(handles.continuous.networkSelfService, 'Position', selfService, ...
+        'FaceColor', [0.20, 0.66, 0.83], 'Visible', 'on');
+    set(handles.continuous.networkSelfServiceLabel, 'Position', ...
+        [selfService(1) + selfService(3) / 2, ...
+        selfService(2) + selfService(4) / 2, 0], ...
+        'String', '自助服务', 'Visible', 'on');
+    lagText = '';
 end
+if isempty(lagText)
+    set(handles.continuous.networkLagNotice, 'Visible', 'off');
+else
+    warningX = mean([login(1) + login(3) / 2, ...
+        selfService(1) + selfService(3) / 2]);
+    warningY = fieldRects(1, 2) + fieldRects(1, 4) + 0.52;
+    set(handles.continuous.networkLagNotice, ...
+        'Position', [warningX, warningY, 0], ...
+        'String', lagText, 'Visible', 'on');
+end
+hideMany(handles.continuous.rechargePads, ...
+    handles.continuous.rechargeLabels);
 else
     hideMany(handles.continuous.networkFields, ...
         handles.continuous.networkFieldLabels, ...
@@ -275,6 +312,8 @@ else
         handles.continuous.networkGate, ...
         handles.continuous.networkSelfService, ...
         handles.continuous.networkSelfServiceLabel, ...
+        handles.continuous.networkLagNotice, ...
+        handles.continuous.networkOutageMasks, ...
         handles.continuous.rechargePads, ...
         handles.continuous.rechargeLabels);
 end

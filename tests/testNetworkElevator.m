@@ -1,5 +1,5 @@
 function testNetworkElevator()
-%TESTNETWORKELEVATOR Verify self-service stays on its source-page pixels.
+%TESTNETWORKELEVATOR Verify self-service is a fixed source-position platform.
 
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(projectRoot, 'config'));

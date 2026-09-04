@@ -39,6 +39,11 @@ cfg.tea.runAccelerationMultiplier = 1.15;
 cfg.tea.jumpMultiplier = 1.08;
 cfg.tea.knockbackMultiplier = 0.50;
 
+% Replace these three explicit placeholders with the group's real student
+% IDs after the user supplies them. Do not infer personal data elsewhere.
+cfg.network.groupStudentIds = {'待填学号1', '待填学号2', '待填学号3'};
+cfg.network.passwordMask = '**********';
+
 cfg.render.targetHz = 30;
 cfg.render.viewportWidth = 22;
 cfg.render.worldHeight = 13;

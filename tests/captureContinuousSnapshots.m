@@ -18,7 +18,7 @@ cfg = gameConfig(projectRoot);
 cfg.runtime.testMode = true;
 world = continuousCampusWorld();
 sceneNames = {'origin', 'north-lake', 'north-lake-shortcut', ...
-    'north-lake-east', 'network', ...
+    'north-lake-east', 'network', 'network-lag', ...
     'traffic-bridge', ...
     'traffic-signal', 'museum-emblem', ...
     'lexue-selection', 'lexue-home', 'lucy'};
@@ -56,11 +56,28 @@ for index = 1:numel(sceneNames)
             state.levelTime = 1.2;
             cameraStart = 46.0;
         case 'network'
-            username = world.mechanic.network.usernameField;
-            password = world.mechanic.network.passwordField;
-            state.players(1).pos = [username(1) + 1.0, username(2)];
-            state.players(2).pos = [password(1) + 1.0, password(2)];
-            state.levelState.network.credentialsTimer = 0.72;
+            notice = world.mechanic.network.noticePanel;
+            state.players(1).pos = [notice(1) + notice(3) - 1.2, ...
+                notice(2) + notice(4)];
+            login = world.mechanic.network.loginButton;
+            state.players(2).pos = [login(1) + login(3) / 2, ...
+                login(2) + login(4)];
+            state.levelState.network.credentialsReady = true;
+            page = world.mechanic.network.pageRect;
+            cameraStart = page(1) + page(3) / 2;
+        case 'network-lag'
+            login = world.mechanic.network.loginButton;
+            selfService = world.mechanic.network.selfServiceButton;
+            state.players(1).pos = [login(1) + login(3) / 2, ...
+                login(2) + login(4) - 0.70];
+            state.players(2).pos = [selfService(1) + ...
+                selfService(3) / 2, selfService(2) + ...
+                selfService(4) - 0.55];
+            state.players(1).vel(2) = -5.0;
+            state.players(2).vel(2) = -4.4;
+            state.levelState.network.credentialsReady = true;
+            state.levelState.network.lagPhase = 'outage';
+            state.levelState.network.lagPhaseTimer = 0.70;
             page = world.mechanic.network.pageRect;
             cameraStart = page(1) + page(3) / 2;
         case 'traffic-bridge'

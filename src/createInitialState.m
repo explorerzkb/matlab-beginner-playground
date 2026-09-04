@@ -66,14 +66,24 @@ state.inventory.useHeldTime = 0;
 state.inventory.useLatched = false;
 state.world.activeRegionIndex = 1;
 state.world.previousRegionIndex = 1;
-state.levelState.network.credentialsTimer = 0;
 state.levelState.network.credentialsReady = false;
 state.levelState.network.fieldOccupancy = [0, 0];
 state.levelState.network.rememberChecked = false;
-state.levelState.network.loginTimer = 0;
 state.levelState.network.loginPressLatched = false;
 state.levelState.network.authenticated = false;
 state.levelState.network.feedback = 'idle';
+state.levelState.network.lagEligible = false;
+state.levelState.network.lagDelay = inf;
+if strcmp(level.mechanic.type, 'continuousCampus') && ...
+        ~cfg.runtime.testMode
+    lag = level.mechanic.network;
+    state.levelState.network.lagEligible = rand() < lag.lagChance;
+    state.levelState.network.lagDelay = lag.lagDelayRange(1) + ...
+        diff(lag.lagDelayRange) * rand();
+end
+state.levelState.network.lagClock = 0;
+state.levelState.network.lagPhase = 'waiting';
+state.levelState.network.lagPhaseTimer = 0;
 
 state.levelState.colliders = level.platforms;
 state.levelState.oneWayPlatforms = zeros(0, 4);

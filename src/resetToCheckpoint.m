@@ -64,8 +64,12 @@ state.levelState.lexue.taskCards = zeros(0, 4);
 state.levelState.dynamicObjects.lexue.taskCards = zeros(0, 4);
 state.levelState.animals.sneezeWarning = 0;
 state.levelState.animals.sneezeTarget = 0;
-state.levelState.network.credentialsTimer = 0;
-state.levelState.network.loginTimer = 0;
+state.levelState.network.loginPressLatched = false;
+if strcmp(state.levelState.network.lagPhase, 'warning') || ...
+        strcmp(state.levelState.network.lagPhase, 'outage')
+    state.levelState.network.lagPhase = 'spent';
+    state.levelState.network.lagPhaseTimer = 0;
+end
 state.status.hitCooldown = 0;
 state.inventory.useHeldTime = 0;
 state.inventory.useLatched = false;
