@@ -165,7 +165,9 @@ for index = 1:size(platforms, 1)
         plot(ax, [postX, postX], [deckTop, railingTop], '-', ...
             'Color', edgeColor, 'LineWidth', 1.0);
     end
-    supportXs = rect(1) + [0.8, rect(3) / 2, rect(3) - 0.8];
+    % Keep the first support away from the alpaca launch pocket so it cannot
+    % be mistaken for a blocking wall, while preserving three clear supports.
+    supportXs = rect(1) + [3.2, 0.55 * rect(3), rect(3) - 0.9];
     for supportX = supportXs
         plot(ax, [supportX, supportX], [1.0, rect(2)], '-', ...
             'Color', [0.35, 0.20, 0.15], 'LineWidth', 2.5);

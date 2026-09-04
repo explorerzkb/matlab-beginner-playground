@@ -21,10 +21,18 @@ assert(min(bridge(:, 1)) <= animals.shortcutBypassRange(1) && ...
 assert(min(bridge(:, 2)) > max([animals.geese(:, 2) + ...
     animals.geese(:, 4); animals.ducks(:, 2) + animals.ducks(:, 4)]), ...
     'The red bridge is not vertically clear of the animal route.');
+groundTop = 1.0;
+bridgeClearance = min(bridge(:, 2)) - groundTop;
+assert(bridgeClearance >= 2 * cfg.player.height, ...
+    'The red bridge does not leave two player-heights of working room below.');
+alpacaVisualTop = animals.alpacaRect(2) + animals.alpacaRect(4);
+bridgeAboveAlpaca = min(bridge(:, 2)) - alpacaVisualTop;
+assert(bridgeAboveAlpaca >= cfg.player.height, ...
+    'The alpaca and raised bridge still form a capped visual trap.');
 
 state = createInitialState(world, cfg, []);
 nose = animals.alpacaNose;
-state.players(1).pos = [nose(1) + nose(3) / 2, nose(2)];
+state.players(1).pos = [nose(1) + nose(3) / 2, 1.0];
 % The partner remains on the natural approach side, so the landing must
 % succeed while the rope is pulling against the launched player.
 state.players(2).pos = [38.0, 1.0];

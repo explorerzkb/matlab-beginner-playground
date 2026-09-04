@@ -9,13 +9,20 @@ if ~isfield(state.levelState, 'animals')
     state.levelState.animals.shortcutReached = false;
 end
 
-geeseRects = movingAnimalRects(data.geese, state.levelTime);
-duckRects = movingAnimalRects(data.ducks, state.levelTime);
+[geeseRects, geeseDirections] = movingAnimalRects( ...
+    data.geese, state.levelTime);
+[duckRects, duckDirections] = movingAnimalRects( ...
+    data.ducks, state.levelTime);
 state.levelState.animals.geeseRects = geeseRects;
 state.levelState.animals.duckRects = duckRects;
+state.levelState.animals.geeseDirections = geeseDirections;
+state.levelState.animals.duckDirections = duckDirections;
 state.levelState.animals.alpacaRect = data.alpacaRect;
+state.levelState.animals.softObstacleRects = [geeseRects; duckRects];
 state.levelState.colliders = [state.levelState.colliders; ...
-    geeseRects; duckRects; data.alpacaRect];
+    data.alpacaCollider];
+state = applyAnimalSoftPush(state, [geeseRects; duckRects], ...
+    [geeseDirections; duckDirections], data, dt);
 
 bridgeTop = max(data.shortcutPlatforms(:, 2) + ...
     data.shortcutPlatforms(:, 4));
@@ -71,13 +78,53 @@ elseif state.levelState.animals.sneezeCooldown == 0
 end
 end
 
-function rects = movingAnimalRects(data, levelTime)
+function [rects, directions] = movingAnimalRects(data, levelTime)
 rects = zeros(size(data, 1), 4);
+directions = ones(size(data, 1), 1);
 for index = 1:size(data, 1)
     row = data(index, :);
-    x = row(1) + row(6) * 0.5 * ...
-        (1 + sin(2 * pi * levelTime / row(5) + row(7)));
+    phase = 2 * pi * levelTime / row(5) + row(7);
+    x = row(1) + row(6) * 0.5 * (1 + sin(phase));
     rects(index, :) = [x, row(2), row(3), row(4)];
+    directions(index) = sign(cos(phase));
+    if directions(index) == 0
+        directions(index) = 1;
+    end
+end
+end
+
+function state = applyAnimalSoftPush(state, rects, directions, data, dt)
+% Animals communicate motion and yield under sustained player input. They do
+% not enter the rigid collider list, so two animals can never form a lock.
+for playerIndex = 1:2
+    player = state.players(playerIndex);
+    for animalIndex = 1:size(rects, 1)
+        rect = rects(animalIndex, :);
+        if ~playerOverlaps(player, rect)
+            continue;
+        end
+        animalCentre = rect(1) + rect(3) / 2;
+        if player.pos(1) < animalCentre
+            escapeDirection = -1;
+        elseif player.pos(1) > animalCentre
+            escapeDirection = 1;
+        else
+            escapeDirection = -directions(animalIndex);
+        end
+        targetVelocity = escapeDirection * data.softPushSpeed;
+        velocityChange = data.softPushAcceleration * dt;
+        player.vel(1) = moveTowards(player.vel(1), ...
+            targetVelocity, velocityChange);
+    end
+    state.players(playerIndex) = player;
+end
+end
+
+function value = moveTowards(value, target, maximumChange)
+if value < target
+    value = min(target, value + maximumChange);
+elseif value > target
+    value = max(target, value - maximumChange);
 end
 end
 
