@@ -272,13 +272,11 @@ for index = 1:4
         'FontName', cfg.render.fontName, 'Color', 'white', ...
         'Visible', 'off');
 end
-handles.bottle = rectangle(ax, 'Position', [0, 0, 1, 1], ...
-    'FaceColor', [0.58, 0.86, 1.0], 'EdgeColor', [0.08, 0.32, 0.58], ...
-    'LineWidth', 2.0, 'Curvature', 0.2, 'Visible', 'off');
-handles.bottleText = text(ax, 0, 0, '破防水', ...
-    'HorizontalAlignment', 'center', 'FontWeight', 'bold', ...
-    'FontName', cfg.render.fontName, 'Color', [0.08, 0.26, 0.48], ...
-    'Visible', 'off');
+handles.bottle = gobjects(1);
+if strcmp(level.mechanic.type, 'deadlineStorm')
+    handles.bottle = createTeaSprite(ax, cfg.assets.teaSprite, ...
+        cfg.render.teaTextureStride, cfg.tea);
+end
 if strcmp(level.mechanic.type, 'continuousCampus')
     handles.continuous = initializeContinuousHandles(ax, level, cfg);
 else
@@ -580,12 +578,10 @@ switch level.mechanic.type
         bottle = level.mechanic.bottle;
         if state.levelState.bottleCollected
             set(handles.bottle, 'Visible', 'off');
-            set(handles.bottleText, 'Visible', 'off');
         else
-            set(handles.bottle, 'Position', bottle, 'Visible', 'on');
-            set(handles.bottleText, 'Position', ...
-                [bottle(1) + bottle(3) / 2, bottle(2) + bottle(4) + 0.25, 0], ...
-                'Visible', 'on');
+            positionTeaSprite(handles.bottle, bottle, ...
+                cfg.tea.visualWidthMultiplier);
+            set(handles.bottle, 'Visible', 'on');
         end
 end
 end

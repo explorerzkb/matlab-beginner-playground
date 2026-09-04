@@ -11,6 +11,7 @@
 - `target-gameplay-north-lake-v1-review.md`：按现行 SOP 对 v1 的复核结论。
 - `target-gameplay-north-lake-v2-brief.md`：已修正空间证据链和无腿梨方向的下一版制作简报；
 - `campus-network-login-source-review.md`：真实登录页截图的目视结果和运行时使用边界。
+- `tropical-iced-tea-source-review.md`：用户指定冰红茶图片的目视结果、哈希、唯一视觉源约束与发布边界。
 - `campus-network-fifth-round-review.md`：公告框入口、自动填表、按钮平台、掉线遮罩与可达性复核。
 - `lexue-interaction-source-review.md`：两张私有乐学参考图的像素框、脱敏和使用边界；原图不在 Git 中。
 - `continuous-world-round3-review.md`：第三轮车流、动物、页面布局与十张运行帧的当前复核。

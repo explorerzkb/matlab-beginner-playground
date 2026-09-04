@@ -38,6 +38,12 @@ cfg.tea.buffDuration = 6.0;
 cfg.tea.runAccelerationMultiplier = 1.15;
 cfg.tea.jumpMultiplier = 1.08;
 cfg.tea.knockbackMultiplier = 0.50;
+cfg.tea.visualWidthMultiplier = 1.25;
+cfg.tea.capWidthMultiplier = 1.14;
+cfg.tea.capHeightMultiplier = 1.08;
+cfg.tea.outlineColor = [0.30, 0.14, 0.40];
+cfg.tea.outlineAlpha = 0.34;
+cfg.tea.outlineRadiusPixels = 1;
 
 % Replace these three explicit placeholders with the group's real student
 % IDs after the user supplies them. Do not infer personal data elsewhere.
@@ -51,6 +57,7 @@ cfg.render.marginY = 0.25;
 cfg.render.fontName = 'Microsoft YaHei';
 cfg.render.loginTextureStride = 2;
 cfg.render.backgroundTextureStride = 2;
+cfg.render.teaTextureStride = 6;
 
 cfg.runtime.testMode = false;
 cfg.runtime.lowPowerMode = false;
@@ -75,6 +82,10 @@ cfg.assets.museum = fullfile(projectRoot, 'assets', 'game', ...
     'images', 'backgrounds', 'museum-painted.jpg');
 cfg.assets.bitEmblem = fullfile(projectRoot, 'assets', 'game', ...
     'images', 'bit-emblem.jpg');
+cfg.assets.teaSourceImage = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'items', 'tropical-iced-tea.jpg');
+cfg.assets.teaSprite = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'items', 'tropical-iced-tea-cutout.png');
 cfg.assets.alpacaSprite = fullfile(projectRoot, 'assets', 'game', ...
     'images', 'animals', 'alpaca-cheeky-v2.png');
 end

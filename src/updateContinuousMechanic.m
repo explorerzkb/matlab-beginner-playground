@@ -170,12 +170,10 @@ for index = 1:numel(world.mechanic.tea)
         rect(1) <= cameraCentre + halfView;
     if collected || ~pickupVisible
         set(handles.continuous.tea(index), 'Visible', 'off');
-        set(handles.continuous.teaLabel(index), 'Visible', 'off');
     else
-        set(handles.continuous.tea(index), 'Position', rect, 'Visible', 'on');
-        set(handles.continuous.teaLabel(index), 'Position', ...
-            [rect(1) + rect(3) / 2, rect(2) + rect(4) + 0.18, 0], ...
-            'Visible', 'on');
+        positionTeaSprite(handles.continuous.tea(index), rect, ...
+            cfg.tea.visualWidthMultiplier);
+        set(handles.continuous.tea(index), 'Visible', 'on');
     end
 end
 
