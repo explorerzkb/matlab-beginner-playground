@@ -1,8 +1,11 @@
-function report = runPoseRenderCheck(useCamera, scenes)
+function report = runPoseRenderCheck(useCamera, scenes, secondsPerScene)
 %RUNPOSERENDERCHECK Visible 30-Hz render / 60-Hz scene workload, five pockets.
 % Scripted camera/player positions measure workload, not a human playthrough.
 if nargin<1, useCamera=false; end
 if nargin<2, scenes=1:5; end
+if nargin<3, secondsPerScene=5; end
+validateattributes(secondsPerScene,{'numeric'},{'scalar','finite','>=',2});
+validateattributes(scenes,{'numeric'},{'vector','integer','>=',1,'<=',5});
 root=fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(root,'src'),fullfile(root,'config'),fullfile(root,'levels'));
 cfg=gameConfig(root); cfg.render.targetHz=30;
@@ -12,6 +15,15 @@ if useCamera
     session=startPoseSession(pc);
 end
 poolGuard=onCleanup(@() stopPoseSession(session));
+if useCamera
+    startup=tic;
+    while session.packets<3 && toc(startup)<60
+        session=pollPoseSession(session,poseClock());
+        assert(isempty(session.error),'%s',session.error);
+        pause(.01);
+    end
+    assert(session.packets>=3,'Camera/model did not warm up within 60 seconds');
+end
 fig=figure('Visible','on','Position',[50 50 cfg.render.windowSize], ...
     'MenuBar','none','ToolBar','none','GraphicsSmoothing',cfg.render.graphicsSmoothing);
 guard=onCleanup(@() delete(fig)); ax=axes(fig,'Position',[.045 .08 .92 .86]);
@@ -38,7 +50,7 @@ for scene=scenes
         packetStart=session.packets; seenPacket=packetStart;
         validStart=session.telemetry.validUpdates;
     end
-    while toc(clock)<5
+    while toc(clock)<secondsPerScene
         now=toc(clock); elapsed=now-previous;
         accumulator=accumulator+min(elapsed,.12); previous=now;
         if useCamera
@@ -80,7 +92,10 @@ for scene=scenes
         end
     end
     duration=toc(clock); intervals=diff(rendered);
+    sortedIntervals=sort(intervals);
     result=struct('fps',numel(rendered)/duration,'physicsStepsHz',steps/duration, ...
+        'sampleSeconds',duration,'p95FrameMs',1000*sortedIntervals(ceil(.95*numel(intervals))), ...
+        'longFrameFraction',mean(intervals>.05), ...
         'renderTimes',costs,'frameIntervals',intervals,'longFrames50ms',sum(intervals>.05), ...
         'maxFrameMs',1000*max(intervals),'captureToConsumerSeconds',ages);
     if useCamera
@@ -95,6 +110,8 @@ for scene=scenes
     report.(matlab.lang.makeValidName(names{scene}))=result;
     fprintf('POSE DISPLAY %-12s %.2f FPS | %.2f steps/s | long>50ms %d | max %.1fms\n', ...
         names{scene},result.fps,result.physicsStepsHz,result.longFrames50ms,result.maxFrameMs);
+    fprintf('  sample %.1fs | P95 frame %.1fms | long-frame fraction %.2f%%\n', ...
+        result.sampleSeconds,result.p95FrameMs,100*result.longFrameFraction);
 end
 stamp=char(datetime('now','Format','yyyyMMdd-HHmmss-SSS'));
 save(fullfile(root,'docs','validation','pose-control',sprintf('render-camera-%d-%s.mat',useCamera,stamp)),'report');

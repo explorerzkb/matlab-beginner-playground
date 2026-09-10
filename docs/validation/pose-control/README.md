@@ -4,6 +4,8 @@
 
 ## 已执行（2026-09-11）
 
+最新延长性能测量见 `extended-pose-performance.txt`：预热模型／相机后每场景 30 秒，显示 29.07／30.00／29.69／29.97／29.34 FPS；>50 ms 帧占比 5.86%／0.44%／1.69%／1.89%／2.27%，P95 帧间隔 51.4／39.7／44.1／45.0／44.1 ms，最大 86.9 ms。物理 59.91–59.97 步／秒。软件采集至绘制均值 98.5–112.7 ms、最大 168.1–230.3 ms；有效双人姿态仍为 0。这是较长的场景负载采样，依然不证明真人手感或持续稳定 30 FPS。可重现命令：`runPoseRenderCheck(true,1:5,30)`。
+
 - Windows 11 Pro 22621、i5-13500H、31.73 GiB RAM、Intel Iris Xe。实际 MATLAB 绘制为 ANGLE Intel D3D11。
 - 重装后 MATLAB R2025b、Deep Learning Toolbox、TFLite 接口、USB Webcams、Parallel Computing、Image Processing 可运行；HD Camera 实际采集通过。`TFLITE_PATH` 为空但现有接口运行库实际可用，无额外 MEX 或 Python 推理。
 - `model-comparison.txt`：官方 SinglePose 双区域推理每对中位 41.3 ms、最大 50.5 ms；MultiPose 固定输入后中位 268.3 ms、最大 376.6 ms。公开单人图复制两份验证位置还原，不能证明两人真实遮挡质量。优先 SinglePose。
