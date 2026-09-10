@@ -32,6 +32,11 @@ if isgraphics(fig) && isappdata(fig,'poseSession')
     session=getappdata(fig,'poseSession');
     session=pollPoseSession(session,poseClock());
     setappdata(fig,'poseSession',session);
+    if ~isempty(session.error)
+        % Fatal worker errors end the session; input remains safely paused.
+        setappdata(fig,'poseError',session.error);
+        stopFigurePose(fig);
+    end
 end
 [pose,input.poseMode]=readFigurePose(fig,poseClock(),false,true);
 input.safetyPause=pose.safetyPause;

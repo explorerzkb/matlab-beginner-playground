@@ -216,6 +216,9 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     if nowTime >= nextRenderTime
         if input.poseMode
             state.poseStatus='等待摄像头／校准 · C 重校准 · K 键盘';
+            if ~isempty(getappdata(fig,'poseError'))
+                state.poseStatus='摄像头／推理异常，资源已释放 · K 切键盘';
+            end
             if isappdata(fig,'poseSession')
                 session=getappdata(fig,'poseSession');
                 state.poseStatus=session.state.reason;

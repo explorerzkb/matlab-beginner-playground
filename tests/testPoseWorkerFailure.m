@@ -20,7 +20,10 @@ fig=figure('Visible','off'); figGuard=onCleanup(@() delete(fig));
 setappdata(fig,'poseSession',s); setappdata(fig,'inputMode','pose');
 input=readFigurePose(fig,poseClock(),true,true);
 assert(input.safetyPause && ~any([input.player.jump input.player.left input.player.right]));
-rmappdata(fig,'poseSession'); clear figGuard guard;
+input=readInputSnapshot(fig,inputConfig());
+assert(input.safetyPause && ~isappdata(fig,'poseSession'));
+assert(~isempty(getappdata(fig,'poseError')));
+clear figGuard guard;
 camera=webcam(cfg.cameraIndex); snapshot(camera); clear camera;
 fprintf('WORKER CANCELLATION / SAFE RELEASE / CAMERA REOPEN PASSED\n');
 end
