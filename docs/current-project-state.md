@@ -4,6 +4,20 @@
 
 ## 当前结论
 
+2026-09-11 接续：用户要求每完成独立功能即提交，允许本地提交、不推送；不再要求用户配合现实动作。新安装复查已能枚举 HD Camera，TFLite 接口已安装，SinglePose 实际加载与零输入预测通过。控制核心重跑 `testPoseController` 与全源码 Code Analyzer 均通过（`docs/validation/pose-control/core-checks.txt`）。MultiPose 官方文件在本机加载为动态 1×1×3，直接传 160×256 被接口拒绝；下一步核对固定输入方案，尚不能称其推理通过。原始环境、失败记录保留为重装前证据。
+
+2026-09-11 Windows 体感开发开始：从远端仍一致的 `207a0129c11c2e393230d0aeb524ce3bd292baf4` 建立 `E:\matlabHi-pose-control` / `codex/pose-control` 独立工作树。原仓库 `E:\matlabHi\repository` 干净、远端正确。未提交、未推送、未合并；本地 Git 作者邮箱设为 `explorerzkb@gmail.com`。不读 archive、不依赖旧 dist、不补做 Mac 检查图或美术。
+
+真实环境：Windows 11 专业版 22621；i5-13500H（12 核／16 线程）、31.73 GiB、Intel Iris Xe；Windows PnP 报 HD Camera OK，但不等于 MATLAB 已能采集。MATLAB R2025b (25.2.0.2998904) 批处理可运行，Deep Learning / Parallel Computing / MATLAB Coder / Image Processing / Computer Vision 工具箱可见。`webcamlist` 未定义；`loadTFLiteModel` 实际调用报 `gpucoder:cnncodegen:missing_tflite_support_package`；`TFLITE_PATH` 为空。摄像头支持包、TFLite 接口与运行库尚未就绪，真人识别和模型性能尚无结果。
+
+体感显示按用户最新要求为 30 FPS、物理 60 Hz；下方历史 Mac 40／50 FPS 数据及失败原样保留。原版 Windows 自动基线正在执行，输出在 `docs/validation/pose-control/keyboard-baseline/`；测试中汇总器的模拟三人次／缩放 PASS 是夹具，不是本机真人证据。
+
+待试玩默认方案：主动放下双臂或明显离开胸前姿势立即释放该玩家方向并禁止新跳跃，持续离姿暂停整局；稳定重摆、清事件、倒计时恢复。所有识别阈值属工程初值，未通过真人验证。两名真人整局、误触／漏检、疲劳、窄平台与上车时机仍待测。
+
+2026-09-11 本轮自动验证补记：原始键盘 Code Analyzer 零问题、全部冒烟和四条输入旅程通过（59.95／72.30／59.97／72.28 s）。五场景强制绘制 19.3／43.5／33.4／39.0／32.3 FPS，原 40 FPS 门槛失败，且北湖不足体感目标。另次定速 4.4／19.7／13.9／15.8／15.0 FPS 失败；该次存在其他 MATLAB 与安装活动，不作空闲机器结论。原日志保留。独立控制核心首轮合成关键点测试及 Code Analyzer 通过，覆盖方向、事件、假动作、恢复和坐标逆变换；后续编辑需重跑。
+
+用户正在重新安装 MATLAB：已停止本任务 MPM 安装进程，不再运行或修改 MATLAB 安装。官方 MPM 曾进入安装阶段但未报告完成；重装后必须重新盘点支持包，不能沿用此前探测结论。当前继续纯代码与文档工作，待用户告知重装完成后再运行。原生模型小样未通过，暂不越过阶段门接入游戏。
+
 2026-09-11 路标文案调整：主文案改为“大跳可上桥”并居中，删除右上箭头；保留位置、尺寸、颜色和“先喝冰红茶”。
 
 2026-09-11 每道车流补正：统一四条车道边界与车辆中心，每道五辆，消除右端多画出的空车道；路外纵深循环缩到 ±20，初始五车间隔 8。六个灯周期逐物理帧检查每道都有可见车体，每道均经过过街断面；绿灯过街、检查点复位、交通信号、车辆伤害与 Code Analyzer 已通过。总览与左右默认镜头截图已目视通过。最终统一冒烟与四条输入旅程全部通过，路线用时 59.95／72.30／59.97／72.28 秒，包含剧情复位与第四条北湖失误恢复。五段强制绘制最低 49.3 FPS，定速最低 42.4 FPS，均过 40。证据见 `visuals/traffic-road-bounds.md`；Windows 真人未测试，旧 dist 未更新。
