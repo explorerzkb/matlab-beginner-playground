@@ -7,12 +7,13 @@ if nargin>=4 && campusOnly
 elseif strcmp(cfg.render.activeSegment, 'world')
     % Prepare every pre-flight interaction before control begins. Measured
     % camera-triggered creation caused 0.2--0.9 s hitches during live play.
-    % The bus belongs to the separately initialized post-flight scene.
+    % Include the bus now so landing never rebuilds the scene.
     handles = initializeAnimalHandles(ax, world, cfg);
     handles = initializeTeaHandles(handles, ax, world, cfg);
     handles = initializeNetworkHandles(handles, ax, world, cfg);
     handles = initializeTrafficHandles(handles, ax, world, cfg);
     handles = initializeBicycleHandles(handles, ax, world, cfg);
+    handles = initializeBusHandles(handles, ax, world, cfg);
 end
 end
 

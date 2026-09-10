@@ -60,6 +60,8 @@ cfg.render.windowSize = [960 540];
 cfg.render.viewportWidth = 22;
 cfg.render.viewportHeight = 13.4;
 cfg.render.worldHeight = cfg.render.viewportHeight;
+cfg.render.flightCameraCeiling = 64;
+cfg.render.flightCameraResponse = 0.14;
 cfg.render.marginY = 0.25;
 cfg.render.fontName = 'Microsoft YaHei';
 cfg.render.graphicsSmoothing = 'off';
@@ -111,7 +113,7 @@ cfg.assets.museumSportsRoad = fullfile(projectRoot, 'assets', 'game', ...
 cfg.assets.museumSportsWest = fullfile(projectRoot, 'assets', 'game', ...
     'images', 'backgrounds', 'museum-sports-west-v13.png');
 cfg.assets.lastBusHandscroll = fullfile(projectRoot, 'assets', 'game', ...
-    'images', 'backgrounds', 'last-bus-handscroll-v26.png');
+    'images', 'backgrounds', 'last-bus-handscroll-v27.png');
 cfg.assets.northLiBridge = fullfile(projectRoot, 'assets', 'game', ...
     'images', 'backgrounds', 'north-li-bridge-v5.png');
 cfg.assets.playground = fullfile(projectRoot, 'assets', 'game', ...

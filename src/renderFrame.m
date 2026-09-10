@@ -14,10 +14,6 @@ if ~isfield(state.render,'viewMode') || ~strcmp(state.render.viewMode,mode)
         state.render = rmfield(state.render,'labelsClipped');
     end
 end
-if strcmp(mode,'sky')
-    state = renderFlightView(ax,state,level,cfg);
-    return;
-end
 
 if ~state.render.initialized || state.render.levelId ~= level.id
     renderCfg = cfg;
@@ -39,7 +35,8 @@ cameraCentre = min(max(cameraCentre, halfView), level.worldWidth - halfView);
 state.render.cameraCentre = cameraCentre;
 halfViewY = cfg.render.viewportHeight / 2;
 minimumCentreY = -0.4 + halfViewY;
-maximumCentreY = max(minimumCentreY, level.worldHeight - halfViewY);
+maximumCentreY = max(minimumCentreY, ...
+    max(level.worldHeight,cfg.render.flightCameraCeiling) - halfViewY);
 if ~isfield(state.render, 'cameraCentreY') || ...
         ~isfinite(state.render.cameraCentreY)
     state.render.cameraCentreY = minimumCentreY;
@@ -49,18 +46,6 @@ cameraCentreY = min(max(state.render.cameraCentreY, ...
 state.render.cameraCentreY = cameraCentreY;
 xBounds = [cameraCentre - halfView, cameraCentre + halfView];
 yBounds = [cameraCentreY - halfViewY, cameraCentreY + halfViewY];
-if isfield(handles, 'campusBackgroundAxes') && ...
-        isgraphics(handles.campusBackgroundAxes)
-    bus = level.mechanic.bus;
-    panRange = bus.backgroundPanCameraRange;
-    progress = (cameraCentre - panRange(1)) / diff(panRange);
-    progress = min(1, max(0, progress));
-    viewFraction = bus.backgroundViewFraction;
-    backdropBounds = (1 - viewFraction) * progress + [0, viewFraction];
-    if ~isequal(handles.campusBackgroundAxes.XLim, backdropBounds)
-        set(handles.campusBackgroundAxes, 'XLim', backdropBounds);
-    end
-end
 if isfield(handles, 'cameraCulledBackgrounds') && ...
         ~isempty(handles.cameraCulledBackgrounds)
     backgrounds = handles.cameraCulledBackgrounds;
@@ -232,79 +217,6 @@ end
 state.render.handles = handles;
 end
 
-function state = renderFlightView(ax,state,level,cfg)
-% Hide scenery during the launch; landing returns to the side-view camera.
-if ~state.render.initialized
-    cla(ax); hold(ax,'on'); axis(ax,'manual');
-    set(ax,'XTick',[],'YTick',[],'Color',[.60 .80 .93], ...
-        'SortMethod','childorder','Box','off');
-    xlim(ax,[0 22]); ylim(ax,[0 13.4]);
-    h = struct();
-    h.clouds=patch(ax,nan,nan,[.91 .97 1], ...
-        'EdgeColor','none','FaceAlpha',.72);
-    h.rope=plot(ax,nan,nan,'-','Color',cfg.presentation.colors.rope,'LineWidth',2);
-    h.players=repmat(emptyPlayerHandles(),1,2);
-    for p=1:2, h.players(p)=createPear(ax,p,cfg); end
-    h.hud=text(ax,.35,12.8,'','FontName',cfg.render.fontName, ...
-        'Color',[.97 .98 .92],'BackgroundColor',[.04 .10 .10], ...
-        'FontWeight','bold','FontSize',11,'Margin',5,'Clipping','on');
-    h.hint=text(ax,.35,12.05,'','FontName',cfg.render.fontName, ...
-        'Color',[.97 .98 .92],'BackgroundColor',[.04 .10 .10], ...
-        'FontSize',10,'Margin',4,'Clipping','on');
-    h.pause=text(ax,11,7,'','HorizontalAlignment','center', ...
-        'FontName',cfg.render.fontName,'FontSize',17,'FontWeight','bold', ...
-        'Color','white','BackgroundColor',[.06 .12 .14],'Margin',12, ...
-        'Visible','off');
-    state.render.handles=h;
-    state.render.initialized=true;
-    state.render.levelId=level.id;
-end
-h=state.render.handles;
-projected=state.players;
-centre=mean(reshape([state.players.pos],2,[]),2)';
-for p=1:2
-    projected(p).pos=[10+(state.players(p).pos(1)-centre(1))*.75, ...
-        5.3+(state.players(p).pos(2)-centre(2))*.75];
-    projected(p).size=state.players(p).size*.95;
-end
-drift=mod(state.levelTime*5,24);
-theta=linspace(0,2*pi,24)';
-cloudX=[1+2*cos(theta),3+1.3*cos(theta), ...
-    13+2.3*cos(theta),15+1.4*cos(theta)];
-cloudY=[3+.45*sin(theta),3.3+.65*sin(theta), ...
-    9+.45*sin(theta),9.25+.65*sin(theta)];
-set(h.clouds,'XData',cloudX-drift+7,'YData',cloudY);
-for p=1:2
-    direction=projected(3-p).pos-projected(p).pos;
-    h.players(p)=updatePear(h.players(p),projected(p),p,direction, ...
-        state.rope.currentTension,cfg);
-    detailScale=projected(p).size(1)/state.players(p).size(1);
-    set(h.players(p).eyeWhites,'MarkerSize',6.4*detailScale);
-    set(h.players(p).pupils,'MarkerSize',11*detailScale);
-    set(h.players(p).blush,'MarkerSize',16*detailScale);
-    set(h.players(p).ring,'MarkerSize',5*detailScale);
-    set(h.players(p).shadow,'Visible','off');
-end
-anchors=[projected(1).pos+.55*projected(1).size; ...
-    projected(2).pos+.55*projected(2).size];
-mid=mean(anchors,1)-[0 .2];
-set(h.rope,'XData',[anchors(1,1) mid(1) anchors(2,1)], ...
-    'YData',[anchors(1,2) mid(2) anchors(2,2)]);
-set(h.hud,'String',sprintf('爱心 %d/3   冰红茶 %d   P1 A/D/W   P2 方向键   Space 喝茶', ...
-    state.status.currentHearts,state.inventory.teaCount));
-caption='撞飞了！';
-if state.status.deathPending
-    caption=sprintf('复活中 %.1fs',state.status.deathTimer);
-end
-set(h.hint,'String',caption);
-if state.paused
-    set(h.pause,'String','已暂停 · Esc 继续','Visible','on');
-else
-    set(h.pause,'Visible','off');
-end
-state.render.handles=h;
-end
-
 function handles = initializeScene(ax, level, cfg,campusOnly)
 cla(ax);
 hold(ax, 'on');
@@ -330,26 +242,28 @@ end
 handles.campusBackgroundAxes = gobjects(1);
 handles.campusBackdrop = gobjects(1);
 handles.campusRoad = gobjects(1);
-if campusOnly
-    % This plate is only needed after the bicycle flight. Creating its axes
-    % and decoding the full image during the opening scene delayed startup,
-    % even though both objects stayed hidden for almost the whole game.
-    fig = ancestor(ax, 'figure');
-    backgroundAxes = axes(fig, 'Position', ax.Position, 'XLim', [0, 1], ...
-        'YLim', [0, 1], 'YDir', 'normal', 'Visible', 'off', ...
-        'HitTest', 'off', 'PickableParts', 'none');
-    uistack(backgroundAxes, 'bottom');
+if strcmp(level.mechanic.type,'continuousCampus')
+    % The painted road IS the playable road. The panorama shares the world
+    % transform, so neither the ground nor the architecture jumps in flight.
     stride = max(1, cfg.render.campusHandscrollTextureStride);
     rgb = readGameImage(cfg.assets.lastBusHandscroll, stride);
-    handles.campusBackgroundAxes = backgroundAxes;
-    handles.campusBackdrop = image('Parent', backgroundAxes, ...
+    % A runtime sky matte lets the existing continuous world sky show
+    % through. Only sky connected vertically to the top edge is removed;
+    % blue glass below a roof remains opaque. Computed once, never per frame.
+    colours = double(rgb);
+    skyPixels = colours(:,:,3)>1.03*colours(:,:,2) & ...
+        colours(:,:,2)>1.08*colours(:,:,1);
+    skyPixels = skyPixels | min(colours,[],3)>230;
+    % The verified skyline starts below 42% of this source. Wispy white
+    % clouds above it must not seed opaque vertical streaks in the matte.
+    skyPixels(1:floor(size(rgb,1)*.42),:) = true;
+    skyMatte = cumprod(skyPixels,1)==0;
+    handles.campusBackdrop = image('Parent', ax, ...
         'CData', flipud(rgb), ...
-        'XData', [0 1], 'YData', [0 1], 'Visible', 'off');
-    handles.campusRoad = patch(ax, [170 254 254 170], ...
-        [-.4 -.4 1.48 1.48], [.39 .43 .42], ...
-        'EdgeColor', 'none', 'Visible', 'off');
-    set(handles.campusBackdrop, 'Visible', 'on');
-    set(handles.campusRoad, 'Visible', 'on');
+        'AlphaData', flipud(double(skyMatte)), ...
+        'AlphaDataMapping', 'none', ...
+        'XData', [170 254], 'YData', [-2.44 25.56], ...
+        'Tag', 'cameraCulledBackground', 'UserData', [170 254]);
 end
 
 platformIndices = 1:size(level.platforms, 1);

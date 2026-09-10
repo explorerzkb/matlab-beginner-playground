@@ -54,6 +54,7 @@ testBusRoute();
 testVehicleDamage();
 testDeathRenderRecovery();
 testFlightRecovery();
+testFlightCameraContinuity();
 testRecoverySafety();
 fprintf('Running invisible continuous-world lifecycle check...\n');
 figuresBefore = findall(groot, 'Type', 'figure');

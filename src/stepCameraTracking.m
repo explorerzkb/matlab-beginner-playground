@@ -6,7 +6,8 @@ minimumCentre = halfView;
 maximumCentre = world.worldWidth - halfView;
 halfViewY = cfg.render.viewportHeight / 2;
 minimumCentreY = -0.4 + halfViewY;
-maximumCentreY = max(minimumCentreY, world.worldHeight - halfViewY);
+maximumCentreY = max(minimumCentreY, ...
+    max(world.worldHeight,cfg.render.flightCameraCeiling) - halfViewY);
 
 if ~isfield(state.render, 'cameraCentre') || ...
         ~isfinite(state.render.cameraCentre)
@@ -64,11 +65,17 @@ end
 if min(playerBottoms) < lowerThreshold
     targetY = targetY + min(playerBottoms) - lowerThreshold;
 end
+responseY = cfg.render.cameraVerticalResponse;
+if isfield(state.levelState,'bicycle') && ...
+        strcmp(state.levelState.bicycle.phase,'flight')
+    targetY = mean((playerBottoms+playerTops)/2);
+    responseY = cfg.render.flightCameraResponse;
+end
 targetY = min(max(targetY, minimumCentreY), maximumCentreY);
 if dt <= 0
     alphaY = 1;
 else
-    alphaY = 1 - exp(-dt / cfg.render.cameraVerticalResponse);
+    alphaY = 1 - exp(-dt / responseY);
 end
 state.render.cameraCentreY = centreY + alphaY * (targetY - centreY);
 state.render.cameraCentreY = min(max(state.render.cameraCentreY, ...
