@@ -15,6 +15,9 @@ while isgraphics(fig)
     if input.toggleMode
         setPoseMode(fig,cfg,'keyboard'); ready=true; return;
     end
+    if input.recalibrate
+        flushFigurePose(fig,true); verified=false(2,3);
+    end
     if isappdata(fig,'poseSession')
         s=getappdata(fig,'poseSession'); s.previewRequested=true;
         setappdata(fig,'poseSession',s);

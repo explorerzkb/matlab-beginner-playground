@@ -4,6 +4,7 @@ function state = stepPoseController(state, detections, imageSize, time, cfg)
 if ~isfinite(time) || time<=state.lastFrameTime, return; end
 gap = time-state.lastFrameTime;
 state.lastFrameTime = time;
+if strcmp(state.phase,'recalibrate'), return; end
 features = repmat(poseFeatures(nan(17,3),imageSize,cfg),1,size(detections,3));
 for i=1:numel(features)
     features(i)=poseFeatures(detections(:,:,i),imageSize,cfg);
@@ -31,6 +32,10 @@ if ~good || gap>cfg.staleSeconds
             ~strcmp(state.phase,'active')
         state.phase='paused';
         state.reason='站位／身份或操控姿势丢失：全局暂停';
+    end
+    if ~identityOK
+        state.phase='recalibrate';
+        state.reason='身份不确定：按 C 重新校准';
     end
     if ~identityOK || gap>cfg.staleSeconds, return; end
 else

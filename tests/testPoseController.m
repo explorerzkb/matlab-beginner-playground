@@ -65,7 +65,9 @@ assert(strcmp(s.phase,'active') && all(isinf([s.player.eventTime])));
 % Overlap is never silently re-bound.
 overlap=cat(3,person(650),person(630));
 s=stepPoseController(s,overlap,sz,13.84,cfg);
-assert(strcmp(s.phase,'paused'));
+assert(strcmp(s.phase,'recalibrate'));
+for t=13.88:0.04:18.5, s=stepPoseController(s,pair,sz,t,cfg); end
+assert(strcmp(s.phase,'recalibrate'),'Ambiguous identities silently re-bound');
 % Exact inverse of asymmetric letterbox, same fixed-camera coordinates.
 tr=struct('crop',[640 0 640 720],'input',[192 192], ...
     'resized',[192 171],'pad',[0 10]);
