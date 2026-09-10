@@ -76,7 +76,10 @@ clock = tic;
 previousTime = toc(clock);
 accumulator = 0;
 nextRenderTime = 0;
-renderInterval = 1 / cfg.render.targetHz;
+if strcmp(getappdata(fig,'inputMode'),'pose'), cfg.render.targetHz=cfg.pose.renderHz;
+else, cfg.render.targetHz=50;
+end
+renderInterval=1/cfg.render.targetHz;
 telemetry = initializeTelemetry();
 manualPaused=state.paused;
 previousToggle=false; previousCalibration=false;
@@ -94,6 +97,11 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     if input.toggleMode && ~previousToggle
         if input.poseMode, mode='keyboard'; else, mode='pose'; end
         setPoseMode(fig,cfg,mode);
+        if strcmp(mode,'pose')
+            [state,ready]=calibrateInteractivePose(fig,ax,state,cfg);
+            if ~ready, state.requestQuit=true; break; end
+            mode=getappdata(fig,'inputMode');
+        end
         if strcmp(mode,'pose'), cfg.render.targetHz=cfg.pose.renderHz;
         else, cfg.render.targetHz=50;
         end
@@ -107,8 +115,16 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
         input=readInputSnapshot(fig,cfg.input);
     end
     previousToggle=input.toggleMode;
-    if input.recalibrate && ~previousCalibration
+    if input.poseMode && input.recalibrate && ~previousCalibration
         flushFigurePose(fig,true);
+        [state,ready]=calibrateInteractivePose(fig,ax,state,cfg);
+        if ~ready, state.requestQuit=true; break; end
+        input=readInputSnapshot(fig,cfg.input);
+        if input.poseMode, cfg.render.targetHz=cfg.pose.renderHz;
+        else, cfg.render.targetHz=50;
+        end
+        renderInterval=1/cfg.render.targetHz;
+        accumulator=0; previousTime=toc(clock); nextRenderTime=previousTime;
     end
     previousCalibration=input.recalibrate;
     state.input.bufferedLeft = state.input.bufferedLeft | ...
@@ -268,6 +284,21 @@ if cfg.runtime.validationMode
         set(fig, 'Name', cfg.presentation.title);
     end
 end
+end
+
+function [state,ready]=calibrateInteractivePose(fig,ax,state,cfg)
+% Reuse the full mirror/direction/jump check when switching or recalibrating.
+if isfield(state.render,'handles') && ...
+        isfield(state.render.handles,'campusBackgroundAxes') && ...
+        isgraphics(state.render.handles.campusBackgroundAxes)
+    delete(state.render.handles.campusBackgroundAxes);
+end
+ready=runPoseCalibration(fig,ax,cfg);
+state.render.initialized=false;
+state.input.bufferedLeft=[false false];
+state.input.bufferedRight=[false false];
+state.input.bufferedJumps=[false false];
+state.input.bufferedUseItem=false;
 end
 
 function telemetry = initializeTelemetry()

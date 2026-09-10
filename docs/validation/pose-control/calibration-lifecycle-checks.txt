@@ -1,0 +1,9 @@
+CALIBRATION EXIT PASSED: keyboard switch and upright game coordinates
+POSE SYNTHETIC CHECKS PASSED (not human recognition/playability)
+POSE GAME INPUT PASSED: render/physics separation, no airborne queue, lifecycle epochs
+POSE TELEMETRY PASSED: separate rates, unique packet latency, pause flush
+E:\matlabHi-pose-control\src\runGame.m:79 [NASGU] 赋给变量的值可能未使用。
+E:\matlabHi-pose-control\src\runPoseCalibration.m:5 [MSNU] 此处之前隐藏了一条代码分析器消息，但该消息不再产生。
+{错误使用 runCodeChecks (第 22 行)
+MATLAB Code Analyzer found 2 issue(s).
+} 
