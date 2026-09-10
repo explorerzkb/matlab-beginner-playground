@@ -4,6 +4,8 @@
 
 ## 当前结论
 
+2026-09-11 模型兼容性／独立静态小样通过：官方 SinglePose Lightning 3.tflite 与 MultiPose float16/1 均在 MATLAB 原生接口执行。MultiPose 需将输入元数据固定为 160×256，并显式启用 Windows uint8 推理；工具只改变两个尺寸向量指针、追加 40 字节，不改权重／算子，原文件保留。公开单人照片拼成双区域的对照（不是两真人质量验收）通过鼻／踝位置断言：双 SinglePose 每对中位 41.3 ms、最大 50.5 ms，每人理论更新上限 23.83 Hz；MultiPose 中位 268.3 ms、最大 376.6 ms，每人上限 3.77 Hz。当前优先双区域 SinglePose，小样与 Code Analyzer 通过，真人质量及端到端响应仍未知。详见 `model-comparison.txt`。
+
 2026-09-11 接续：用户要求每完成独立功能即提交，允许本地提交、不推送；不再要求用户配合现实动作。新安装复查已能枚举 HD Camera，TFLite 接口已安装，SinglePose 实际加载与零输入预测通过。控制核心重跑 `testPoseController` 与全源码 Code Analyzer 均通过（`docs/validation/pose-control/core-checks.txt`）。MultiPose 官方文件在本机加载为动态 1×1×3，直接传 160×256 被接口拒绝；下一步核对固定输入方案，尚不能称其推理通过。原始环境、失败记录保留为重装前证据。
 
 2026-09-11 Windows 体感开发开始：从远端仍一致的 `207a0129c11c2e393230d0aeb524ce3bd292baf4` 建立 `E:\matlabHi-pose-control` / `codex/pose-control` 独立工作树。原仓库 `E:\matlabHi\repository` 干净、远端正确。未提交、未推送、未合并；本地 Git 作者邮箱设为 `explorerzkb@gmail.com`。不读 archive、不依赖旧 dist、不补做 Mac 检查图或美术。
