@@ -1,0 +1,62 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+Running level-data checks...
+CAMPUS PRESENTATION PASSED: 6s hold, one-way wrap, world-anchored handscroll, continuous flight/reset views
+Running input-mapping checks...
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 0 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: INCOMPLETE
+
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 3 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: PASS
+
+Running shared physics and state checks...
+Running North Lake checks...
+ANIMAL BOOST LANDINGS PASSED: 12 tethered cases at gravity -25
+PLAYGROUND RACE PASSED: normal lead 0.542, normal 2.244s, tea 1.793s; loss and reset recover.
+Running campus-network checks...
+TIMEOUT HOLD PASSED: extra 1 second on actual harmless reset path
+Running traffic checks...
+V30 PASSED: tea-only bridge, arrival red, dense cars, ground impact, three-second immunity.
+DEPTH TRAFFIC PASSED: six cycles, constant lane X, ground-only contact
+BRIDGE REENTRY PASSED
+BRIDGE GROUND PASSAGE PASSED
+BRIDGE OCCLUSION PASSED: pier and near rail pixel comparisons
+V29 VISUAL PIXELS PASSED: lake rail, both unobscured large LEDs
+Running bicycle-flight and campus-bus checks...
+BUS REAR GRACE PASSED: five real paired jumps, bounded grace, middle/front/ground lethal
+Actual countdown screen skipped after 1.74 seconds including drawing
+COUNTDOWN SKIP PASSED: one-second hold, release reset, no item carryover
+VEHICLE DAMAGE PASSED: bus 3 hearts, roof safe, depth crossing, bridge safe.
+DEATH RENDER RECOVERY PASSED: 14 immediate reset frames, all seven checkpoints.
+FLIGHT RECOVERY PASSED: 7 height pairs x neutral/left/right inputs
+FLIGHT CAMERA PASSED: continuous launch/apex/landing; 65.0 forced render FPS
+RECOVERY SAFETY PASSED
+Running invisible continuous-world lifecycle check...
+ALL MATLAB SMOKE TESTS PASSED
+WROTE 16 CONTINUOUS-WORLD SNAPSHOTS TO docs/visuals/traffic-road-bounds/snapshots
+FORCED north-lake    40.6 FPS at 960x540
+FORCED network-race  50.1 FPS at 960x540
+FORCED traffic       40.8 FPS at 960x540
+FORCED bicycle       44.3 FPS at 960x540
+FORCED campus        37.0 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 37.0 FPS across all five pockets
+{Error using assert
+At least one visual pocket did not exceed the required target of 40 FPS.
+
+Error in runPerformanceCheck (line 55)
+assert(all(sceneFps > 40), ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}

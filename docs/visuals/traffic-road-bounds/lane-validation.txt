@@ -1,0 +1,15 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+DEPTH TRAFFIC PASSED: six cycles, constant lane X, ground-only contact
+VEHICLE DAMAGE PASSED: bus 3 hearts, roof safe, depth crossing, bridge safe.
+FORCED north-lake    49.5 FPS at 960x540
+FORCED network-race  71.3 FPS at 960x540
+FORCED traffic       54.4 FPS at 960x540
+FORCED bicycle       75.0 FPS at 960x540
+FORCED campus        49.3 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 49.3 FPS across all five pockets
+PACED  north-lake    42.4 FPS at 960x540
+PACED  network-race  48.8 FPS at 960x540
+PACED  traffic       48.4 FPS at 960x540
+PACED  bicycle       45.8 FPS at 960x540
+PACED  campus        43.4 FPS at 960x540
+PACED FULL-DRAW MINIMUM: 42.4 FPS across all five pockets

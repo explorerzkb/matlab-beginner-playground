@@ -151,23 +151,30 @@ world.mechanic.traffic.signalPhaseNames = { ...
 world.mechanic.traffic.signalPhaseDurations = [6.0, 0.8, 0.6, 8.0, 0.6];
 world.mechanic.traffic.waitingZone = [116.0, 1.0, 1.4, 1.8];
 world.mechanic.traffic.crosswalk = [119.0, 1.0, 30.0, 1.8];
+% Four marked lanes share their centres with the vehicle stream.
+world.mechanic.traffic.laneEdges = linspace(119.0,149.0,5);
 world.mechanic.traffic.exitSafeZone = [149.2, 1.0, 3.0, 1.8];
 world.mechanic.traffic.pedestrianBarrier = [118.6, 1.0, 0.28, 2.40];
 world.mechanic.traffic.signalX = [118.0, 149.8];
 % Columns: fixed lane X, ground depth, body width/height, speed, direction,
 % depth bounds. Depth is not the player's vertical physics coordinate.
 world.mechanic.traffic.carData = [ ...
-    122, -7, 1.9, 1.5, 4.2,  1, -10, 10; ...
-    129,  7, 1.9, 1.5, 4.0, -1, -10, 10; ...
-    136, -9, 1.9, 1.5, 4.2,  1, -10, 10; ...
-    143,  9, 1.9, 1.5, 4.0, -1, -10, 10];
+    0, -7, 1.9, 1.5, 4.2,  1, -10, 10; ...
+    0,  7, 1.9, 1.5, 4.0, -1, -10, 10; ...
+    0, -9, 1.9, 1.5, 4.2,  1, -10, 10; ...
+    0,  9, 1.9, 1.5, 4.0, -1, -10, 10];
+edges=world.mechanic.traffic.laneEdges;
+world.mechanic.traffic.carData(:,1)= ...
+    (edges(1:end-1)'+edges(2:end)')/2-.95;
 world.mechanic.traffic.depthProjection = .32;
+% Shared visible asphalt limits; depth traffic cannot draw into sky/bridge.
+world.mechanic.traffic.roadRenderY = [0.65, 4.7];
 % Five spaced cars in each of four longitudinal lanes; twenty in total.
 world.mechanic.traffic.carData=repelem(world.mechanic.traffic.carData,5,1);
-world.mechanic.traffic.carData(:,2)=repmat([-20;-12;-4;4;12],4,1);
+world.mechanic.traffic.carData(:,2)=repmat([-18;-10;-2;6;14],4,1);
 world.mechanic.traffic.carData(:,4)=2.2;
 world.mechanic.traffic.carData(:,5)=12;
-world.mechanic.traffic.carData(:,7:8)=repmat([-24 24],20,1);
+world.mechanic.traffic.carData(:,7:8)=repmat([-20 20],20,1);
 world.mechanic.traffic.contactDepth = 1.5;
 world.mechanic.traffic.depthStop = 3;
 world.mechanic.traffic.stopLineGap = 0.25;

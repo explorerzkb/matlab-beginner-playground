@@ -403,7 +403,7 @@ end
 set(handles.networkLoadingText, 'UserData', cacheKey);
 end
 
-function updateTraffic(handles, state, ~, ~, viewRange)
+function updateTraffic(handles, state, world, ~, viewRange)
 if ~rangesOverlap(viewRange, [112, 150])
     hideMany(handles.climbRungs, handles.climbProgress, ...
         handles.upperBridgePlatforms, handles.signalHousing, ...
@@ -469,7 +469,8 @@ end
 set(handles.routeLabel, 'String', routeLabel, ...
     'Color', routeColor, 'Visible', 'on');
 
-[v,f,c]=trafficCarGeometry(traffic.cars,traffic.carDirections);
+[v,f,c]=trafficCarGeometry(traffic.cars,traffic.carDirections, ...
+    world.mechanic.traffic.roadRenderY);
 set(handles.cars,'Vertices',v,'Faces',f,'FaceVertexCData',c, ...
     'FaceColor','flat','EdgeColor','none','Visible','on');
 hideMany(handles.carWindows,handles.carWheels);

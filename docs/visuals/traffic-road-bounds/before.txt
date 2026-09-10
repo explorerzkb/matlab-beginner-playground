@@ -1,0 +1,3 @@
+MATLAB R2025b reproduction before fix
+CAR VISIBLE Y RANGE -5.33 to 6.97; ROAD .65 to 4.7
+Assertion failed: Reproduced: car geometry extends beyond road

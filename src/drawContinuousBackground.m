@@ -162,9 +162,14 @@ text(ax,116.2,3.1,'车道外等候','FontName',cfg.render.fontName, ...
 % Checked architectural sprite shares its deck and footing with the physics.
 drawGreenbelt(ax,range(1)-1,4.3,diff(range)+2,cfg);
 patch(ax, [range(1), range(2), range(2), range(1)], ...
-    [0.65, 0.65, 4.7, 4.7], [0.30, 0.34, 0.36], 'EdgeColor', 'none');
-for laneX=traffic.carData(:,1)'+2.8
-    plot(ax,[laneX laneX],[-.4 4.7],'--', ...
+    traffic.roadRenderY([1 1 2 2]), [0.30, 0.34, 0.36], 'EdgeColor', 'none');
+for laneX=traffic.laneEdges(2:end-1)
+    plot(ax,[laneX laneX],traffic.roadRenderY,'--', ...
+        'Color',[0.90 0.89 0.79],'LineWidth',1.2);
+end
+% Solid outer edges distinguish the four lanes from the waiting shoulders.
+for laneX=traffic.laneEdges([1 end])
+    plot(ax,[laneX laneX],traffic.roadRenderY,'-', ...
         'Color',[0.90 0.89 0.79],'LineWidth',1.2);
 end
 crosswalk=traffic.crosswalk;
