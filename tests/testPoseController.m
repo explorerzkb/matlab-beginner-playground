@@ -10,6 +10,23 @@ assert(strcmp(s.phase,'active'));
 assert(s.player(1).anchor(1)>s.player(2).anchor(1));
 [a,cursor]=consumePoseInput(s,[],6,cfg,true);
 assert(~any([a.player.left a.player.right a.player.jump]));
+% A raised knee plus torso lift leaves the other foot planted.
+oneFoot=pair; oneFoot(6:15,2,1)=oneFoot(6:15,2,1)-30;
+oneFoot(16,2,1)=oneFoot(16,2,1)-60;
+probe=stepPoseController(s,oneFoot,sz,6.04,cfg);
+assert(probe.player(1).sequence==0,'One planted foot produced a jump');
+% Single/alternating real-jump fixtures rearm only after stable landing.
+probe=s; eventCounts=[0 0];
+for cycle=1:4
+    time=6+cycle; player=1+mod(cycle-1,2);
+    for instant=(time-.9):.04:time
+        probe=stepPoseController(probe,pair,sz,instant,cfg);
+    end
+    lifted=pair; lifted(:,2,player)=lifted(:,2,player)-30;
+    probe=stepPoseController(probe,lifted,sz,time+.04,cfg);
+    eventCounts(player)=eventCounts(player)+1;
+    assert(isequal([probe.player.sequence],eventCounts));
+end
 tilted=pair;
 tilted(8,2,1)=tilted(8,2,1)-45; tilted(9,2,1)=tilted(9,2,1)+45;
 tilted(8,2,2)=tilted(8,2,2)+45; tilted(9,2,2)=tilted(9,2,2)-45;

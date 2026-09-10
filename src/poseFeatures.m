@@ -10,7 +10,8 @@ p = points(:,1:2);
 if any(p(needed,1)<0 | p(needed,1)>imageSize(2)) || ...
         any(p(needed,2)<0 | p(needed,2)>imageSize(1)), return; end
 shoulder = mean(p(6:7,:),1); hip = mean(p(12:13,:),1);
-ankle = mean(p(16:17,:),1);
+% The lower ankle must rise too: lifting just one foot is not a jump.
+ankle = [mean(p(16:17,1)),max(p(16:17,2))];
 scale = ankle(2)-shoulder(2);
 if scale<0.25*imageSize(1), return; end
 feature.valid = true;
