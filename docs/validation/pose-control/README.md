@@ -27,6 +27,22 @@
 
 ## 指标边界与待验证
 
+### 整路合成关节夹具
+
+`joint-journey-jump-prediction.txt` 与 `joint-journey-rates.txt`：实际控制核心及游戏物理，上／下路在每人 12 Hz（交付延迟 83 ms）为 59.68／72.05 秒；10 Hz 为 72.38／72.05 秒。夹具知道完整游戏状态，预测起跳时机；没有改变游戏着地、碰撞、绳子、剧情或道具。不是模型识别或真人通关证据。
+
+12 Hz 上路身体起跳／分类／消费为玩家一 17／17／17、玩家二 18／18／18；下路两人均 18／18／18。10 Hz 上路分别 23／22／22、24／23／23，下路分别 18／17／17、18／18／18，差异保留，尚未定位，不称零漏检。每次运行保存数字 MAT，失败也保存计数。
+
+最初直接策略北湖失败，整体提前预测导致登录停滞，见 `joint-journey-first.txt`、`joint-journey-predicted-2.txt`、`joint-journey-with-counters.txt`；分析器首轮失败也保留。现可比较 `reactive`、`full-predictive` 和仅提前起跳的 `predictive` 三种自动策略。原键盘四路线复跑结果不变，见 `journey-adapter-regression.txt`。
+
+```matlab
+addpath('tests')
+runPoseJourneyCheck('upper','predictive',12)
+runPoseJourneyCheck('lower','predictive',10)
+```
+
+完整需求核对与证据边界见 [体感审计](../../pose-control-audit.md)。
+
 控制核心测试使用合成关节，覆盖水平、左右相反倾斜、跳跃、丢点、重叠锁定、恢复、过期／单次事件及坐标逆变换。模拟抬手／蹲起／固定脚踝的踮脚不触发，不等于真人踮脚准确率。
 
 游戏运行记录保存在 `pose-validation-results/pose-*.mat`，只含数字，不保存相机图片。相机采集调用率、每区域有效关节率、总推理调用率分开；每场景统计有效游戏时长、绘制／物理次数、长帧和采集调用至物理／drawnow 完成的延迟均值、最大值及 >150 ms 次数。硬件曝光时刻、摄像头内部缓存和显示器真正呈现时刻未知；不能把这些软件计时当作完整动作响应。
