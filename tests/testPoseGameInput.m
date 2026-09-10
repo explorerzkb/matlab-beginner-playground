@@ -38,6 +38,9 @@ after=getappdata(fig,'poseSession');
 assert(after.epoch==2 && all(isinf([after.state.player.eventTime])));
 p=readFigurePose(fig,10.06,true,true);
 assert(p.safetyPause && ~any([p.player.jump p.player.left p.player.right]));
+after.state.phase='recalibrate';
+after=resetPoseSession(after,false);
+assert(strcmp(after.state.phase,'recalibrate'),'Pause bypassed identity confirmation');
 % Keyboard remains a separate source; physics unchanged.
 setappdata(fig,'inputMode','keyboard');
 [~,isPose]=readFigurePose(fig,10.07,true,true); assert(~isPose);

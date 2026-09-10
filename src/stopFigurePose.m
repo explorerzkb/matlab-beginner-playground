@@ -3,5 +3,6 @@ function stopFigurePose(fig)
 if ~isgraphics(fig) || ~isappdata(fig,'poseSession'), return; end
 session=getappdata(fig,'poseSession');
 rmappdata(fig,'poseSession');
+savePoseTelemetry(session);
 stopPoseSession(session);
 end

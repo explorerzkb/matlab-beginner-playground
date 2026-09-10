@@ -70,13 +70,12 @@ clear cleanupGuard;
 end
 
 function state = runInteractiveLevel(fig, ax, state, level, cfg)
-% Prime the JVM call before starting telemetry; its first invocation can
-% take more than a second on a cold MATLAB process.
+% Prime the platform timer before starting telemetry.
 gameFrameWait();
 clock = tic;
 previousTime = toc(clock);
 accumulator = 0;
-lastRenderTime = -inf;
+nextRenderTime = 0;
 renderInterval = 1 / cfg.render.targetHz;
 telemetry = initializeTelemetry();
 manualPaused=state.paused;
@@ -99,6 +98,7 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
         else, cfg.render.targetHz=50;
         end
         renderInterval=1/cfg.render.targetHz;
+        nextRenderTime=toc(clock);
         manualPaused=false;
         state.input.bufferedLeft=[false false];
         state.input.bufferedRight=[false false];
@@ -134,6 +134,11 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     currentPose=readFigurePose(fig,poseClock(),false,true);
     input.safetyPause=currentPose.safetyPause;
     state.paused=manualPaused || input.safetyPause;
+    if input.poseMode
+        recordFigurePoseTelemetry(fig,'scene',poseClock(),struct( ...
+            'centre',mean([state.players(1).pos(1),state.players(2).pos(1)]), ...
+            'active',~state.paused,'elapsed',rawFrameDelta));
+    end
     if input.poseMode
         state.input.bufferedLeft=[false false];
         state.input.bufferedRight=[false false];
@@ -182,6 +187,9 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
             end
             state = stepConsumables(state, stepInput, cfg, cfg.physics.fixedDt);
             state = stepPhysics(state, stepInput, level, cfg, cfg.physics.fixedDt);
+            if input.poseMode
+                recordFigurePoseTelemetry(fig,'physics',poseClock(),[]);
+            end
             state.input.bufferedLeft = [false false];
             state.input.bufferedRight = [false false];
             state.input.bufferedJumps = [false false];
@@ -205,7 +213,7 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
         end
     end
 
-    if nowTime - lastRenderTime >= renderInterval
+    if nowTime >= nextRenderTime
         if input.poseMode
             state.poseStatus='等待摄像头／校准 · C 重校准 · K 键盘';
             if isappdata(fig,'poseSession')
@@ -226,7 +234,13 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
         % target; use a full update here and reserve limitrate for callback
         % polling between scheduled frames.
         drawnow;
-        lastRenderTime = nowTime;
+        if input.poseMode && ~state.paused
+            recordFigurePoseTelemetry(fig,'render',poseClock(),[]);
+        end
+        nextRenderTime=nextRenderTime+renderInterval;
+        if toc(clock)-nextRenderTime>renderInterval
+            nextRenderTime=toc(clock);
+        end
         if cfg.runtime.validationMode && ~state.paused
             telemetry = recordRenderedFrame(telemetry, state);
             if telemetry.liveSeconds >= 1
@@ -242,8 +256,7 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     end
     % Park briefly without calling pause. MATLAB documents pause as a full
     % drawnow equivalent, so using it in every polling iteration can flush
-    % redundant frames. A short JVM park also avoids a hot busy-wait while
-    % preserving sub-millisecond input polling between 60 Hz physics steps.
+    % redundant frames. The platform timer avoids a hot busy-wait.
     gameFrameWait();
 end
 if cfg.runtime.validationMode

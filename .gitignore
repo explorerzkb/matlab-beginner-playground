@@ -8,3 +8,6 @@ assets/reference/private/
 # Rebuildable local validation packages.
 dist/
 windows-validation-results/
+pose-validation-results/
+# Regenerated baseline screenshots are local diagnostics, not new game art.
+docs/validation/pose-control/keyboard-baseline/generated/

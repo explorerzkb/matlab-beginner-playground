@@ -16,6 +16,7 @@ try
         'epoch',1,'nextId',0,'inflight',false,'sentTime',-inf,'lastRequest',-inf, ...
         'ready',false,'error','','preview',[],'packets',0,'lastPacket',[], ...
         'cursor',[0 0],'previewRequested',false,'startedTime',poseClock());
+    session.telemetry=poseTelemetry([],'flush',poseClock(),[]);
 catch exception
     if owned, delete(pool); end
     rethrow(exception);
