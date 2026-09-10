@@ -16,6 +16,7 @@ fig = figure( ...
     'Position', [80, 80, cfg.render.windowSize]);
 ax = axes(fig, 'Position', [0.045, 0.08, 0.92, 0.86]);
 installInputCallbacks(fig);
+set(fig,'DeleteFcn',@cleanupPoseResources);
 cleanupGuard = onCleanup(@() cleanupGame(fig));
 setappdata(fig,'inputMode',cfg.input.mode);
 if strcmp(cfg.input.mode,'pose') && ~cfg.runtime.testMode
@@ -71,7 +72,7 @@ end
 function state = runInteractiveLevel(fig, ax, state, level, cfg)
 % Prime the JVM call before starting telemetry; its first invocation can
 % take more than a second on a cold MATLAB process.
-java.util.concurrent.locks.LockSupport.parkNanos(int64(250000));
+gameFrameWait();
 clock = tic;
 previousTime = toc(clock);
 accumulator = 0;
@@ -243,7 +244,7 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     % drawnow equivalent, so using it in every polling iteration can flush
     % redundant frames. A short JVM park also avoids a hot busy-wait while
     % preserving sub-millisecond input polling between 60 Hz physics steps.
-    java.util.concurrent.locks.LockSupport.parkNanos(int64(250000));
+    gameFrameWait();
 end
 if cfg.runtime.validationMode
     saveInteractiveTelemetry(telemetry, state, cfg);
