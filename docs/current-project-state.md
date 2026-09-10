@@ -4,6 +4,8 @@
 
 ## 当前结论
 
+2026-09-11 游戏接入完成首轮验证：`startGame('InputMode','pose')` 使用随仓库附带的原生 SinglePose 模型，显示目标 30 Hz；键盘默认保持 50 Hz，物理始终 60 Hz。初始校准显示镜像站位、起跳余量、水平稳定和逐人左右／试跳核对；K 切模式、C 重校准，喝茶／暂停／复位／退出仍用键盘。事件只在物理步消费，空中不排队，暂停／序章／复活／结算通过 epoch 丢掉在途旧结果。`testPoseGameInput`、原键盘映射、合成体感测试、TestMode 生命周期和 Code Analyzer 通过。真实启动校准 UI 收到摄像头数据后自动 Q 等效退出，随后摄像头可重新打开；没有真人校准通过或整局手感声明。日志 `integration-checks-2.txt`、`live-startup.txt`。五场景体感性能仍在测。
+
 2026-09-11 后台阶段通过：MATLAB Processes 单工作进程独占摄像头／模型，主进程非等待轮询，一次最多一张请求，无图像积压。真实 HD Camera 640×480 + 双区域 SinglePose：100 对结果，每人 13.47 Hz，采集调用至消费者中位 75.9 ms；轮询中位 0.260 ms、最大 13.282 ms。不是曝光到显示延迟，不能声称达成真人手感。关闭本任务自建并行池后摄像头重新打开成功，全源码 Code Analyzer 零问题。另单独 1280×720 连续采集 60 帧／3.104 s = 19.33 Hz；这是采集调用率，不是硬件声明 FPS。证据 `pipeline-checks.txt` 与 `camera-probe.txt`。
 
 2026-09-11 模型兼容性／独立静态小样通过：官方 SinglePose Lightning 3.tflite 与 MultiPose float16/1 均在 MATLAB 原生接口执行。MultiPose 需将输入元数据固定为 160×256，并显式启用 Windows uint8 推理；工具只改变两个尺寸向量指针、追加 40 字节，不改权重／算子，原文件保留。公开单人照片拼成双区域的对照（不是两真人质量验收）通过鼻／踝位置断言：双 SinglePose 每对中位 41.3 ms、最大 50.5 ms，每人理论更新上限 23.83 Hz；MultiPose 中位 268.3 ms、最大 376.6 ms，每人上限 3.77 Hz。当前优先双区域 SinglePose，小样与 Code Analyzer 通过，真人质量及端到端响应仍未知。详见 `model-comparison.txt`。

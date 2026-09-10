@@ -216,6 +216,13 @@ if state.paused
     set(handles.pauseHint, 'Position', ...
         [cameraCentre, cameraCentreY - 1.38, 0], ...
         'Visible', 'on');
+    if isfield(state,'poseStatus') && ~isempty(state.poseStatus)
+        set(handles.pauseText,'String',{'体感暂停',state.poseStatus});
+        set(handles.pauseHint,'String','保持站位与胸前双臂 · C 重校准 · K 键盘 · Q 退出');
+    else
+        set(handles.pauseText,'String','游戏已暂停');
+        set(handles.pauseHint,'String','Esc 继续 · 长按 R 复位 · Q 退出');
+    end
 else
     set(handles.pauseShade, 'Visible', 'off');
     set(handles.pauseCard, 'Visible', 'off');

@@ -10,7 +10,7 @@ try
     end
     send(results,struct('kind','ready'));
     while true
-        request=poll(commands,5);
+        request=poll(commands,30);
         if isempty(request) || strcmp(request.kind,'stop'), break; end
         capture=poseClock();
         if isempty(fixture), frame=snapshot(camera); else, frame=fixture; end

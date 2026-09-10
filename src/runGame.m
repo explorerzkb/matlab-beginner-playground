@@ -17,6 +17,10 @@ fig = figure( ...
 ax = axes(fig, 'Position', [0.045, 0.08, 0.92, 0.86]);
 installInputCallbacks(fig);
 cleanupGuard = onCleanup(@() cleanupGame(fig));
+setappdata(fig,'inputMode',cfg.input.mode);
+if strcmp(cfg.input.mode,'pose') && ~cfg.runtime.testMode
+    setPoseMode(fig,cfg,'pose');
+end
 
 restartRequested = true;
 while restartRequested && isgraphics(fig)
@@ -38,8 +42,11 @@ while restartRequested && isgraphics(fig)
         if cfg.runtime.testMode
             state = runTestLevel(fig, ax, state, level, cfg);
         else
+            flushFigurePose(fig,false);
             state = runPrologue(fig, ax, state, level, cfg);
+            flushFigurePose(fig,false);
             state = runInteractiveLevel(fig, ax, state, level, cfg);
+            flushFigurePose(fig,false);
         end
         stats = state.stats;
 
@@ -71,6 +78,8 @@ accumulator = 0;
 lastRenderTime = -inf;
 renderInterval = 1 / cfg.render.targetHz;
 telemetry = initializeTelemetry();
+manualPaused=state.paused;
+previousToggle=false; previousCalibration=false;
 
 while ~state.completed && ~state.requestQuit && isgraphics(fig)
     if closeWasRequested(fig)
@@ -82,6 +91,25 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     frameDelta = min(rawFrameDelta, cfg.runtime.maxFrameDelta);
     previousTime = nowTime;
     input = readInputSnapshot(fig, cfg.input);
+    if input.toggleMode && ~previousToggle
+        if input.poseMode, mode='keyboard'; else, mode='pose'; end
+        setPoseMode(fig,cfg,mode);
+        if strcmp(mode,'pose'), cfg.render.targetHz=cfg.pose.renderHz;
+        else, cfg.render.targetHz=50;
+        end
+        renderInterval=1/cfg.render.targetHz;
+        manualPaused=false;
+        state.input.bufferedLeft=[false false];
+        state.input.bufferedRight=[false false];
+        state.input.bufferedJumps=[false false];
+        accumulator=0; previousTime=toc(clock);
+        input=readInputSnapshot(fig,cfg.input);
+    end
+    previousToggle=input.toggleMode;
+    if input.recalibrate && ~previousCalibration
+        flushFigurePose(fig,true);
+    end
+    previousCalibration=input.recalibrate;
     state.input.bufferedLeft = state.input.bufferedLeft | ...
         [input.player(1).left, input.player(2).left];
     state.input.bufferedRight = state.input.bufferedRight | ...
@@ -95,11 +123,24 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     state.input.previousPause = input.pause;
     state.input.previousQuit = input.quit;
     if pauseEdge
-        state.paused = ~state.paused;
+        manualPaused = ~manualPaused;
+        flushFigurePose(fig,false);
         state.input.bufferedLeft = [false false];
         state.input.bufferedRight = [false false];
         state.input.bufferedJumps = [false false];
         state.input.bufferedUseItem = false;
+    end
+    currentPose=readFigurePose(fig,poseClock(),false,true);
+    input.safetyPause=currentPose.safetyPause;
+    state.paused=manualPaused || input.safetyPause;
+    if input.poseMode
+        state.input.bufferedLeft=[false false];
+        state.input.bufferedRight=[false false];
+        state.input.bufferedJumps=[false false];
+    end
+    if state.paused
+        accumulator=0;
+        readFigurePose(fig,poseClock(),true,false);
     end
     if quitEdge
         state.requestQuit = true;
@@ -134,6 +175,10 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
                     state.input.bufferedJumps(playerIndex);
             end
             stepInput.useItem = input.useItem || state.input.bufferedUseItem;
+            if input.poseMode
+                poseInput=readFigurePose(fig,poseClock(),true,true);
+                stepInput.player=poseInput.player;
+            end
             state = stepConsumables(state, stepInput, cfg, cfg.physics.fixedDt);
             state = stepPhysics(state, stepInput, level, cfg, cfg.physics.fixedDt);
             state.input.bufferedLeft = [false false];
@@ -146,6 +191,8 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
             if state.requestReset
                 playSoundCue('failure', cfg);
                 state = resetToCheckpoint(state, level, cfg);
+                flushFigurePose(fig,false);
+                accumulator=0;
                 break;
             end
             if state.completed
@@ -157,7 +204,21 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
         end
     end
 
-    if nowTime - lastRenderTime >= renderInterval || state.paused
+    if nowTime - lastRenderTime >= renderInterval
+        if input.poseMode
+            state.poseStatus='等待摄像头／校准 · C 重校准 · K 键盘';
+            if isappdata(fig,'poseSession')
+                session=getappdata(fig,'poseSession');
+                state.poseStatus=session.state.reason;
+                if strcmp(session.state.phase,'countdown')
+                    state.poseStatus=sprintf('稳定恢复：%.0f 秒', ...
+                        max(0,ceil(session.state.countdownUntil-poseClock())));
+                end
+                if ~isempty(session.error), state.poseStatus='摄像头／推理异常 · K 切键盘'; end
+            end
+        else
+            state.poseStatus='';
+        end
         state = renderFrame(fig, ax, state, level, cfg);
         % A scheduled gameplay frame must reach the display. MATLAB caps
         % drawnow limitrate at 20 screen updates per second, below our 50 Hz
