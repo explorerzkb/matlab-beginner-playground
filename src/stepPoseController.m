@@ -11,6 +11,9 @@ for i=1:numel(features)
 end
 features=features([features.valid]);
 if strcmp(state.phase,'calibrating')
+    if gap>cfg.staleSeconds
+        state.samples=zeros(0,11);
+    end
     state=calibrate(state,features,time,cfg);
     return;
 end
@@ -64,7 +67,9 @@ for i=1:2
     p.angle=p.angle+(1-exp(-dt/cfg.smoothingSeconds))*(f.angle-p.zero-p.angle);
     if p.angle>=cfg.enterDegrees, p.direction=1;
     elseif p.angle<=-cfg.enterDegrees, p.direction=-1;
-    elseif abs(p.angle)<=cfg.exitDegrees, p.direction=0;
+    elseif (p.direction>0 && p.angle<=cfg.exitDegrees) || ...
+            (p.direction<0 && p.angle>=-cfg.exitDegrees)
+        p.direction=0;
     end
     hipRise=(p.hip-f.hip)/p.scale;
     ankleRise=(p.ankle-f.ankle)/p.scale;
