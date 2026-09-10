@@ -7,6 +7,7 @@ if isempty(data)
         'captureRender',metric);
     data=struct('scene',repmat(scene,1,5),'sceneIndex',1, ...
         'firstCapture',NaN,'lastCapture',NaN,'packets',0,'validUpdates',[0 0], ...
+        'boundUpdates',[0 0], ...
         'inferenceCalls',0,'lastPhysicsId',0,'lastRenderId',0, ...
         'pendingCapture',NaN,'pendingId',0,'captureConsumer',metric);
 end
@@ -24,6 +25,13 @@ switch action
             data.validUpdates(i)=data.validUpdates(i)+double(f.valid);
         end
         data.captureConsumer=sample(data.captureConsumer,now-packet.captureTime);
+    case 'bound'
+        for i=1:2
+            p=value.player(i);
+            if p.valid && p.lastTime==now
+                data.boundUpdates(i)=data.boundUpdates(i)+1;
+            end
+        end
     case 'scene'
         newIndex=1+sum(value.centre>=[54 102 138 187]);
         if newIndex~=index || ~value.active

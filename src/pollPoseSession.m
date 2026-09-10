@@ -18,6 +18,8 @@ if ~isempty(packet)
                     now-packet.captureTime<=session.cfg.staleSeconds
                 session.state=stepPoseController(session.state,packet.points, ...
                     packet.imageSize,packet.captureTime,session.cfg);
+                session.telemetry=poseTelemetry(session.telemetry,'bound', ...
+                    packet.captureTime,session.state);
                 if isfield(packet,'preview'), session.preview=packet.preview; end
             end
     end
