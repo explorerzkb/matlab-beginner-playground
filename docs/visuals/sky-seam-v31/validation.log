@@ -1,0 +1,7 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+FORCED north-lake    43.3 FPS at 960x540
+FORCED network-race  86.6 FPS at 960x540
+FORCED traffic       47.0 FPS at 960x540
+FORCED bicycle       65.0 FPS at 960x540
+FORCED campus        54.2 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 43.3 FPS across all five pockets
