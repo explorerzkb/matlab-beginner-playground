@@ -2,11 +2,11 @@ function testBridgeOcclusion()
 %TESTBRIDGEOCCLUSION Pixel evidence of bridge piers and near rails covering pears.
 root=fileparts(fileparts(mfilename('fullpath')));
 cfg=gameConfig(root); world=continuousCampusWorld();
-folder=fullfile(root,'docs','visuals','playability-v29');
+folder=fullfile(root,'docs','visuals','playability-v30');
 if ~isfolder(folder), mkdir(folder); end
 fig=figure('Visible','off','Position',[50 50 cfg.render.windowSize]);
 guard=onCleanup(@() delete(fig)); ax=axes(fig,'Position',[.045 .08 .92 .86]);
-for position=[118.2 1;120 5.25]'
+for position=[118.2 1;120 6.5]'
     s=createInitialState(world,cfg,[]);
     s.players(1).pos=position'; s.players(2).pos=position'+[1.6 0];
     s=stepLevel(s,world,cfg,0); s.render.cameraCentre=122;

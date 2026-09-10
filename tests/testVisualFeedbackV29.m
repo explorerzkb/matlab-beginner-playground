@@ -2,7 +2,7 @@ function testVisualFeedbackV29()
 %TESTVISUALFEEDBACKV29 Runtime pixels, not only object visibility flags.
 root=fileparts(fileparts(mfilename('fullpath')));
 cfg=gameConfig(root); world=continuousCampusWorld();
-folder=fullfile(root,'docs','visuals','playability-v29');
+folder=fullfile(root,'docs','visuals','playability-v30');
 if ~isfolder(folder), mkdir(folder); end
 fig=figure('Visible','off','Position',[50 50 cfg.render.windowSize], ...
     'MenuBar','none','ToolBar','none','GraphicsSmoothing',cfg.render.graphicsSmoothing);

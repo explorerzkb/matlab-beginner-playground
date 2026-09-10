@@ -45,7 +45,8 @@ end
 
 % Roofs remain one-way platforms. The body deals damage rather than pushing
 % a pear into the floor; sweep moving bodies so fast crossings cannot miss.
-if dt>0
+inFlight=isfield(state.levelState,'bicycle') && strcmp(state.levelState.bicycle.phase,'flight');
+if dt>0 && ~inFlight
     for busIndex=1:size(currentRects,1)
         current=currentRects(busIndex,:);
         previous=bus.previousRects(busIndex,:);
@@ -104,10 +105,12 @@ if dt>0
         end
     end
 end
-state.levelState.oneWayPlatforms = [state.levelState.oneWayPlatforms; currentRects];
-state.levelState.colliders = [state.levelState.colliders; data.lampColliders];
+if ~inFlight
+    state.levelState.oneWayPlatforms = [state.levelState.oneWayPlatforms; currentRects];
+    state.levelState.colliders = [state.levelState.colliders; data.lampColliders];
+end
 for playerIndex = 1:2
-    if bus.lampCooldowns(playerIndex) > 0
+    if bus.lampCooldowns(playerIndex) > 0 || inFlight
         continue;
     end
     for lampIndex = 1:size(data.lampColliders, 1)

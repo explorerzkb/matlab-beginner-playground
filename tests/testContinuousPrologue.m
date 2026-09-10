@@ -8,7 +8,7 @@ state=stepLevel(state,world,cfg,0);
 fig=figure('Visible','off','Position',[50 50 1280 720]);
 guard=onCleanup(@() close(fig));
 ax=axes(fig,'Position',[0.045 0.08 0.92 0.86]);
-folder=fullfile(root,'docs','visuals','playability-v29','prologue');
+folder=fullfile(root,'docs','visuals','playability-v30','prologue');
 if ~isfolder(folder), mkdir(folder); end
 frames=[1 120 141 163 200 253];
 state=stepPrologue(state,world,cfg,0);

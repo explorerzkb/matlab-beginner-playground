@@ -11,6 +11,15 @@ if ~isfield(state.levelState, 'bicycle')
     state.levelState.bicycle.disappeared = false;
 end
 bicycle = state.levelState.bicycle;
+previousBikes=bicycle.bikeRects;
+if any(strcmp(bicycle.phase,{'warning','flight'})) && ~bicycle.disappeared
+    bicycle.bikeRects(:,1)=bicycle.bikeRects(:,1)+data.bikeSpeeds*dt;
+    if strcmp(bicycle.phase,'warning')
+        outside=bicycle.bikeRects(:,1)<132 | bicycle.bikeRects(:,1)>178;
+        bicycle.bikeRects(outside,1)=data.bikeRects(outside,1);
+        previousBikes(outside,:)=bicycle.bikeRects(outside,:);
+    end
+end
 
 % This is a route crossing, not a low rectangular hitbox: a boosted jump
 % must not skip the compulsory event and leave later checkpoints locked.
@@ -28,10 +37,18 @@ if strcmp(bicycle.phase, 'warning')
     % them; stopping or reversing cannot avoid the scripted collision.
     state.levelState.colliders = [state.levelState.colliders; ...
         data.triggerZone(1) + data.triggerZone(3) - 0.2, 1.0, 0.25, 3.2];
-    if bicycle.timer == 0
+    grounded=all(arrayfun(@(p) p.onGround && abs(p.pos(2)-1)<.08,state.players));
+    contact=false;
+    for bikeIndex=1:size(previousBikes,1)
+        swept=[min(previousBikes(bikeIndex,1),bicycle.bikeRects(bikeIndex,1)),1, ...
+            data.bikeRects(bikeIndex,3)+abs(previousBikes(bikeIndex,1)-bicycle.bikeRects(bikeIndex,1)),1.5];
+        contact=contact || any(playersInRect(state.players,swept));
+    end
+    if bicycle.timer == 0 && grounded && contact
+        bicycle.impactPositions=vertcat(state.players.pos);
         for playerIndex = 1:2
-            % Solve the arc from the actual launch height (including a jump
-            % during the warning). Both targets lie inside the safe plaza.
+            % Solve from actual ground contact, after any warning-phase jump
+            % has landed. Both targets lie inside the safe plaza.
             rise = max(0, state.players(playerIndex).pos(2) - 1);
             gravity = abs(cfg.physics.gravity);
             targetX = data.museumLandingZone(1) + data.landingInset + 2*(playerIndex-1);
@@ -60,12 +77,8 @@ elseif strcmp(bicycle.phase, 'flight')
     if all(inLanding & lowEnough)
         bicycle.phase = 'landed';
         bicycle.landed = true;
+        state.status.respawnProtection=cfg.health.respawnProtection;
     end
-end
-
-% The stream keeps moving through the impact instead of freezing mid-road.
-if any(strcmp(bicycle.phase,{'warning','flight'})) && ~bicycle.disappeared
-    bicycle.bikeRects(:,1)=bicycle.bikeRects(:,1)+data.bikeSpeeds*dt;
 end
 
 state.levelState.bicycle = bicycle;

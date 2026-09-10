@@ -30,6 +30,7 @@ cfg.health.maxHearts = 3;
 cfg.health.minorDamage = 1;
 cfg.health.hitInvulnerability = 0.85;
 cfg.health.deathDelay = 0.45;
+cfg.health.respawnProtection = 3;
 
 cfg.tea.maxCarried = 2;
 cfg.tea.useHoldDuration = 0.35;
@@ -63,7 +64,7 @@ cfg.render.viewportHeight = 13.4;
 cfg.render.worldHeight = cfg.render.viewportHeight;
 cfg.render.flightCameraCeiling = 180;
 cfg.render.flightCameraResponse = 0.065;
-cfg.render.campusCameraScale = 0.32;
+cfg.render.campusCameraScale = 0.50;
 cfg.render.campusZoomResponse = 2.0;
 cfg.render.campusZoomAltitude = 18;
 cfg.render.marginY = 0.25;
@@ -71,7 +72,7 @@ cfg.render.fontName = 'Microsoft YaHei';
 cfg.render.graphicsSmoothing = 'off';
 cfg.render.loginTextureStride = 2;
 cfg.render.networkStateTextureStride = 2;
-cfg.render.backgroundTextureStride = 6;
+cfg.render.backgroundTextureStride = 4;
 % The final bus panorama is revealed through a narrow moving crop, so it
 % keeps its native pixels instead of sharing the coarse full-screen stride.
 cfg.render.campusHandscrollTextureStride = 1;
@@ -117,7 +118,11 @@ cfg.assets.museumSportsRoad = fullfile(projectRoot, 'assets', 'game', ...
 cfg.assets.museumSportsWest = fullfile(projectRoot, 'assets', 'game', ...
     'images', 'backgrounds', 'museum-sports-west-v13.png');
 cfg.assets.lastBusHandscroll = fullfile(projectRoot, 'assets', 'game', ...
-    'images', 'backgrounds', 'last-bus-handscroll-v27.png');
+    'images', 'backgrounds', 'last-bus-handscroll-v30.png');
+cfg.assets.cloudSky = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'backgrounds', 'cloud-sky-v30.png');
+cfg.assets.campusContinuation = fullfile(projectRoot, 'assets', 'game', ...
+    'images', 'backgrounds', 'campus-continuation-v30.png');
 cfg.assets.northLiBridge = fullfile(projectRoot, 'assets', 'game', ...
     'images', 'backgrounds', 'north-li-bridge-v5.png');
 cfg.assets.playground = fullfile(projectRoot, 'assets', 'game', ...

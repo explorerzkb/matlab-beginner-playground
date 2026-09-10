@@ -19,7 +19,7 @@ pedestrianStart = sum(traffic.signalPhaseDurations(1:3)) + 0.05;
 state.levelTime = pedestrianStart;
 state = stepLevel(state, world, cfg, 0);
 state.levelState.traffic.signalClock = pedestrianStart;
-state = stepWorldTraffic(state, world, cfg, 0);
+state = stepLevel(state, world, cfg, 0);
 assert(state.levelState.traffic.pedestriansMayCross, ...
     'Traversal test did not start during pedestrian green.');
 assert(~anyBarrier(state.levelState.colliders, traffic.pedestrianBarrier), ...

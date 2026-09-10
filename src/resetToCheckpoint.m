@@ -39,6 +39,7 @@ state.rope.tautLast = false;
 state.status.currentHearts = state.status.maxHearts;
 state.status.deathPending = false;
 state.status.deathTimer = 0;
+state.status.respawnProtection = cfg.health.respawnProtection;
 state.input.resetHeldTime = 0;
 state.input.bufferedJumps = [false false];
 state.input.bufferedLeft = [false false];
@@ -59,7 +60,7 @@ if isfield(state.levelState,'race') && ...
     state.levelState=rmfield(state.levelState,'race');
 end
 traffic = world.mechanic.traffic;
-depth=-traffic.carData(:,6)*traffic.depthStop;
+depth=traffic.carData(:,2);
 cars = traffic.carData(:, 1:4);
 cars(:,2)=1+traffic.depthProjection*depth;
 state.levelState.traffic.carDepth=depth;
@@ -106,7 +107,8 @@ if isfield(state.levelState, 'bus')
     state.levelState = rmfield(state.levelState, 'bus');
 end
 if state.checkpointIndex==7
-    state.levelState.busTimeOffset=state.levelTime;
+    state.levelState.busTimeOffset=state.levelTime- ...
+        world.mechanic.bus.resetPhaseDistance/world.mechanic.bus.speed;
 end
 if isfield(state.levelState.dynamicObjects, 'bus')
     state.levelState.dynamicObjects = rmfield( ...

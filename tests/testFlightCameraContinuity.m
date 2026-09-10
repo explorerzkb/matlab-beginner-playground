@@ -16,7 +16,7 @@ sizes=[s.players.size]; input.useItem=false;
 for p=1:2
     input.player(p)=struct('left',false,'right',false,'jump',false);
 end
-folder=fullfile(root,'docs','visuals','playability-v29');
+folder=fullfile(root,'docs','visuals','playability-v30');
 if ~isfolder(folder), mkdir(folder); end
 ys=zeros(900,1); started=false; landed=false;
 renderSeconds=0; frames=0;

@@ -43,6 +43,7 @@ testTimeoutExtraHold();
 testNetworkReachability();
 fprintf('Running traffic checks...\n');
 testTrafficRoutes();
+testPlayabilityV30();
 testTrafficSignal();
 testTrafficCars();
 testTrafficCrowd();

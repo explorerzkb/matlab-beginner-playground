@@ -16,19 +16,21 @@ switch segment
 end
 
 % One sky runs behind every chapter, including the bicycle flight pocket.
-patch(ax, [0, world.worldWidth, world.worldWidth, 0], ...
-    [-0.4, -0.4, cfg.render.flightCameraCeiling, cfg.render.flightCameraCeiling], ...
-    [0.73, 0.88, 0.94], 'EdgeColor', 'none');
-sky=zeros(2,2,3);
-sky(1,:,:)=repmat(reshape([0.73 0.88 0.94],1,1,3),1,2,1);
-sky(2,:,:)=repmat(reshape([0.66 0.84 0.92],1,1,3),1,2,1);
-surface(ax,[0 world.worldWidth;0 world.worldWidth], ...
-    [-0.4 -0.4;cfg.render.flightCameraCeiling cfg.render.flightCameraCeiling],zeros(2), ...
-    'CData',sky,'FaceColor','interp','EdgeColor','none');
-cloudCentres = 7:18:world.worldWidth;
-cloudCentres = cloudCentres(cloudCentres >= viewRange(1) - 12 & ...
-    cloudCentres <= viewRange(2) + 12);
-drawClouds(ax, cloudCentres, 15.3 + 0.55 * sin(cloudCentres), 1.0);
+patch(ax,[0 world.worldWidth world.worldWidth 0], ...
+    [-.4 -.4 cfg.render.flightCameraCeiling cfg.render.flightCameraCeiling], ...
+    [.45 .71 .95],'EdgeColor','none');
+% One static texture covers every altitude. Mirrored tiles join continuously;
+% moving the world camera, rather than rebuilding clouds, preserves motion.
+sky=readGameImage(cfg.assets.cloudSky,8);
+sky=[sky fliplr(sky)];
+sky=[sky;flipud(sky)];
+nx=ceil(world.worldWidth/80);
+ny=ceil((cfg.render.flightCameraCeiling+.4)/26.6667);
+skyImage=image(ax,'CData',repmat(sky,ny,nx),'XData',[0 nx*80], ...
+    'YData',[-.4 ny*26.6667-.4]);
+if isprop(skyImage,'Interpolation')
+    skyImage.Interpolation='bilinear';
+end
 
 if strcmp(segment, 'world')
     drawMatlabOrigin(ax, regions.origin, cfg, ink);
@@ -180,11 +182,7 @@ drawKeyedSprite(ax,[deck(1),base,deck(3),height], ...
 text(ax,mean(deck(1)+[0 deck(3)]),7.5,'北理桥', ...
     'FontName',cfg.render.fontName,'FontWeight','bold','FontSize',13, ...
     'HorizontalAlignment','center','Color',[0.53 0.13 0.10]);
-% An actual visible ladder accompanies the four-press climbing interaction.
-for railX=[114.1 115.65]
-    plot(ax,[railX railX],[1 5.5],'-','Color',[0.57 0.61 0.59], ...
-        'LineWidth',3);
-end
+% No ladder: the upper route is reached with a tea-powered jump.
 end
 
 function drawBicycleJunction(ax, range, cfg)
@@ -318,27 +316,4 @@ function object = backgroundSurface(ax, x, y, z, varargin)
 object = surface(ax, x, y, z, varargin{:});
 set(object, 'Tag', 'cameraCulledBackground', ...
     'UserData', [min(x(:)), max(x(:))]);
-end
-
-function drawClouds(ax, centreX, centreY, scale)
-if isempty(centreX)
-    return;
-end
-blobs = [-1.3, -0.45, 0.45, 1.25];
-theta = linspace(0, 2 * pi, 22)';
-faceCount = numel(centreX) * numel(blobs);
-x = zeros(numel(theta), faceCount);
-y = zeros(numel(theta), faceCount);
-faceIndex = 0;
-for cloudIndex = 1:numel(centreX)
-    for blob = blobs
-        faceIndex = faceIndex + 1;
-        x(:, faceIndex) = centreX(cloudIndex) + scale * (blob + ...
-            (0.95 - 0.16 * abs(blob)) * cos(theta));
-        y(:, faceIndex) = centreY(cloudIndex) + scale * ...
-            (0.35 * cos(blob) + 0.48 * sin(theta));
-    end
-end
-patch(ax, x, y, [0.96, 0.98, 0.98], 'EdgeColor', 'none', ...
-    'FaceAlpha', 0.55);
 end

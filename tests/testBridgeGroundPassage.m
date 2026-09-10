@@ -7,6 +7,7 @@ for presses={[0 0],[1 0],[4 0]}
     state=createInitialState(world,cfg,[]);
     state=stepLevel(state,world,cfg,0);
     state.levelState.traffic.route='upper';
+    state.levelState.traffic.arrived=true;
     state.levelState.traffic.climbPresses=presses{1};
     % The expanded crossing now starts here. Test the alleged invisible wall
     % under pedestrian green, not against the intentional red-light barrier.

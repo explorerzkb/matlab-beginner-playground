@@ -403,7 +403,7 @@ end
 set(handles.networkLoadingText, 'UserData', cacheKey);
 end
 
-function updateTraffic(handles, state, world, ~, viewRange)
+function updateTraffic(handles, state, ~, ~, viewRange)
 if ~rangesOverlap(viewRange, [112, 150])
     hideMany(handles.climbRungs, handles.climbProgress, ...
         handles.upperBridgePlatforms, handles.signalHousing, ...
@@ -418,23 +418,8 @@ if ~isempty(lastRenderTime) && state.levelTime - lastRenderTime < 1 / 30
     return;
 end
 traffic = state.levelState.traffic;
-data = world.mechanic.traffic;
 
-rungX = data.climbZone(1) + 1.6;
-for index = 1:numel(handles.climbRungs)
-    rungY = 1.5 + index * data.climbStepHeight;
-    completed = all(traffic.climbPresses >= index);
-    if completed
-        color = [0.35, 0.85, 0.50];
-    else
-        color = [0.87, 0.87, 0.80];
-    end
-    set(handles.climbRungs(index), 'XData', rungX + [-0.55, 0.55], ...
-        'YData', [rungY, rungY], 'Color', color, 'Visible', 'on');
-end
-set(handles.climbProgress, 'Position', [rungX, 6.45, 0], ...
-    'String', sprintf('攀爬 P1 %d/4 · P2 %d/4', ...
-    traffic.climbPresses(1), traffic.climbPresses(2)), 'Visible', 'on');
+hideMany(handles.climbRungs,handles.climbProgress);
 
 for index = 1:numel(handles.upperBridgePlatforms)
     % The checked bridge sprite now carries the visible physical deck.
@@ -478,41 +463,16 @@ switch traffic.route
         routeLabel = '路线锁定：红绿灯';
         routeColor = [0.60, 0.25, 0.13];
     otherwise
-        routeLabel = '↑ 四次攀爬 / → 地面过街';
+        routeLabel = '喝茶后跳上桥 / 等绿灯走地面';
         routeColor = [0.24, 0.29, 0.31];
 end
 set(handles.routeLabel, 'String', routeLabel, ...
     'Color', routeColor, 'Visible', 'on');
 
-carCount = size(traffic.cars, 1);
-carBodiesX = zeros(4, carCount);
-carBodiesY = zeros(4, carCount);
-carWindowsX = zeros(4, carCount);
-carWindowsY = zeros(4, carCount);
-carWheelX = zeros(1, 2 * carCount);
-carWheelY = zeros(1, 2 * carCount);
-for index = 1:carCount
-    rect = traffic.cars(index, :);
-    carBodiesX(:, index) = rect(1) + rect(3) * [0; 1; 1; 0];
-    carBodiesY(:, index) = rect(2) + rect(4) * [0; 0; 1; 1];
-    direction = traffic.carDirections(index);
-    windowX = rect(1) + rect(3) * [0.29, 0.72, 0.64, 0.38];
-    if direction < 0
-        windowX = fliplr(2 * (rect(1) + rect(3) / 2) - windowX);
-    end
-    carWindowsX(:, index) = windowX(:);
-    windowY=[.62;.62;.88;.88];
-    if direction>0, windowY=1-windowY; end
-    carWindowsY(:, index) = rect(2) + rect(4) * windowY;
-    wheelColumns = 2 * index - 1:2 * index;
-    carWheelX(wheelColumns) = rect(1) + rect(3) * [0.02, 0.98];
-    carWheelY(wheelColumns) = rect(2) + rect(4) * [0.22, 0.22];
-end
-set(handles.cars, 'XData', carBodiesX, 'YData', carBodiesY, 'Visible', 'on');
-set(handles.carWindows, 'XData', carWindowsX, ...
-    'YData', carWindowsY, 'Visible', 'on');
-set(handles.carWheels, 'XData', carWheelX, ...
-    'YData', carWheelY, 'Visible', 'on');
+[v,f,c]=trafficCarGeometry(traffic.cars,traffic.carDirections);
+set(handles.cars,'Vertices',v,'Faces',f,'FaceVertexCData',c, ...
+    'FaceColor','flat','EdgeColor','none','Visible','on');
+hideMany(handles.carWindows,handles.carWheels);
 
 crowdCount = size(traffic.crowd, 1);
 crowdVertices = zeros(4 * crowdCount, 2);
@@ -630,11 +590,18 @@ switch bicycle.phase
         set(handles.bicycleImpact, 'Visible', 'off');
     case 'flight'
         hideMany(handles.bicycleWarning);
-        centre = mean([state.players(1).pos; state.players(2).pos], 1);
+        if isfield(bicycle,'impactPositions')
+            centre = mean(bicycle.impactPositions, 1);
+        else
+            centre=[nan nan];
+        end
         rays = [-1.1, -0.25, nan, -1.4, -0.5, nan, -1.0, -0.2];
         set(handles.bicycleImpact, 'XData', centre(1) + rays, ...
             'YData', centre(2) + [0.2, 0.45, nan, 0.65, 0.75, nan, ...
             -0.25, -0.05], 'Visible', 'on');
+        if ~isfield(bicycle,'launchTime') || state.levelTime-bicycle.launchTime>.38
+            set(handles.bicycleImpact,'Visible','off');
+        end
     otherwise
         hideMany(handles.bicycleWarning, handles.bicycleImpact);
 end

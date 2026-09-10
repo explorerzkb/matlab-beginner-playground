@@ -144,11 +144,11 @@ world.mechanic.traffic.climbStepHeight = 1.05;
 world.mechanic.traffic.upperRouteZone = world.mechanic.traffic.climbZone;
 world.mechanic.traffic.lowerRouteZone = [117.8, 1.0, 3.0, 2.2];
 world.mechanic.traffic.lowerLockX = 119.0;
-world.mechanic.traffic.upperBridgePlatforms = [116.8, 4.75, 33.2, 0.50];
+world.mechanic.traffic.upperBridgePlatforms = [116.8, 6.0, 33.2, 0.50];
 world.mechanic.traffic.signalPhaseNames = { ...
     'vehicleGreen', 'yellow', 'allRedBeforePed', ...
     'pedestrianGreen', 'allRedBeforeCars'};
-world.mechanic.traffic.signalPhaseDurations = [3.0, 0.8, 0.6, 8.0, 0.6];
+world.mechanic.traffic.signalPhaseDurations = [6.0, 0.8, 0.6, 8.0, 0.6];
 world.mechanic.traffic.waitingZone = [116.0, 1.0, 1.4, 1.8];
 world.mechanic.traffic.crosswalk = [119.0, 1.0, 30.0, 1.8];
 world.mechanic.traffic.exitSafeZone = [149.2, 1.0, 3.0, 1.8];
@@ -162,6 +162,12 @@ world.mechanic.traffic.carData = [ ...
     136, -9, 1.9, 1.5, 4.2,  1, -10, 10; ...
     143,  9, 1.9, 1.5, 4.0, -1, -10, 10];
 world.mechanic.traffic.depthProjection = .32;
+% Five spaced cars in each of four longitudinal lanes; twenty in total.
+world.mechanic.traffic.carData=repelem(world.mechanic.traffic.carData,5,1);
+world.mechanic.traffic.carData(:,2)=repmat([-20;-12;-4;4;12],4,1);
+world.mechanic.traffic.carData(:,4)=2.2;
+world.mechanic.traffic.carData(:,5)=12;
+world.mechanic.traffic.carData(:,7:8)=repmat([-24 24],20,1);
 world.mechanic.traffic.contactDepth = 1.5;
 world.mechanic.traffic.depthStop = 3;
 world.mechanic.traffic.stopLineGap = 0.25;
@@ -230,21 +236,24 @@ world.mechanic.bicycle.museumLandingZone(1) = campusX(171);
 world.mechanic.bicycle.museumLandingZone(3) = 27;
 world.mechanic.bicycle.landingInset = 20;
 world.mechanic.bicycle.disappearAltitude = 12;
-world.mechanic.bus.loopStart = campusX(world.mechanic.bus.loopStart);
-world.mechanic.bus.loopEnd = world.mechanic.bus.loopStart+160;
+world.mechanic.bus.loopStart = 282;
+world.mechanic.bus.loopEnd = world.mechanic.bus.loopStart+296;
+world.mechanic.bus.resetPhaseDistance = 10;
 % Keep the proven boarding approach and pear spacing in physical units.
 world.checkpoints(6).spawn(2,1)=world.checkpoints(6).spawn(1,1)+1.5;
-world.checkpoints(7).x=world.mechanic.bus.loopStart-4;
-world.checkpoints(7).spawn(:,1)=world.mechanic.bus.loopStart+[-3.8;-2.3];
+world.checkpoints(7).x=326;
+world.checkpoints(7).spawn(:,1)=[326.2;327.7];
 routeLength = world.mechanic.bus.loopEnd-world.mechanic.bus.loopStart;
 world.mechanic.bus.phaseOffsets = (0:7)'*(routeLength/8);
 world.mechanic.bus.lampColliders(:,1) = campusX(world.mechanic.bus.lampColliders(:,1));
-world.mechanic.bus.finishX = campusX(world.mechanic.bus.finishX);
+world.mechanic.bus.finishX = 426;
+world.finish(1)=426;
+world.finish(3)=12;
 world.mechanic.bus.sportsFinish = world.finish;
 world.mechanic.bus.backgroundRect = [300, 1.48+1.5*(-2.44-1.48), 126, 42];
 world.mechanic.bus.skyClearFraction = .42;
 % Leave visible breathing room beyond the last roof edge, before camera clamp.
-world.worldWidth=max(world.worldWidth,world.mechanic.bus.backgroundRect(1)+128);
+world.worldWidth=max(world.worldWidth,448);
 world.platforms(end,3)=world.worldWidth-world.platforms(end,1);
 world.regions(end).xRange(2)=world.worldWidth;
 

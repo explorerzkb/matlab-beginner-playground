@@ -2,6 +2,7 @@ function state = stepConsumables(state, input, cfg, dt)
 %STEPCONSUMABLES Update tea use, movement boost, and shared-heart timers.
 
 state.status.hitCooldown = max(0, state.status.hitCooldown - dt);
+state.status.respawnProtection = max(0, state.status.respawnProtection - dt);
 state.inventory.buffTimer = max(0, state.inventory.buffTimer - dt);
 if state.status.deathPending
     state.status.deathTimer = max(0, state.status.deathTimer - dt);

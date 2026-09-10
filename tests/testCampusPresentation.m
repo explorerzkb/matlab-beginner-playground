@@ -25,7 +25,7 @@ delta=s.levelState.bus.rects(:,1)-old(:,1);
 assert(delta(1)<0 && all(delta(2:end)>0));
 assert(numel(data.phaseOffsets)==8 && diff(data.phaseOffsets(1:2))>data.size(1));
 
-folder=fullfile(root,'docs','visuals','playability-v29');
+folder=fullfile(root,'docs','visuals','playability-v30');
 if ~isfolder(folder), mkdir(folder); end
 fig=figure('Visible','off','Position',[50 50 cfg.render.windowSize], ...
     'GraphicsSmoothing',cfg.render.graphicsSmoothing);
@@ -46,7 +46,7 @@ assert(s.render.cameraCentreY>15,'Flight camera hit the old height ceiling.');
 f=getframe(fig); imwrite(f.cdata,fullfile(folder,'flight.png'));
 s.levelState.bicycle.phase='landed'; s.levelState.bicycle.landed=true;
 top=data.y+data.size(2);
-s.players(1).pos=[data.loopStart top]; s.players(2).pos=[data.loopStart+2 top];
+s.players(1).pos=[332 top]; s.players(2).pos=[334 top];
 s=stepLevel(s,world,cfg,0);
 s.render.cameraCentre=data.backgroundRect(1)+33;
 [~,viewHeight]=cameraViewport(s,cfg);

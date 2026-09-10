@@ -11,72 +11,22 @@ t = ensureTrafficFields(t, traffic, state.levelTime);
 % Its underside also prevents a lower-route jump from bypassing the signal.
 state.levelState.colliders = [state.levelState.colliders; traffic.upperBridgePlatforms];
 
-jumpNow = [state.players(1).jumpHeld, state.players(2).jumpHeld];
-jumpEdge = jumpNow & ~t.climbHeldLast;
-t.climbHeldLast = jumpNow;
-if strcmp(t.route, 'undecided') || strcmp(t.route, 'upper')
-    for playerIndex = 1:2
-        deck = traffic.upperBridgePlatforms(1, :);
-        inClimbZone = playerOverlaps(state.players(playerIndex), traffic.climbZone);
-        if t.climbPresses(playerIndex) == traffic.climbPressesRequired && ...
-                inClimbZone && state.players(playerIndex).pos(2) < ...
-                deck(2) + deck(4) - 0.1
-            % Falling back below the deck starts a fresh ascent.
-            t.climbPresses(playerIndex) = 0;
-        end
-        if jumpEdge(playerIndex) && ...
-                inClimbZone && ...
-                t.climbPresses(playerIndex) < traffic.climbPressesRequired
-            if strcmp(t.route, 'undecided')
-                t.route = 'upper';
-                state.stats.trafficRoute = '北理桥';
-            end
-            t.climbPresses(playerIndex) = min( ...
-                traffic.climbPressesRequired, ...
-                t.climbPresses(playerIndex) + 1);
-            climbY = 1.0 + traffic.climbStepHeight * ...
-                t.climbPresses(playerIndex);
-            state.players(playerIndex).pos(2) = max( ...
-                state.players(playerIndex).pos(2), climbY);
-            state.players(playerIndex).vel(2) = max( ...
-                state.players(playerIndex).vel(2), 3.0);
-            if t.climbPresses(playerIndex)==traffic.climbPressesRequired
-                % Finish the last rung on the deck, not against its side.
-                deck=traffic.upperBridgePlatforms(1,:);
-                state.players(playerIndex).pos(1)=max(state.players(playerIndex).pos(1), ...
-                    deck(1)+state.players(playerIndex).size(1)/2+0.06);
-                state.players(playerIndex).pos(2)=deck(2)+deck(4);
-                state.players(playerIndex).vel=[0 0];
-                state.players(playerIndex).onGround=true;
-            end
-        end
+% Route choice follows actual feet on the bridge, never a button counter.
+deck=traffic.upperBridgePlatforms(1,:);
+onDeck=arrayfun(@(p) p.pos(1)>=deck(1) && p.pos(1)<=deck(1)+deck(3) && ...
+    abs(p.pos(2)-sum(deck([2 4])))<.15,state.players);
+if strcmp(t.route,'undecided')
+    if any(onDeck)
+        t.route='upper'; state.stats.trafficRoute='北理桥';
+    elseif all(arrayfun(@(p) p.pos(1)>=traffic.lowerLockX && p.pos(2)<3,state.players))
+        t.route='lower'; state.stats.trafficRoute='红绿灯';
     end
 end
-
-if strcmp(t.route, 'undecided')
-    playerX = [state.players(1).pos(1), state.players(2).pos(1)];
-    playerY = [state.players(1).pos(2), state.players(2).pos(2)];
-    if all(playerX >= traffic.lowerLockX) && all(playerY < 3.0)
-        t.route = 'lower';
-        state.stats.trafficRoute = '红绿灯';
-    end
+% Freeze the initial red until the pair first arrives after the running track.
+if ~t.arrived && max(arrayfun(@(p) p.pos(1),state.players))>=112
+    t.arrived=true; t.signalClock=0;
 end
-
-if strcmp(t.route, 'upper')
-    for playerIndex = 1:2
-        presses = t.climbPresses(playerIndex);
-        if presses > 0 && presses < traffic.climbPressesRequired && ...
-                playerOverlaps(state.players(playerIndex), traffic.climbZone)
-            % A completed rung remains a foothold while the partner climbs.
-            state.players(playerIndex).pos(2) = max( ...
-                state.players(playerIndex).pos(2), ...
-                1 + traffic.climbStepHeight * presses);
-            state.players(playerIndex).vel(2) = max( ...
-                state.players(playerIndex).vel(2), 0);
-        end
-    end
-    % Route choice is state, not an invisible obstacle on the road below.
-end
+if ~t.arrived, dt=0; end
 
 t.signalClock = t.signalClock + dt;
 [t.signalPhase, t.signalProgress] = signalAtTime( ...
@@ -194,11 +144,12 @@ state.levelState.dynamicObjects.traffic.carDirections = t.carDirections;
 state.levelState.dynamicObjects.traffic.crowd = crowd;
 end
 
-function state = initialTrafficState(traffic, levelTime)
+function state = initialTrafficState(traffic, ~)
 state.route = 'undecided';
 state.climbPresses = [0, 0];
 state.climbHeldLast = [false, false];
-state.signalClock = levelTime;
+state.signalClock = 0;
+state.arrived = false;
 state.signalPhase = 'vehicleGreen';
 state.signalProgress = 0;
 state.carsMayMove = true;

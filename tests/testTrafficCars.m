@@ -6,6 +6,7 @@ cfg=gameConfig(root); world=continuousCampusWorld(); d=world.mechanic.traffic;
 s=createInitialState(world,cfg,[]);
 s.players(1).pos=[80 1]; s.players(2).pos=[82 1];
 s=stepWorldTraffic(s,world,cfg,0);
+s.levelState.traffic.arrived=true;
 initial=s.levelState.traffic.cars;
 previous=s.levelState.traffic.carDepth;
 moved=false; dt=cfg.physics.fixedDt;

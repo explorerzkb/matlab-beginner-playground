@@ -66,6 +66,7 @@ state.input.bufferedUseItem = false;
 state.status.currentHearts = cfg.health.maxHearts;
 state.status.maxHearts = cfg.health.maxHearts;
 state.status.hitCooldown = 0;
+state.status.respawnProtection = 0;
 state.status.deathPending = false;
 state.status.deathTimer = 0;
 state.inventory.teaCount = 0;

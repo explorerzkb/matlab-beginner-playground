@@ -20,7 +20,8 @@ for index = 1:size(waitingCrowd, 1)
         'Waiting students blocked the crossing during vehicle green.');
 end
 
-state.levelTime = 5.8;
+state.levelState.traffic.arrived=true;
+state.levelTime = 8.8;
 state.levelState.traffic.signalClock = state.levelTime;
 state = stepWorldTraffic(state, world, cfg, 0);
 crossingCrowd = state.levelState.traffic.crowd;
@@ -52,6 +53,7 @@ assert(abs(boostedState.players(1).vel(1) - ...
 probe=createInitialState(world,cfg,[]);
 probe.players(1).pos=[80 1]; probe.players(2).pos=[81 1];
 probe=stepWorldTraffic(probe,world,cfg,0);
+probe.levelState.traffic.arrived=true;
 previous=probe.levelState.traffic.crowd;
 dt=cfg.physics.fixedDt;
 for tick=1:ceil(3*sum(traffic.signalPhaseDurations)/dt)

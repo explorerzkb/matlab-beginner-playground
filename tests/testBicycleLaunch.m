@@ -23,7 +23,11 @@ assert(strcmp(state.levelState.bicycle.phase, 'warning'), ...
 % Even reversing or stopping cannot cancel the already-triggered story beat.
 state.players(1).vel(1) = -cfg.physics.maxRunSpeed;
 state.players(2).vel(1) = 0;
-state = stepWorldBicycle(state, world, cfg, data.warningDuration);
+state.players(1).onGround=true;state.players(2).onGround=true;
+for tick=1:180
+    state = stepWorldBicycle(state, world, cfg, cfg.physics.fixedDt);
+    if state.levelState.bicycle.launched, break; end
+end
 assert(strcmp(state.levelState.bicycle.phase, 'flight') && ...
     state.levelState.bicycle.launched, ...
     'The unavoidable bicycle event did not enter flight.');

@@ -20,21 +20,12 @@ state=stepLevel(state,world,cfg,cfg.physics.fixedDt);
 assert(state.players(1).pos(2)>deckTop && state.players(1).vel(2)>0, ...
     'A normal jump after the fourth rung was snapped back onto the bridge.');
 
-% Returning to the ladder below the deck must permit another ascent.
+% No button-triggered vertical snapping remains below the bridge.
 state.players(1).pos=[114 1]; state.players(1).vel=[0 0];
-state.players(1).jumpHeld=false;
-state.levelState.traffic.climbHeldLast(1)=false;
-state=stepLevel(state,world,cfg,0);
-assert(state.levelState.traffic.climbPresses(1)==0, ...
-    'A player returning below the bridge retained a completed ladder.');
 for press=1:4
-    state.players(1).jumpHeld=true;
-    state=stepLevel(state,world,cfg,0);
-    state.players(1).jumpHeld=false;
-    state=stepLevel(state,world,cfg,0);
+    state.players(1).jumpHeld=true;state=stepLevel(state,world,cfg,0);
+    state.players(1).jumpHeld=false;state=stepLevel(state,world,cfg,0);
 end
-assert(state.levelState.traffic.climbPresses(1)==4 && ...
-    abs(state.players(1).pos(2)-deckTop)<1e-8, ...
-    'A completed climber could not return to the deck after falling off.');
+assert(state.players(1).pos(2)==1,'Jump buttons still climb without physics.');
 fprintf('BRIDGE REENTRY PASSED\n');
 end

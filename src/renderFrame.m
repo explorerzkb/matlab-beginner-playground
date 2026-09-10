@@ -126,6 +126,9 @@ else
     buffLabel = '';
 end
 instructionLabel = currentWorldInstruction(state, level);
+if state.status.respawnProtection>0
+    instructionLabel=sprintf('复活保护 %.1f 秒 · %s',state.status.respawnProtection,instructionLabel);
+end
 hudCache = struct( ...
     'mode', mode, ...
     'region', state.world.activeRegionIndex, ...
@@ -256,20 +259,20 @@ if strcmp(level.mechanic.type,'continuousCampus')
     % transform, so neither the ground nor the architecture jumps in flight.
     stride = max(1, cfg.render.campusHandscrollTextureStride);
     rgb = readGameImage(cfg.assets.lastBusHandscroll, stride);
-    % A runtime sky matte lets the existing continuous world sky show
-    % through. Only sky connected vertically to the top edge is removed;
-    % blue glass below a roof remains opaque. Computed once, never per frame.
-    colours = double(rgb);
-    skyPixels = colours(:,:,3)>1.03*colours(:,:,2) & ...
-        colours(:,:,2)>1.08*colours(:,:,1);
-    skyPixels = skyPixels | min(colours,[],3)>230;
-    skyPixels(2:end,:)=skyPixels(2:end,:) & ...
-        max(abs(diff(colours,1,1)),[],3)<18;
-    % The verified skyline starts below 42% of this source. Wispy white
-    % clouds above it must not seed opaque vertical streaks in the matte.
-    skyPixels(1:floor(size(rgb,1)*level.mechanic.bus.skyClearFraction),:) = true;
-    skyMatte = cumprod(skyPixels,1)==0;
+    % Preserve the natural clouds; only feather the empty top edge into sky.
+    skyMatte=ones(size(rgb,1),size(rgb,2));
+    fadeRows=max(1,round(.16*size(rgb,1)));
+    skyMatte(1:fadeRows,:)=repmat(linspace(0,1,fadeRows)',1,size(rgb,2));
+    patch(ax,[282 level.worldWidth level.worldWidth 282],[-.4 -.4 1.48 1.48], ...
+        [.34 .37 .40],'EdgeColor','none');
     backdropRect=level.mechanic.bus.backgroundRect;
+    continuation=readGameImage(cfg.assets.campusContinuation,stride);
+    image(ax,'CData',flipud(continuation), ...
+        'XData',[282 level.worldWidth+20], ...
+        'YData',backdropRect(2)+[0 backdropRect(4)]);
+    fadeCols=max(2,round(.012*size(rgb,2)));
+    skyMatte(:,end-fadeCols+1:end)=skyMatte(:,end-fadeCols+1:end).* ...
+        repmat(linspace(1,0,fadeCols),size(rgb,1),1);
     handles.campusBackdrop = image('Parent', ax, ...
         'CData', flipud(rgb), ...
         'AlphaData', flipud(double(skyMatte)), ...

@@ -20,6 +20,8 @@ for round=1:2
             s.levelState.bicycle.landed=true;
             s.levelState.bicycle.phase='landed';
         end
+        % Exercise death rendering after the new respawn immunity expires.
+        s=stepConsumables(s,input,cfg,cfg.health.respawnProtection);
         s=applyDamageEvent(s,cfg,'fatal');
         s=stepConsumables(s,input,cfg,cfg.health.deathDelay);
         assert(s.requestReset);

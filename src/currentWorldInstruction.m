@@ -30,10 +30,7 @@ switch state.levelState.activeRegionId
     case 'northLiBridge'
         traffic=state.levelState.traffic;
         if strcmp(traffic.route,'undecided')
-            label = ['选上桥或地面路线，进入后不能换。' ...
-                '上桥要各按四次跳跃键；走地面要等绿灯。'];
-        elseif strcmp(traffic.route,'upper') && any(traffic.climbPresses<4)
-            label = '两人各按四次跳跃键，爬到一半也可以停下来等同伴。';
+            label = '喝茶后跳上北理桥；不喝茶就等绿灯走地面。';
         elseif strcmp(traffic.route,'upper')
             label = '沿桥面往右走，到前面的路口汇合。';
         elseif traffic.pedestriansMayCross

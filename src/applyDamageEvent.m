@@ -5,6 +5,10 @@ applied = false;
 if state.status.deathPending
     return;
 end
+if state.status.respawnProtection > 0 && ...
+        ~any([state.players.pos] < -4)
+    return;
+end
 
 switch severity
     case 'minor'

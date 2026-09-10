@@ -26,6 +26,7 @@ if capture
 end
 input.useItem=false;
 for tick=1:18000
+    input.useItem=false;
     for p=1:2
         player=state.players(p);
         input.player(p).left=false;
@@ -55,24 +56,24 @@ for tick=1:18000
                     input.player(p).left=demand<-.2;
                 end
             end
-            if strcmp(route,'upper') && any(state.levelState.traffic.climbPresses<4)
-                if state.levelState.traffic.climbPresses(p)>=4
-                    input.player(p).right=false;
-                    input.player(p).left=false;
-                    continue;
-                end
-                target=114.5+1.2*(p-1);
+            if strcmp(route,'upper') && x<118.8 && player.pos(2)<6.5
+                target=115.8;
                 demand=3*(target-x)-player.vel(1);
-                input.player(p).right=demand>0.2;
-                input.player(p).left=demand< -0.2;
-                if abs(target-x)<0.8
-                    input.player(p).jump=mod(tick,12)==0;
+                input.player(p).right=demand>.2;
+                input.player(p).left=demand<-.2;
+                if abs(target-x)<.55
+                    input.useItem=state.inventory.buffTimer<=0;
+                    input.player(p).jump=state.inventory.buffTimer>0 && player.onGround && ~player.jumpHeld;
                 end
+            elseif strcmp(route,'upper') && player.pos(2)>=6.5
+                input.player(p).right=true;input.player(p).left=false;
             end
         end
         if x>world.checkpoints(7).x && isfield(state.levelState,'bus')
             rects=state.levelState.bus.rects;
-            idx=1;
+            eligible=find(rects(:,1)+rects(:,3)>x-.5);
+            [~,near]=min(abs(rects(eligible,1)-x));
+            idx=eligible(near);
             bus=rects(idx,:); target=bus(1)+2.0+1.8*(p-1);
             top=bus(2)+bus(4); riding=abs(player.pos(2)-top)<0.1;
             if riding
@@ -127,7 +128,11 @@ assert(state.levelState.network.authenticated && state.stats.networkAttempts==2)
 assert(state.levelState.bicycle.landed && state.stats.bicycleLaunches==1);
 assert(state.checkpointIndex==7 && state.stats.busFinishes==1);
 assert(strcmp(state.levelState.traffic.route,route));
-assert(state.stats.teaUsed==0,'Journey depended on a consumable.');
+if strcmp(route,'lower')
+    assert(state.stats.teaUsed==0,'Ground route depended on tea.');
+else
+    assert(state.stats.teaUsed>=1,'Upper route bypassed the tea jump.');
+end
 if ~includeOpening && delayTicks==0
     assert(state.stats.failures<=3 && state.stats.damageTaken<=6, ...
         'The hazardous vehicle route failed to recover within two extra retries.');

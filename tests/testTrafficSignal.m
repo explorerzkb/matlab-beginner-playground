@@ -8,13 +8,16 @@ addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
 traffic = world.mechanic.traffic;
-samples = [0.0, 3.1, 3.9, 4.5, 12.5];
+samples = [0.0, 6.1, 6.9, 7.5, 15.5];
 expected = {'vehicleGreen', 'yellow', 'allRedBeforePed', ...
     'pedestrianGreen', 'allRedBeforeCars'};
 
 for index = 1:numel(samples)
     state = createInitialState(world, cfg, []);
     state.levelTime = samples(index);
+    state = stepWorldTraffic(state, world, cfg, 0);
+    state.levelState.traffic.arrived=true;
+    state.levelState.traffic.signalClock=samples(index);
     state = stepWorldTraffic(state, world, cfg, 0);
     assert(strcmp(state.levelState.traffic.signalPhase, expected{index}), ...
         'Traffic signal phase did not match the deterministic timeline.');
@@ -31,7 +34,7 @@ state.levelTime = 0;
 state = stepWorldTraffic(state, world, cfg, 0.5);
 assert(abs(state.stats.trafficWaitTime - 0.5) < 1e-9, ...
     'Waiting during vehicle green was not measured.');
-state.levelTime = 4.4;
+state.levelTime = 7.4;
 state.levelState.traffic.signalClock = state.levelTime;
 state = stepWorldTraffic(state, world, cfg, 0.5);
 assert(abs(state.stats.trafficWaitTime - 0.5) < 1e-9, ...

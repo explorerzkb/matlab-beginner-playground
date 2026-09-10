@@ -70,7 +70,14 @@ for playerIndex = 1:2
     end
 
     jumpPressed = actions.jump && ~player.jumpHeld;
-    if jumpPressed && player.onGround && ~storyFlight
+    awaitingImpact = strcmp(level.mechanic.type,'continuousCampus') && ...
+        isfield(state.levelState,'bicycle') && ...
+        strcmp(state.levelState.bicycle.phase,'warning');
+    if awaitingImpact
+        % Let an existing jump fall naturally; hold at the incoming traffic.
+        player.vel(1)=0;
+    end
+    if jumpPressed && player.onGround && ~storyFlight && ~awaitingImpact
         player.vel(2) = cfg.physics.jumpSpeed * jumpMultiplier;
         player.onGround = false;
     end
