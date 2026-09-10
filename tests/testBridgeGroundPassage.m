@@ -8,6 +8,9 @@ for presses={[0 0],[1 0],[4 0]}
     state=stepLevel(state,world,cfg,0);
     state.levelState.traffic.route='upper';
     state.levelState.traffic.climbPresses=presses{1};
+    % The expanded crossing now starts here. Test the alleged invisible wall
+    % under pedestrian green, not against the intentional red-light barrier.
+    state.levelState.traffic.signalClock=sum(world.mechanic.traffic.signalPhaseDurations(1:3))+.05;
     for p=1:2
         state.players(p).pos=[116.9+1.2*(p-1) 1];
         state.players(p).onGround=true;

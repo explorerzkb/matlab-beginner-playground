@@ -58,7 +58,10 @@ for tick=1:ceil(3*sum(traffic.signalPhaseDurations)/dt)
     probe.levelState.colliders=zeros(0,4);
     probe=stepWorldTraffic(probe,world,cfg,dt);
     current=probe.levelState.traffic.crowd;
-    assert(all(abs(current(:,1)-previous(:,1))<=3*dt+1e-8), ...
+    destinations=traffic.crosswalk(1)+traffic.crosswalk(3)+.8+ ...
+        (0:size(current,1)-1)'*.9;
+    speeds=abs(destinations-traffic.crowdData(:,1))/traffic.signalPhaseDurations(4);
+    assert(all(abs(current(:,1)-previous(:,1))<=speeds*dt+1e-8), ...
         'A pedestrian teleported at a signal change or crossing wrap.');
     if ~probe.levelState.traffic.pedestriansMayCross
         for p=1:size(current,1)

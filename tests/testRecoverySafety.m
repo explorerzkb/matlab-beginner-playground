@@ -16,8 +16,8 @@ for p=1:2
     input.player(p).left=false; input.player(p).right=false; input.player(p).jump=false;
 end
 input.useItem=false;
-assert(all(abs(state.levelState.traffic.cars(:,2)-world.mechanic.traffic.carData(:,2))<1e-9), ...
-    'Reset moved horizontal traffic below the road.');
+assert(all(abs(state.levelState.traffic.carDepth)>world.mechanic.traffic.contactDepth), ...
+    'Reset left depth traffic in the player crossing.');
 for tick=1:120
     state=stepPhysics(state,input,world,cfg,cfg.physics.fixedDt);
     state=stepLevel(state,world,cfg,cfg.physics.fixedDt);

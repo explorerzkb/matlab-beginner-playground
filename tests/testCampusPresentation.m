@@ -23,9 +23,9 @@ s.levelTime=period+.01; s=stepWorldBus(s,world,cfg,.02);
 assert(s.status.currentHearts==3,'Wrapped bus swept the whole road.');
 delta=s.levelState.bus.rects(:,1)-old(:,1);
 assert(delta(1)<0 && all(delta(2:end)>0));
-assert(numel(data.phaseOffsets)==8 && diff(data.phaseOffsets(1:2))/data.speed<5);
+assert(numel(data.phaseOffsets)==8 && diff(data.phaseOffsets(1:2))>data.size(1));
 
-folder=fullfile(root,'docs','visuals','campus-pacing-v28');
+folder=fullfile(root,'docs','visuals','playability-v29');
 if ~isfolder(folder), mkdir(folder); end
 fig=figure('Visible','off','Position',[50 50 cfg.render.windowSize], ...
     'GraphicsSmoothing',cfg.render.graphicsSmoothing);
@@ -45,9 +45,10 @@ assert(strcmp(s.render.viewMode,'world') && ...
 assert(s.render.cameraCentreY>15,'Flight camera hit the old height ceiling.');
 f=getframe(fig); imwrite(f.cdata,fullfile(folder,'flight.png'));
 s.levelState.bicycle.phase='landed'; s.levelState.bicycle.landed=true;
-s.players(1).pos=[245 3.4]; s.players(2).pos=[247 3.4];
+top=data.y+data.size(2);
+s.players(1).pos=[data.loopStart top]; s.players(2).pos=[data.loopStart+2 top];
 s=stepLevel(s,world,cfg,0);
-s.render.cameraCentre=246;
+s.render.cameraCentre=data.backgroundRect(1)+33;
 [~,viewHeight]=cameraViewport(s,cfg);
 s.render.cameraCentreY=viewHeight/2-.4;
 s=renderFrame(fig,ax,s,world,cfg); drawnow;
@@ -66,8 +67,8 @@ assert(~isgraphics(s.render.handles.campusRoad),'A duplicate road was created.')
 assert(max(abs(get(s.render.handles.continuous.buses(1),'Position')- ...
     s.levelState.bus.rects(1,:)))<1e-10,'Bus drawing differs from its collider.');
 f=getframe(fig); imwrite(f.cdata,fullfile(folder,'road.png'));
-s.render.cameraCentre=294;
-s.players(1).pos=[293 3.4]; s.players(2).pos=[295 3.4];
+s.render.cameraCentre=data.backgroundRect(1)+110;
+s.players(1).pos=[data.backgroundRect(1)+109 top]; s.players(2).pos=[data.backgroundRect(1)+111 top];
 s=renderFrame(fig,ax,s,world,cfg); drawnow;
 secondTransform=get(s.render.handles.worldTransform,'Matrix');
 assert(secondTransform(1,4)<firstTransform(1,4), ...

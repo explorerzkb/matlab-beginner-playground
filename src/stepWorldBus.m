@@ -16,6 +16,10 @@ if ~isfield(state.levelState, 'bus')
 end
 bus = state.levelState.bus;
 bus.lampCooldowns = max(0, bus.lampCooldowns - dt);
+if ~isfield(bus,'boardingTimers'), bus.boardingTimers=zeros(1,2); end
+if ~isfield(bus,'boardingIds'), bus.boardingIds=zeros(1,2); end
+if ~isfield(bus,'boardingAssisted'), bus.boardingAssisted=false(1,2); end
+bus.boardingTimers=max(0,bus.boardingTimers-dt);
 
 if ~isfield(bus,'riderIds'), bus.riderIds = zeros(1,2); end
 for playerIndex = 1:2
@@ -49,10 +53,47 @@ if dt>0
             % Respawning at the west end is not a sweep through the campus.
             previous=current;
             bus.riderIds(bus.riderIds==busIndex)=0;
+            bus.boardingTimers(bus.boardingIds==busIndex)=0;
+            bus.boardingIds(bus.boardingIds==busIndex)=0;
         end
         swept=[min(current(1),previous(1)),data.y, ...
             current(3)+abs(current(1)-previous(1)),current(4)-0.12];
         for playerIndex=1:2
+            player=state.players(playerIndex);
+            nearTail=player.pos(1)>=current(1)-player.size(1) && ...
+                player.pos(1)<=current(1)+data.boardingTailWidth;
+            % Rising from the rear gives a short grace window on THIS bus.
+            % Walking into its middle or front remains dangerous.
+            armingRear=player.pos(1)>=current(1)-4.5 && ...
+                player.pos(1)<=current(1)+data.boardingTailWidth;
+            if armingRear && ~player.onGround && player.vel(2)>1
+                if bus.boardingTimers(playerIndex)==0 || bus.boardingIds(playerIndex)~=busIndex
+                    bus.boardingAssisted(playerIndex)=false;
+                end
+                bus.boardingTimers(playerIndex)=data.boardingGrace;
+                bus.boardingIds(playerIndex)=busIndex;
+            end
+            grace=bus.boardingTimers(playerIndex)>0 && ...
+                bus.boardingIds(playerIndex)==busIndex && nearTail;
+            top=current(2)+current(4);
+            overRoof=player.pos(1)+player.size(1)/2>current(1)+.02;
+            if grace && overRoof && ~player.onGround && player.vel(2)<0 && ...
+                    player.pos(2)<top-data.roofForgiveness && ~bus.boardingAssisted(playerIndex)
+                % One small rear catch-up hop for an early jump. Keep position
+                % continuous; never teleport a low pear onto a taller roof.
+                state.players(playerIndex).vel(2)=sqrt(2*abs(cfg.physics.gravity)* ...
+                    (top+.35-player.pos(2)));
+                bus.boardingAssisted(playerIndex)=true;
+                bus.boardingTimers(playerIndex)=data.boardingGrace;
+            end
+            if grace && overRoof && player.vel(2)<=0 && ...
+                    player.pos(2)>=top-data.roofForgiveness && player.pos(2)<=top+.12
+                state.players(playerIndex).pos(2)=top;
+                state.players(playerIndex).vel(2)=0;
+                state.players(playerIndex).onGround=true;
+                bus.riderIds(playerIndex)=busIndex;
+            end
+            if grace, continue; end
             if playerOverlaps(state.players(playerIndex),swept)
                 [state,applied]=applyDamageEvent(state,cfg,'bus');
                 if applied

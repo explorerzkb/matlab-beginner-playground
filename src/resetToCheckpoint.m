@@ -22,6 +22,7 @@ for playerIndex = 1:2
     state.players(playerIndex).environmentBoostTime = 0;
     state.players(playerIndex).visualImpactTimer = 0;
     state.players(playerIndex).visualImpactKind = 'none';
+    state.players(playerIndex).storyFlight = false;
 end
 if strcmp(level.mechanic.type, 'continuousCampus')
     state = resetContinuousTransients(state, level);
@@ -58,17 +59,10 @@ if isfield(state.levelState,'race') && ...
     state.levelState=rmfield(state.levelState,'race');
 end
 traffic = world.mechanic.traffic;
+depth=-traffic.carData(:,6)*traffic.depthStop;
 cars = traffic.carData(:, 1:4);
-for carIndex = 1:size(cars, 1)
-    if traffic.carData(carIndex, 6) > 0
-        cars(carIndex, 1) = traffic.crosswalk(1) - ...
-            traffic.stopLineGap - cars(carIndex, 3);
-    else
-        cars(carIndex, 1) = traffic.crosswalk(1) + ...
-            traffic.crosswalk(3) + ...
-            traffic.stopLineGap;
-    end
-end
+cars(:,2)=1+traffic.depthProjection*depth;
+state.levelState.traffic.carDepth=depth;
 state.levelState.traffic.cars = cars;
 state.levelState.traffic.carDirections = traffic.carData(:,6);
 state.levelState.traffic.signalClock = ...

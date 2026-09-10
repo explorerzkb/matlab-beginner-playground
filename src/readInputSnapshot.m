@@ -26,6 +26,12 @@ input.pause = hasKey(keys, mappings.pause);
 input.reset = hasKey(keys, mappings.reset);
 input.quit = hasKey(keys, mappings.quit);
 input.useItem = hasKey(keys, mappings.useItem);
+if isgraphics(fig) && isequal(getappdata(fig,'suppressItemUntilRelease'),true)
+    if ~input.useItem
+        setappdata(fig,'suppressItemUntilRelease',false);
+    end
+    input.useItem=false;
+end
 end
 
 function actions = playerActions(keys, mapping)

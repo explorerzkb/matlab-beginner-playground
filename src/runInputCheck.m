@@ -23,7 +23,7 @@ simultaneousText = text(ax, 0.5, 0.30, '请两人同时按住各自任意一个�
 itemText = text(ax, 0.5, 0.20, '共享道具：长按 Space 饮用冰红茶', ...
     'HorizontalAlignment', 'center', 'FontName', cfg.render.fontName, ...
     'FontSize', 12, 'Color', cfg.presentation.colors.muted);
-hint = text(ax, 0.5, 0.10, 'Esc 暂停 · 按住 R 0.8 秒重来 · Q 退出', ...
+hint = text(ax, 0.5, 0.10, '长按空格 1 秒跳过检测 · Q 退出', ...
     'HorizontalAlignment', 'center', 'FontName', cfg.render.fontName, ...
     'Color', cfg.presentation.colors.muted); %#ok<NASGU>
 
@@ -34,11 +34,22 @@ seenTogetherPrimary = false;
 seenTogetherAlternate = false;
 seenItem = false;
 clock = tic;
+previousTime=0; skipHeld=0;
 while toc(clock) < cfg.runtime.inputCheckDuration && isgraphics(fig)
     if getappdata(fig, 'closeRequested')
         return;
     end
     input = readInputSnapshot(fig, cfg.input);
+    now=toc(clock);
+    [skipHeld,skip]=stepCountdownSkip(skipHeld,input.useItem,now-previousTime);
+    previousTime=now;
+    if skip
+        % Do not carry the skip press into item consumption or a jump.
+        setappdata(fig,'pendingKeyPresses',{});
+        setappdata(fig,'suppressItemUntilRelease',true);
+        continueGame=true;
+        return;
+    end
     if input.quit
         return;
     end

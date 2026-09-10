@@ -13,7 +13,9 @@ if isfield(player, 'visualImpactTimer')
     impactTimer = player.visualImpactTimer;
 end
 
-if impactTimer > 0
+if isfield(player,'storyFlight') && player.storyFlight
+    face.name = 'terrified';
+elseif impactTimer > 0
     face.name = 'pain';
 elseif ropeTension > 1.5
     face.name = 'pulled';

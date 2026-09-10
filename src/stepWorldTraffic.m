@@ -94,17 +94,17 @@ if strcmp(t.route, 'lower') && ~t.pedestriansMayCross && ...
 end
 
 cars = t.cars;
-previousCars = cars;
+previousDepth = t.carDepth;
 if t.carsMayMove
     movingTimeLeft = max(0, sum(traffic.signalPhaseDurations(1:2)) - ...
         mod(t.signalClock, sum(traffic.signalPhaseDurations)));
     for carIndex = 1:size(cars, 1)
         row = traffic.carData(carIndex, :);
         direction = t.carDirections(carIndex);
-        oldX = cars(carIndex, 1);
+        oldX = t.carDepth(carIndex);
         nextX = oldX + row(5) * direction * dt;
-        leftStop = traffic.crosswalk(1) - traffic.stopLineGap - row(3);
-        rightStop = traffic.crosswalk(1) + traffic.crosswalk(3) + traffic.stopLineGap;
+        leftStop = -traffic.depthStop;
+        rightStop = traffic.depthStop;
         clearanceTime = (rightStop - leftStop) / row(5);
         % Do not enter unless this phase leaves enough time to clear the
         % entire crossing. Red lights never relocate an existing vehicle.
@@ -122,18 +122,22 @@ if t.carsMayMove
             nextX = row(7) + (row(7) - nextX);
             t.carDirections(carIndex) = 1;
         end
-        cars(carIndex, 1) = nextX;
+        t.carDepth(carIndex) = nextX;
     end
 end
+cars(:,1)=traffic.carData(:,1);
+cars(:,2)=1+traffic.depthProjection*t.carDepth;
 t.cars = cars;
 
 if t.carsMayMove
     for carIndex = 1:size(cars, 1)
-        car=cars(carIndex,:);
-        previous=previousCars(carIndex,:);
-        swept=[min(car(1),previous(1)),car(2), ...
-            car(3)+abs(car(1)-previous(1)),car(4)];
-        if any(playersInRect(state.players,swept))
+        nearDepth=min(t.carDepth(carIndex),previousDepth(carIndex));
+        farDepth=max(t.carDepth(carIndex),previousDepth(carIndex));
+        crossing=nearDepth<=traffic.contactDepth && farDepth>=-traffic.contactDepth;
+        % Only the shared ground cross-section can collide. Projected cars
+        % higher in the picture are farther away, not on the bridge deck.
+        hitbox=[cars(carIndex,1),1,cars(carIndex,3),1.5];
+        if crossing && any(playersInRect(state.players,hitbox))
             state = applyDamageEvent(state, cfg, 'fatal');
             break;
         end
@@ -200,6 +204,8 @@ state.signalProgress = 0;
 state.carsMayMove = true;
 state.pedestriansMayCross = false;
 state.cars = traffic.carData(:, 1:4);
+state.carDepth = traffic.carData(:,2);
+state.cars(:,2)=1+traffic.depthProjection*state.carDepth;
 state.carDirections = traffic.carData(:, 6);
 state.crowd = traffic.crowdData(:, 1:4);
 end

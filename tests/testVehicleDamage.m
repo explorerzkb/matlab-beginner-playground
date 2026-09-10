@@ -14,18 +14,19 @@ b=s.levelState.bus.rects(1,:);
 for p=1:2,s.players(p).pos=[b(1)+1+p sum(b([2 4]))];end
 s.levelTime=.1;s=stepWorldBus(s,world,cfg,.1);
 assert(s.stats.damageTaken==0,'Bus roof riders must remain safe.');
-for x=[121 133 143]
+for lane=1:size(world.mechanic.traffic.carData,1)
     s=createInitialState(world,cfg,[]);s=stepWorldTraffic(s,world,cfg,0);
-    s.levelState.traffic.cars(1,1)=x;
+    x=world.mechanic.traffic.carData(lane,1);
+    s.levelState.traffic.carDepth(lane)=0;
     s.players(1).pos=[x+.8 1];
     s=stepWorldTraffic(s,world,cfg,.01);
-    assert(s.status.deathPending,'Car hit outside crosswalk did not hurt.');
+    assert(s.status.deathPending,'Car at the crossing depth did not hurt.');
 end
 s=createInitialState(world,cfg,[]);s=stepWorldTraffic(s,world,cfg,0);
-s.players(1).pos=[133 5.25];s.levelState.traffic.cars(1,1)=132;
+s.players(1).pos=[122.8 5.25];s.levelState.traffic.carDepth(1)=0;
 s=stepWorldTraffic(s,world,cfg,.01);
 assert(s.stats.damageTaken==0,'Cars hit a player on the bridge.');
 assert(size(world.mechanic.bicycle.bikeRects,1)==9);
 assert(all(abs(world.mechanic.bicycle.bikeSpeeds)>=18));
-fprintf('VEHICLE DAMAGE PASSED: bus 3 hearts, roof safe, cars outside crossing, bridge safe.\n');
+fprintf('VEHICLE DAMAGE PASSED: bus 3 hearts, roof safe, depth crossing, bridge safe.\n');
 end

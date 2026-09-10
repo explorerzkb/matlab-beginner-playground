@@ -27,10 +27,10 @@ assert(~anyBarrier(state.levelState.colliders, traffic.pedestrianBarrier), ...
 
 input = rightInput();
 dt = cfg.physics.fixedDt;
-for stepIndex = 1:round(3.2 / dt)
+for stepIndex = 1:round(4.5 / dt)
     state = stepPhysics(state, input, world, cfg, dt);
     state = stepLevel(state, world, cfg, dt);
-    assert(~state.requestReset, ...
+    assert(~state.requestReset && state.stats.damageTaken==0, ...
         'A player was reset while following the pedestrian signal.');
 end
 

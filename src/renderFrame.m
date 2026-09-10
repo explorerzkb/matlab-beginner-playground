@@ -456,6 +456,8 @@ if isContinuous
     % Create after the pears and mechanisms: near structures cover actors,
     % while the original bridge image remains the far-side background.
     handles.bridgeForeground=drawBridgeForeground(ax,level,cfg);
+    handles.lakeRailForeground=drawLakeRailForeground(ax,level,cfg);
+    set(handles.lakeRailForeground,'Parent',handles.worldTransform);
     set(handles.bridgeForeground.body,'Parent',handles.worldTransform);
     set(handles.bridgeForeground.rail,'Parent',handles.worldTransform);
 end
@@ -551,8 +553,13 @@ worldChildren = handles.worldTransform.Children;
 worldRest = worldChildren(~ismember(worldChildren, worldTopOrder));
 handles.worldTransform.Children = [flipud(worldTopOrder(:)); worldRest];
 if isContinuous
+    uistack(handles.lakeRailForeground,'top');
     uistack(handles.bridgeForeground.body,'top');
     uistack(handles.bridgeForeground.rail,'top');
+    signal=handles.continuous;
+    frontSignals=[signal.signalLabel(:);signal.signalLights(:);signal.signalHousing(:)];
+    children=handles.worldTransform.Children;
+    handles.worldTransform.Children=[frontSignals;children(~ismember(children,frontSignals))];
 end
 
 hudTopOrder = [handles.hudPanel; handles.hudHearts(:); handles.hudTea(:); ...
@@ -1004,6 +1011,11 @@ shadowWidth = 0.48 + 0.06 * double(player.onGround) - 0.04 * airHeight;
 set(handles.shadow, 'XData', shadowWidth * cos(t), ...
     'YData', (-0.07 - 0.03 * airHeight) / stretch + 0.075 * sin(t), ...
     'FaceAlpha', 0.24 - 0.04 * airHeight);
+if isfield(player,'storyFlight') && player.storyFlight
+    set(handles.shadow,'Visible','off');
+else
+    set(handles.shadow,'Visible','on');
+end
 
 face = pearExpressionState(player, ropeDirection, ropeTension);
 faceCache = get(handles.transform, 'UserData');
@@ -1052,6 +1064,11 @@ switch face.name
             'YData', eyeY + [0.00, 0.055, 0.00, nan, 0.00, 0.055, 0.00]);
         mouthX = [-0.18, -0.09, 0, 0.09, 0.18];
         mouthCurve = mouthY + [0.08, 0.005, -0.07, 0.005, 0.08];
+    case 'terrified'
+        set(handles.brows,'XData',[-.28 -.12 nan .12 .28], ...
+            'YData',eyeY+[.14 .22 nan .22 .14]);
+        mouthX=.105*cos(t);
+        mouthCurve=mouthY+.15*sin(t);
     case 'surprised'
         mouthX = 0.075 * cos(t);
         mouthCurve = mouthY + 0.085 * sin(t);

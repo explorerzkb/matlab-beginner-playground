@@ -76,8 +76,10 @@ for playerIndex = 1:2
     end
     player.jumpHeld = actions.jump;
 
-    player.vel(2) = max(player.vel(2) + cfg.physics.gravity * dt, ...
-        cfg.physics.maxFallSpeed);
+    player.vel(2) = player.vel(2) + cfg.physics.gravity * dt;
+    if ~storyFlight
+        player.vel(2)=max(player.vel(2),cfg.physics.maxFallSpeed);
+    end
     player.preCollisionVelocityX = player.vel(1);
     oldPosition = player.pos;
     player = resolveCollisions(player, colliders, dt);

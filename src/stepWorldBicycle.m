@@ -34,7 +34,7 @@ if strcmp(bicycle.phase, 'warning')
             % during the warning). Both targets lie inside the safe plaza.
             rise = max(0, state.players(playerIndex).pos(2) - 1);
             gravity = abs(cfg.physics.gravity);
-            targetX = data.museumLandingZone(1) + 9 + 2*(playerIndex-1);
+            targetX = data.museumLandingZone(1) + data.landingInset + 2*(playerIndex-1);
             distance = max(1,targetX-state.players(playerIndex).pos(1));
             slope = tand(data.launchAngleDegrees);
             speedX = sqrt(gravity*distance^2/(2*(rise+distance*slope)));
@@ -69,6 +69,9 @@ if any(strcmp(bicycle.phase,{'warning','flight'})) && ~bicycle.disappeared
 end
 
 state.levelState.bicycle = bicycle;
+for playerIndex=1:2
+    state.players(playerIndex).storyFlight=strcmp(bicycle.phase,'flight');
+end
 state.levelState.dynamicObjects.bicycle.phase = bicycle.phase;
 state.levelState.dynamicObjects.bicycle.timer = bicycle.timer;
 state.levelState.dynamicObjects.bicycle.bikeRects = bicycle.bikeRects;

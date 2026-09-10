@@ -37,6 +37,9 @@ end
 centre = min(max(state.render.cameraCentre, minimumCentre), maximumCentre);
 leftEdge = centre - halfView;
 deadZone = cfg.render.cameraHorizontalDeadZone;
+% As the campus view opens, reserve more space ahead for the whole facade.
+zoomFraction=(1-state.render.cameraScale)/(1-cfg.render.campusCameraScale);
+deadZone(2)=deadZone(2)-.21*max(0,min(1,zoomFraction));
 leftThreshold = leftEdge + deadZone(1) * viewWidth;
 rightThreshold = leftEdge + deadZone(2) * viewWidth;
 playerX = [state.players(1).pos(1), state.players(2).pos(1)];

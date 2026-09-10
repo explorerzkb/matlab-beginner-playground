@@ -8,7 +8,7 @@ addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
 traffic = world.mechanic.traffic;
-samples = [0.0, 3.1, 3.9, 4.5, 9.5];
+samples = [0.0, 3.1, 3.9, 4.5, 12.5];
 expected = {'vehicleGreen', 'yellow', 'allRedBeforePed', ...
     'pedestrianGreen', 'allRedBeforeCars'};
 

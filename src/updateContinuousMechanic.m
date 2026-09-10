@@ -16,7 +16,7 @@ end
 active = struct( ...
     'race', cameraCentre > 72 && cameraCentre < 126, ...
     'animals', rangesOverlap(viewRange, [12, 64]), ...
-    'tea', rangesOverlap(viewRange, [8, 25]), ...
+    'tea', rangesOverlap(viewRange, [8, 25]) || rangesOverlap(viewRange,[115,119]), ...
     'network', rangesOverlap(viewRange, [64, 112]), ...
     'traffic', rangesOverlap(viewRange, [112, 150]), ...
     'bicycle', rangesOverlap(viewRange, [147, world.mechanic.bicycle.museumLandingZone(1)]) || ...
@@ -413,7 +413,7 @@ if ~rangesOverlap(viewRange, [112, 150])
         handles.crowd, handles.crowdHeads, handles.crowdLegs);
     return;
 end
-lastRenderTime = get(handles.signalHousing, 'UserData');
+lastRenderTime = get(handles.signalHousing(1), 'UserData');
 if ~isempty(lastRenderTime) && state.levelTime - lastRenderTime < 1 / 30
     return;
 end
@@ -442,7 +442,6 @@ for index = 1:numel(handles.upperBridgePlatforms)
 end
 
 set(handles.signalHousing, 'Visible', 'on');
-lightPositions = [7.0, 5.95, 4.90];
 lightColors = repmat([0.27, 0.29, 0.30], 3, 1);
 % The visible signal addresses the players as pedestrians, so its colour
 % and label must express the same permission as the crossing barrier.
@@ -453,11 +452,11 @@ else
     lightColors(1, :) = [0.86, 0.22, 0.20];
     signalLabel = '行人红灯';
 end
-signalX = data.crosswalk(1) + 0.43 * data.crosswalk(3);
+for side=1:2
 for index = 1:3
-    set(handles.signalLights(index), 'XData', signalX, ...
-        'YData', lightPositions(index), ...
-        'MarkerFaceColor', lightColors(index, :), 'Visible', 'on');
+    set(handles.signalLights(index,side), ...
+        'FaceColor', lightColors(index, :), 'Visible', 'on');
+end
 end
 set(handles.signalLabel, 'String', signalLabel, 'Visible', 'on');
 
@@ -502,10 +501,12 @@ for index = 1:carCount
         windowX = fliplr(2 * (rect(1) + rect(3) / 2) - windowX);
     end
     carWindowsX(:, index) = windowX(:);
-    carWindowsY(:, index) = rect(2) + rect(4) * [0.62; 0.62; 0.88; 0.88];
+    windowY=[.62;.62;.88;.88];
+    if direction>0, windowY=1-windowY; end
+    carWindowsY(:, index) = rect(2) + rect(4) * windowY;
     wheelColumns = 2 * index - 1:2 * index;
-    carWheelX(wheelColumns) = rect(1) + rect(3) * [0.24, 0.77];
-    carWheelY(wheelColumns) = rect(2) + rect(4) * [0.05, 0.05];
+    carWheelX(wheelColumns) = rect(1) + rect(3) * [0.02, 0.98];
+    carWheelY(wheelColumns) = rect(2) + rect(4) * [0.22, 0.22];
 end
 set(handles.cars, 'XData', carBodiesX, 'YData', carBodiesY, 'Visible', 'on');
 set(handles.carWindows, 'XData', carWindowsX, ...
@@ -656,6 +657,8 @@ for index = 1:size(bus.rects, 1)
     vertices = [rect(1) + rect(3) * localVertices(:, 1), ...
         rect(2) + rect(4) * localVertices(:, 2)];
     set(handles.busSprites(index), 'Vertices', vertices, 'Visible', 'on');
+    set(handles.busLabels(index),'Position',[rect(1)+.61*rect(3), ...
+        rect(2)+.46*rect(4),0],'Visible','on');
 end
 
 set(handles.lampPoles, 'Visible', 'on');

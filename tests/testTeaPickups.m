@@ -34,4 +34,10 @@ state = resetToCheckpoint(state, world);
 assert(state.inventory.teaCount == 2 && ...
     numel(state.inventory.collectedTeaIds) == 2, ...
     'Checkpoint recovery recreated or removed collected tea.');
+state=createInitialState(world,cfg,[]);
+tea=world.mechanic.tea(4).rect;
+assert(tea(1)+tea(3)<world.mechanic.traffic.crosswalk(1));
+state.players(1).pos=[tea(1)+.7,1];
+state=collectTeaPickups(state,world);
+assert(state.inventory.teaCount==1 && any(state.inventory.collectedTeaIds=="bridge-entry-tea"));
 end
