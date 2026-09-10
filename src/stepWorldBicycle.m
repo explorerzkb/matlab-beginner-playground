@@ -8,6 +8,7 @@ if ~isfield(state.levelState, 'bicycle')
     state.levelState.bicycle.bikeRects = data.bikeRects;
     state.levelState.bicycle.launched = false;
     state.levelState.bicycle.landed = false;
+    state.levelState.bicycle.disappeared = false;
 end
 bicycle = state.levelState.bicycle;
 
@@ -51,6 +52,9 @@ if strcmp(bicycle.phase, 'warning')
         state.stats.bicycleLaunches = state.stats.bicycleLaunches + 1;
     end
 elseif strcmp(bicycle.phase, 'flight')
+    if min([state.players(1).pos(2),state.players(2).pos(2)])>=data.disappearAltitude
+        bicycle.disappeared=true;
+    end
     inLanding = playersInRect(state.players, data.museumLandingZone);
     lowEnough = [state.players(1).pos(2), state.players(2).pos(2)] <= 1.15;
     if all(inLanding & lowEnough)
@@ -60,7 +64,7 @@ elseif strcmp(bicycle.phase, 'flight')
 end
 
 % The stream keeps moving through the impact instead of freezing mid-road.
-if any(strcmp(bicycle.phase,{'warning','flight','landed'}))
+if any(strcmp(bicycle.phase,{'warning','flight'})) && ~bicycle.disappeared
     bicycle.bikeRects(:,1)=bicycle.bikeRects(:,1)+data.bikeSpeeds*dt;
 end
 

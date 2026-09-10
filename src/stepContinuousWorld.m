@@ -68,7 +68,13 @@ if state.players(1).pos(2) < world.killY || ...
     if strcmp(state.levelState.network.pageMode, 'timeout')
         % Falling from the scripted timeout page is the joke itself, not a
         % damage event. The reset keeps failureSeen and restores the page.
-        state.requestReset = true;
+        if ~isfield(state.levelState.network,'timeoutResetTimer')
+            state.levelState.network.timeoutResetTimer=cfg.network.timeoutExtraHold;
+        else
+            state.levelState.network.timeoutResetTimer=max(0, ...
+                state.levelState.network.timeoutResetTimer-dt);
+        end
+        state.requestReset=state.levelState.network.timeoutResetTimer==0;
     else
         state = applyDamageEvent(state, cfg, 'fatal');
     end

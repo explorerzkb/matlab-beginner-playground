@@ -70,7 +70,7 @@ for tick=1:18000
                 end
             end
         end
-        if x>186 && isfield(state.levelState,'bus')
+        if x>world.checkpoints(7).x && isfield(state.levelState,'bus')
             rects=state.levelState.bus.rects;
             idx=1;
             bus=rects(idx,:); target=bus(1)+2.0+1.8*(p-1);

@@ -51,7 +51,8 @@ end
 % Repeated boarding attempts must never push the pair below the safe road.
 state=createInitialState(world,cfg,[]);
 state=stepLevel(state,world,cfg,0);
-state.players(1).pos=[202 1]; state.players(2).pos=[204 1];
+state.players(1).pos=[world.mechanic.bus.loopStart+12 1];
+state.players(2).pos=[world.mechanic.bus.loopStart+14 1];
 state.checkpointIndex=7;
 state.levelState.network.authenticated=true; state.levelState.network.pageMode='success';
 state.levelState.bicycle.phase='landed'; state.levelState.bicycle.landed=true;

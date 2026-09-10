@@ -25,6 +25,13 @@ for playerIndex = 1:2
 end
 if strcmp(level.mechanic.type, 'continuousCampus')
     state = resetContinuousTransients(state, level);
+    state.render.campusZoomStarted=state.checkpointIndex>=6;
+    if state.checkpointIndex<6 && isfield(state.levelState,'bicycle')
+        state.levelState.bicycle.landed=false;
+        state.levelState.bicycle.launched=false;
+        state.levelState.bicycle.disappeared=false;
+        state.levelState.bicycle.phase='waiting';
+    end
 end
 state.rope.currentTension = 0;
 state.rope.tautLast = false;
@@ -84,6 +91,9 @@ if strcmp(state.levelState.network.pageMode, 'timeout') || ...
     state.levelState.network.pageMode = 'retry';
     state.levelState.network.loadingTimer = 0;
     state.levelState.network.feedback = 'ready';
+    if isfield(state.levelState.network,'timeoutResetTimer')
+        state.levelState.network=rmfield(state.levelState.network,'timeoutResetTimer');
+    end
 end
 if isfield(state.levelState, 'bicycle') && ...
         ~state.levelState.bicycle.landed
@@ -92,6 +102,7 @@ if isfield(state.levelState, 'bicycle') && ...
     state.levelState.bicycle.bikeRects = ...
         world.mechanic.bicycle.bikeRects;
     state.levelState.bicycle.launched = false;
+    state.levelState.bicycle.disappeared = false;
     state.levelState.dynamicObjects.bicycle.phase = 'waiting';
     state.levelState.dynamicObjects.bicycle.timer = 0;
     state.levelState.dynamicObjects.bicycle.bikeRects = ...

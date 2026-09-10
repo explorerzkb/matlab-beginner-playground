@@ -200,8 +200,36 @@ world.mechanic.bus.finishX = 244.0;
 world.mechanic.bus.sportsFinish = world.finish;
 % Reveal the long campus painting from museum to Sports Center as the
 % foreground camera advances.  The picture remains a non-colliding layer.
-world.mechanic.bus.backgroundPanCameraRange = [181.0, 241.0];
-world.mechanic.bus.backgroundViewFraction = 0.34;
+% v28: lengthen the approach and campus without rescaling the physics actors.
+campusX = @(x) 200 + 1.5*(x-170);
+world.worldWidth = campusX(world.worldWidth);
+world.platforms(end,3) = world.worldWidth-world.platforms(end,1);
+world.regions(6).xRange(2) = campusX(171);
+for index=7:9
+    world.regions(index).xRange = campusX(world.regions(index).xRange);
+end
+for index=6:7
+    world.checkpoints(index).x = campusX(world.checkpoints(index).x);
+    world.checkpoints(index).spawn(:,1) = campusX(world.checkpoints(index).spawn(:,1));
+end
+world.finish(1) = campusX(world.finish(1));
+world.finish(3) = 1.5*world.finish(3);
+world.mechanic.bicycle.museumLandingZone(1) = campusX(171);
+world.mechanic.bicycle.museumLandingZone(3) = 27;
+world.mechanic.bicycle.disappearAltitude = 12;
+world.mechanic.bus.loopStart = campusX(world.mechanic.bus.loopStart);
+world.mechanic.bus.loopEnd = campusX(world.mechanic.bus.loopEnd);
+% Keep the proven boarding approach and pear spacing in physical units.
+world.checkpoints(6).spawn(2,1)=world.checkpoints(6).spawn(1,1)+1.5;
+world.checkpoints(7).x=world.mechanic.bus.loopStart-4;
+world.checkpoints(7).spawn(:,1)=world.mechanic.bus.loopStart+[-3.8;-2.3];
+routeLength = world.mechanic.bus.loopEnd-world.mechanic.bus.loopStart;
+world.mechanic.bus.phaseOffsets = (0:7)'*(routeLength/8);
+world.mechanic.bus.lampColliders(:,1) = campusX(world.mechanic.bus.lampColliders(:,1));
+world.mechanic.bus.finishX = campusX(world.mechanic.bus.finishX);
+world.mechanic.bus.sportsFinish = world.finish;
+world.mechanic.bus.backgroundRect = [200, 1.48+1.5*(-2.44-1.48), 126, 42];
+world.mechanic.bus.skyClearFraction = .42;
 
 world.background = 'continuousCampus';
 end

@@ -155,20 +155,22 @@ switch sceneName
         cameraX = 165.8;
         cameraY = 11.0;
     case 'museum-landing'
-        state.players(1).pos = [176.0, 1.0];
-        state.players(2).pos = [179.0, 1.0];
+        landingX=world.mechanic.bicycle.museumLandingZone(1);
+        state.players(1).pos = [landingX+5, 1.0];
+        state.players(2).pos = [landingX+8, 1.0];
         state.levelState.bicycle.phase = 'landed';
         state.levelState.bicycle.landed = true;
-        cameraX = 179.0;
+        cameraX = landingX+8;
     case 'museum-sports-map'
         state.levelState.network.authenticated = true;
         state.levelState.network.pageMode = 'success';
         state.levelState.network.failureSeen = true;
         state.levelState.bicycle.phase = 'landed';
         state.levelState.bicycle.landed = true;
-        state.players(1).pos = [192.4, 1.0];
-        state.players(2).pos = [194.2, 1.0];
-        cameraX = 193.8;
+        startX=world.mechanic.bus.loopStart;
+        state.players(1).pos = [startX+2.4, 1.0];
+        state.players(2).pos = [startX+4.2, 1.0];
+        cameraX = startX+3.8;
     case 'campus-bus-lamps'
         state.levelTime = 5.6;
         state = stepWorldBus(state, world, cfg, 0);
@@ -176,9 +178,9 @@ switch sceneName
         state.players(1).pos = [bus(1) + 2.0, bus(2) + bus(4) + 0.65];
         state.players(2).pos = [bus(1) + 4.1, bus(2) + bus(4)];
         state.players(1).vel(2) = 5.0;
-        cameraX = 210.0;
+        cameraX = bus(1)+3.5;
     case 'sports-center-finish'
-        state.levelTime = (244-world.mechanic.bus.loopStart)/world.mechanic.bus.speed;
+        state.levelTime = (world.mechanic.bus.finishX-world.mechanic.bus.loopStart)/world.mechanic.bus.speed;
         state = stepWorldBus(state, world, cfg, 0);
         bus = state.levelState.bus.rects(1, :);
         state.players(1).pos = [bus(1) + 1.8, bus(2) + bus(4)];
@@ -195,12 +197,12 @@ if cameraX>105
     state.checkpointIndex=4;
 end
 if cameraX>=153, state.checkpointIndex=5; end
-if cameraX>=173
+if cameraX>=world.checkpoints(6).x
     state.levelState.bicycle.phase='landed';
     state.levelState.bicycle.landed=true;
     state.checkpointIndex=6;
 end
-if cameraX>=190, state.checkpointIndex=7; end
+if cameraX>=world.checkpoints(7).x, state.checkpointIndex=7; end
 end
 
 function closeFigure(fig)

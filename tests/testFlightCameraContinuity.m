@@ -16,27 +16,29 @@ sizes=[s.players.size]; input.useItem=false;
 for p=1:2
     input.player(p)=struct('left',false,'right',false,'jump',false);
 end
-folder=fullfile(root,'docs','visuals','eye-level-v27');
+folder=fullfile(root,'docs','visuals','campus-pacing-v28');
 if ~isfolder(folder), mkdir(folder); end
 ys=zeros(420,1); started=false; landed=false;
 renderSeconds=0; frames=0;
 for tick=1:420
     previousY=s.render.cameraCentreY;
+    previousScale=s.render.cameraScale;
     s=stepConsumables(s,input,cfg,cfg.physics.fixedDt);
     s=stepPhysics(s,input,world,cfg,cfg.physics.fixedDt);
     s=stepLevel(s,world,cfg,cfg.physics.fixedDt);
-    s=stepCameraTracking(s,world,cfg,cfg.physics.fixedDt);
     timer=tic; s=renderFrame(fig,ax,s,world,cfg); drawnow;
     renderSeconds=renderSeconds+toc(timer); frames=frames+1;
     assert(isequal(transform,s.render.handles.worldTransform));
     assert(isequal(sizes,[s.players.size]));
     assert(abs(s.render.cameraCentreY-previousY)<.85,'Camera jumped vertically.');
+    assert(abs(s.render.cameraScale-previousScale)<.006,'Camera scale jumped.');
     if strcmp(s.levelState.bicycle.phase,'flight')
         started=true;
-        bottom=s.render.cameraCentreY-cfg.render.viewportHeight/2;
+        [~,viewHeight]=cameraViewport(s,cfg);
+        bottom=s.render.cameraCentreY-viewHeight/2;
         assert(min([s.players(1).pos(2),s.players(2).pos(2)])>=bottom-.1);
         assert(max([s.players(1).pos(2)+s.players(1).size(2), ...
-            s.players(2).pos(2)+s.players(2).size(2)])<=bottom+cfg.render.viewportHeight+.1);
+            s.players(2).pos(2)+s.players(2).size(2)])<=bottom+viewHeight+.1);
     end
     landed=landed || s.levelState.bicycle.landed;
     ys(tick)=s.render.cameraCentreY;
@@ -45,8 +47,12 @@ for tick=1:420
         imwrite(frame.cdata,fullfile(folder,sprintf('flight-%03d.png',tick)));
     end
 end
-assert(started && landed && max(ys)>12);
-assert(abs(ys(end)-(cfg.render.viewportHeight/2-.4))<.05);
+assert(started && landed && max(ys)>30);
+[~,viewHeight,scale]=cameraViewport(s,cfg);
+assert(abs(ys(end)-(viewHeight/2-.4))<.05);
+assert(abs(scale-cfg.render.campusCameraScale)<.002);
+assert(s.levelState.bicycle.disappeared);
+assert(strcmp(s.render.handles.continuous.bicycleFrames.Visible,'off'));
 fprintf('FLIGHT CAMERA PASSED: continuous launch/apex/landing; %.1f forced render FPS\n', ...
     frames/renderSeconds);
 clear guard;

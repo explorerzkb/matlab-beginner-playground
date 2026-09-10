@@ -40,7 +40,7 @@ assert(lampState.status.currentHearts == heartsBefore && ...
     'A lamp collision incorrectly consumed a shared heart.');
 
 finishState = createInitialState(world, cfg, []);
-finishState.levelTime = (244-data.loopStart)/data.speed;
+finishState.levelTime = (data.finishX-data.loopStart)/data.speed;
 finishState = stepWorldBus(finishState, world, cfg, 0);
 finishBus = finishState.levelState.bus.rects(1, :);
 finishState.players(1).pos = [finishBus(1) + 1.8, ...
@@ -56,7 +56,7 @@ assert(finishState.stats.busFinishes == 1, ...
     'The same Sports Center arrival was counted repeatedly.');
 
 splitState = createInitialState(world, cfg, []);
-splitState.levelTime = (244-data.loopStart)/data.speed;
+splitState.levelTime = (data.finishX-data.loopStart)/data.speed;
 splitState = stepWorldBus(splitState, world, cfg, 0);
 firstBus = splitState.levelState.bus.rects(1, :);
 secondBus = splitState.levelState.bus.rects(2, :);

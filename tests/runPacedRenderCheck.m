@@ -24,7 +24,7 @@ guard = onCleanup(@() closeFigure(fig));
 ax = axes(fig, 'Position', [0.045, 0.08, 0.92, 0.86]);
 
 sceneNames = {'north-lake', 'network-race', 'traffic', 'bicycle', 'campus'};
-sceneCentres = [26, 82, 122, 154, 220];
+sceneCentres = [26, 82, 122, 154, mean([level.mechanic.bus.loopStart,level.mechanic.bus.finishX])];
 sceneFps = zeros(size(sceneCentres));
 sampleDuration = 5;
 renderInterval = 1 / cfg.render.targetHz;

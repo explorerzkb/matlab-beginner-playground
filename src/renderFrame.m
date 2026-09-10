@@ -30,10 +30,11 @@ if ~isfield(state.render, 'cameraCentre')
         state.players(2).pos(1)]);
 end
 cameraCentre = state.render.cameraCentre;
-halfView = cfg.render.viewportWidth / 2;
+[viewWidth,viewHeight,cameraScale]=cameraViewport(state,cfg);
+halfView = viewWidth / 2;
 cameraCentre = min(max(cameraCentre, halfView), level.worldWidth - halfView);
 state.render.cameraCentre = cameraCentre;
-halfViewY = cfg.render.viewportHeight / 2;
+halfViewY = viewHeight / 2;
 minimumCentreY = -0.4 + halfViewY;
 maximumCentreY = max(minimumCentreY, ...
     max(level.worldHeight,cfg.render.flightCameraCeiling) - halfViewY);
@@ -65,12 +66,13 @@ if isfield(handles, 'worldTransform') && isgraphics(handles.worldTransform)
     % Keep the axes fixed and move the entire world with one matrix.  Updating
     % XLim/YLim makes MATLAB rebuild its interaction manager on every camera
     % tick, which was the largest measured render cost.
-    matrix = makehgtform('translate', [-xBounds(1), -yBounds(1), 0]);
+    matrix = makehgtform('scale',[cameraScale cameraScale 1]) * ...
+        makehgtform('translate', [-xBounds(1), -yBounds(1), 0]);
     set(handles.worldTransform, 'Matrix', matrix);
     xBounds = [0, cfg.render.viewportWidth];
     yBounds = [0, cfg.render.viewportHeight];
-    cameraCentre = halfView;
-    cameraCentreY = halfViewY;
+    cameraCentre = cfg.render.viewportWidth/2;
+    cameraCentreY = cfg.render.viewportHeight/2;
 elseif ~isequal(ax.XLim, xBounds) || ~isequal(ax.YLim, yBounds)
     set(ax, 'XLim', xBounds, 'YLim', yBounds);
 end
@@ -82,7 +84,14 @@ for playerIndex = 1:2
     handles.players(playerIndex) = updatePear( ...
         handles.players(playerIndex), state.players(playerIndex), ...
         playerIndex, ropeDirection, state.rope.currentTension, cfg);
+    if ~isfield(state.render,'detailScale') || state.render.detailScale~=cameraScale
+        set(handles.players(playerIndex).eyeWhites,'MarkerSize',6.4*cameraScale);
+        set(handles.players(playerIndex).pupils,'MarkerSize',11*cameraScale);
+        set(handles.players(playerIndex).blush,'MarkerSize',16*cameraScale);
+        set(handles.players(playerIndex).ring,'MarkerSize',5*cameraScale);
+    end
 end
+state.render.detailScale=cameraScale;
 
 anchor1 = state.players(1).pos + ...
     [0.46 * state.players(1).size(1), 0.62 * state.players(1).size(2)];
@@ -254,16 +263,21 @@ if strcmp(level.mechanic.type,'continuousCampus')
     skyPixels = colours(:,:,3)>1.03*colours(:,:,2) & ...
         colours(:,:,2)>1.08*colours(:,:,1);
     skyPixels = skyPixels | min(colours,[],3)>230;
+    skyPixels(2:end,:)=skyPixels(2:end,:) & ...
+        max(abs(diff(colours,1,1)),[],3)<18;
     % The verified skyline starts below 42% of this source. Wispy white
     % clouds above it must not seed opaque vertical streaks in the matte.
-    skyPixels(1:floor(size(rgb,1)*.42),:) = true;
+    skyPixels(1:floor(size(rgb,1)*level.mechanic.bus.skyClearFraction),:) = true;
     skyMatte = cumprod(skyPixels,1)==0;
+    backdropRect=level.mechanic.bus.backgroundRect;
     handles.campusBackdrop = image('Parent', ax, ...
         'CData', flipud(rgb), ...
         'AlphaData', flipud(double(skyMatte)), ...
         'AlphaDataMapping', 'none', ...
-        'XData', [170 254], 'YData', [-2.44 25.56], ...
-        'Tag', 'cameraCulledBackground', 'UserData', [170 254]);
+        'XData', backdropRect(1)+[0 backdropRect(3)], ...
+        'YData', backdropRect(2)+[0 backdropRect(4)], ...
+        'Tag', 'cameraCulledBackground', ...
+        'UserData', backdropRect(1)+[0 backdropRect(3)]);
 end
 
 platformIndices = 1:size(level.platforms, 1);
@@ -286,7 +300,7 @@ for handleIndex = 1:platformCount
             rect(1)<170 && rect(1)+rect(3)>240 && rect(2)==0
         % The central narrow road already has a grass foreground texture.
         % Keep the same continuous collider, but don't cover its lawn in grey.
-        rect(3)=170-rect(1);
+        rect(3)=level.mechanic.bus.backgroundRect(1)-rect(1);
     end
     handles.platforms(handleIndex) = rectangle(ax, 'Position', rect, ...
         'FaceColor', faceColor, 'EdgeColor', edgeColor, ...
@@ -438,11 +452,22 @@ handles.worldTransform = gobjects(1);
 handles.worldTransform = hgtransform('Parent', ax);
 worldChildren = ax.Children;
 worldChildren(worldChildren == handles.worldTransform) = [];
+if isContinuous
+    % Create after the pears and mechanisms: near structures cover actors,
+    % while the original bridge image remains the far-side background.
+    handles.bridgeForeground=drawBridgeForeground(ax,level,cfg);
+    set(handles.bridgeForeground.body,'Parent',handles.worldTransform);
+    set(handles.bridgeForeground.rail,'Parent',handles.worldTransform);
+end
 % Reparent bottom-to-top so the child order remains exactly the same.  The
 % earlier v14 batch regrouping reversed this order and let the sky cover the
 % scene; the explicit loop preserves the v15 visual fix.
 for childIndex = numel(worldChildren):-1:1
     set(worldChildren(childIndex), 'Parent', handles.worldTransform);
+end
+if isContinuous
+    uistack(handles.bridgeForeground.body,'top');
+    uistack(handles.bridgeForeground.rail,'top');
 end
 handles.cameraCulledBackgrounds = findobj(handles.worldTransform, ...
     '-regexp', 'Tag', '^cameraCulled');
@@ -525,6 +550,10 @@ end
 worldChildren = handles.worldTransform.Children;
 worldRest = worldChildren(~ismember(worldChildren, worldTopOrder));
 handles.worldTransform.Children = [flipud(worldTopOrder(:)); worldRest];
+if isContinuous
+    uistack(handles.bridgeForeground.body,'top');
+    uistack(handles.bridgeForeground.rail,'top');
+end
 
 hudTopOrder = [handles.hudPanel; handles.hudHearts(:); handles.hudTea(:); ...
     handles.hudRopeBase; handles.hudRopeFill; handles.hudRopeLabel; ...

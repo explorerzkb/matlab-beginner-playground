@@ -6,9 +6,9 @@ cfg=gameConfig(root); world=continuousCampusWorld();
 s=createInitialState(world,cfg,[]); s=stepLevel(s,world,cfg,0);
 s.levelState.network.pageMode='timeout';
 [s,ok]=applyDamageEvent(s,cfg,'fatal');
-assert(ok && s.status.deathTimer==5);
+assert(ok && s.status.deathTimer==6);
 input.useItem=false;
-s=stepConsumables(s,input,cfg,4.99);
+s=stepConsumables(s,input,cfg,5.99);
 assert(~s.requestReset && s.status.deathTimer>0);
 s=stepConsumables(s,input,cfg,.02);
 assert(s.requestReset);
@@ -23,9 +23,9 @@ s.levelTime=period+.01; s=stepWorldBus(s,world,cfg,.02);
 assert(s.status.currentHearts==3,'Wrapped bus swept the whole road.');
 delta=s.levelState.bus.rects(:,1)-old(:,1);
 assert(delta(1)<0 && all(delta(2:end)>0));
-assert(numel(data.phaseOffsets)==5 && 14/data.speed<5);
+assert(numel(data.phaseOffsets)==8 && diff(data.phaseOffsets(1:2))/data.speed<5);
 
-folder=fullfile(root,'docs','visuals','eye-level-v27');
+folder=fullfile(root,'docs','visuals','campus-pacing-v28');
 if ~isfolder(folder), mkdir(folder); end
 fig=figure('Visible','off','Position',[50 50 cfg.render.windowSize], ...
     'GraphicsSmoothing',cfg.render.graphicsSmoothing);
@@ -45,10 +45,11 @@ assert(strcmp(s.render.viewMode,'world') && ...
 assert(s.render.cameraCentreY>15,'Flight camera hit the old height ceiling.');
 f=getframe(fig); imwrite(f.cdata,fullfile(folder,'flight.png'));
 s.levelState.bicycle.phase='landed'; s.levelState.bicycle.landed=true;
-s.players(1).pos=[195 3.4]; s.players(2).pos=[197 3.4];
+s.players(1).pos=[245 3.4]; s.players(2).pos=[247 3.4];
 s=stepLevel(s,world,cfg,0);
-s.render.cameraCentre=196;
-s.render.cameraCentreY=cfg.render.viewportHeight/2-.4;
+s.render.cameraCentre=246;
+[~,viewHeight]=cameraViewport(s,cfg);
+s.render.cameraCentreY=viewHeight/2-.4;
 s=renderFrame(fig,ax,s,world,cfg); drawnow;
 assert(strcmp(s.render.viewMode,'world'));
 assert(strcmp(get(s.render.handles.campusBackdrop,'Visible'),'on'));
@@ -65,8 +66,8 @@ assert(~isgraphics(s.render.handles.campusRoad),'A duplicate road was created.')
 assert(max(abs(get(s.render.handles.continuous.buses(1),'Position')- ...
     s.levelState.bus.rects(1,:)))<1e-10,'Bus drawing differs from its collider.');
 f=getframe(fig); imwrite(f.cdata,fullfile(folder,'road.png'));
-s.render.cameraCentre=232;
-s.players(1).pos=[231 3.4]; s.players(2).pos=[233 3.4];
+s.render.cameraCentre=294;
+s.players(1).pos=[293 3.4]; s.players(2).pos=[295 3.4];
 s=renderFrame(fig,ax,s,world,cfg); drawnow;
 secondTransform=get(s.render.handles.worldTransform,'Matrix');
 assert(secondTransform(1,4)<firstTransform(1,4), ...
@@ -84,7 +85,7 @@ for x=[35 119]
     verifyScenery(fig,folder,sprintf('scene-%d.png',x));
 end
 clear guard;
-fprintf(['CAMPUS PRESENTATION PASSED: 5s hold, one-way wrap, ' ...
+fprintf(['CAMPUS PRESENTATION PASSED: 6s hold, one-way wrap, ' ...
     'world-anchored handscroll, continuous flight/reset views\n']);
 end
 

@@ -1,10 +1,29 @@
 function state = stepCameraTracking(state, world, cfg, dt)
 %STEPCAMERATRACKING Move a world camera only when players cross its dead zone.
 
-halfView = cfg.render.viewportWidth / 2;
+targetScale=1;
+if isfield(state.levelState,'bicycle')
+    b=state.levelState.bicycle;
+    if b.landed || (b.launched && ...
+            min([state.players(1).pos(2),state.players(2).pos(2)])>cfg.render.campusZoomAltitude)
+        state.render.campusZoomStarted=true;
+    end
+end
+if isfield(state.render,'campusZoomStarted') && state.render.campusZoomStarted
+    targetScale=cfg.render.campusCameraScale;
+end
+if ~isfield(state.render,'cameraScale'), state.render.cameraScale=1; end
+if dt<=0
+    state.render.cameraScale=targetScale;
+else
+    state.render.cameraScale=state.render.cameraScale+ ...
+        (1-exp(-dt/cfg.render.campusZoomResponse))*(targetScale-state.render.cameraScale);
+end
+[viewWidth,viewHeight]=cameraViewport(state,cfg);
+halfView = viewWidth / 2;
 minimumCentre = halfView;
 maximumCentre = world.worldWidth - halfView;
-halfViewY = cfg.render.viewportHeight / 2;
+halfViewY = viewHeight / 2;
 minimumCentreY = -0.4 + halfViewY;
 maximumCentreY = max(minimumCentreY, ...
     max(world.worldHeight,cfg.render.flightCameraCeiling) - halfViewY);
@@ -18,8 +37,8 @@ end
 centre = min(max(state.render.cameraCentre, minimumCentre), maximumCentre);
 leftEdge = centre - halfView;
 deadZone = cfg.render.cameraHorizontalDeadZone;
-leftThreshold = leftEdge + deadZone(1) * cfg.render.viewportWidth;
-rightThreshold = leftEdge + deadZone(2) * cfg.render.viewportWidth;
+leftThreshold = leftEdge + deadZone(1) * viewWidth;
+rightThreshold = leftEdge + deadZone(2) * viewWidth;
 playerX = [state.players(1).pos(1), state.players(2).pos(1)];
 target = centre;
 
@@ -52,9 +71,9 @@ centreY = min(max(state.render.cameraCentreY, ...
 bottomEdge = centreY - halfViewY;
 verticalDeadZone = cfg.render.cameraVerticalDeadZone;
 lowerThreshold = bottomEdge + ...
-    verticalDeadZone(1) * cfg.render.viewportHeight;
+    verticalDeadZone(1) * viewHeight;
 upperThreshold = bottomEdge + ...
-    verticalDeadZone(2) * cfg.render.viewportHeight;
+    verticalDeadZone(2) * viewHeight;
 playerBottoms = [state.players(1).pos(2), state.players(2).pos(2)];
 playerTops = [state.players(1).pos(2) + state.players(1).size(2), ...
     state.players(2).pos(2) + state.players(2).size(2)];

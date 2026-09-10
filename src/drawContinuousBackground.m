@@ -61,9 +61,10 @@ function drawContinuousGround(ax, world, viewRange)
 for k = 1:size(world.platforms, 1)
     r = world.platforms(k, :);
     if r(2) ~= 0, continue; end
-    if r(1)>=170, continue; end
+    roadEnd=world.mechanic.bus.backgroundRect(1);
+    if r(1)>=roadEnd, continue; end
     if r(1) + r(3) < viewRange(1) || r(1) > viewRange(2), continue; end
-    r(3)=min(r(3),170-r(1));
+    r(3)=min(r(3),roadEnd-r(1));
     if r(1) < 66
         color = [0.69, 0.63, 0.43];
     else
