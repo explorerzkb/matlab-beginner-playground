@@ -1,0 +1,77 @@
+MATLAB 25.2.0.2998904 (R2025b) | MACA64 | 09-Sep-2026 08:55:46
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+Running level-data checks...
+Running input-mapping checks...
+Running shared physics and state checks...
+Running North Lake checks...
+ANIMAL BOOST LANDINGS PASSED: 12 tethered cases at gravity -25
+Running campus-network checks...
+Running traffic checks...
+BRIDGE REENTRY PASSED
+BRIDGE GROUND PASSAGE PASSED
+Running bicycle-flight and campus-bus checks...
+FLIGHT RECOVERY PASSED: 7 height pairs x neutral/left/right inputs
+RECOVERY SAFETY PASSED
+Running invisible continuous-world lifecycle check...
+ALL MATLAB SMOKE TESTS PASSED
+CONTINUOUS PROLOGUE PASSED
+RESET t9.28 phase=waiting cp3 positions 75.98 1.00 / 77.12 -4.20
+t=10.0 p1=[74.71 7.81] p2=[75.92 7.35] cp=3 net=retry deaths=1
+route=undecided climbs=0/0 bus=0
+t=20.0 p1=[137.49 5.25] p2=[137.49 5.25] cp=4 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=30.0 p1=[205.99 3.40] p2=[211.57 1.02] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=40.0 p1=[201.40 3.40] p2=[204.62 3.40] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=50.0 p1=[230.98 7.78] p2=[232.88 3.40] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=54.0 p1=[243.03 3.40] p2=[244.85 3.40] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=1
+INPUT JOURNEY PASSED: upper, delay 0, opening 0, 53.97s
+RESET t9.28 phase=waiting cp3 positions 75.98 1.00 / 77.12 -4.20
+t=10.0 p1=[74.71 7.81] p2=[75.92 7.35] cp=3 net=retry deaths=1
+route=undecided climbs=0/0 bus=0
+t=20.0 p1=[128.15 1.00] p2=[128.15 1.00] cp=4 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=30.0 p1=[210.45 4.19] p2=[213.82 4.15] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=40.0 p1=[202.86 3.40] p2=[204.65 3.40] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=50.0 p1=[230.98 7.77] p2=[232.91 3.40] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=54.0 p1=[243.03 3.40] p2=[244.85 3.40] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 0, opening 0, 53.97s
+RESET t11.35 phase=waiting cp3 positions 75.99 1.00 / 77.11 -4.20
+t=11.5 p1=[70.45 7.81] p2=[72.02 7.81] cp=3 net=retry deaths=1
+route=undecided climbs=0/0 bus=0
+t=21.5 p1=[132.69 5.25] p2=[132.69 5.25] cp=4 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=31.5 p1=[206.07 3.46] p2=[206.15 3.54] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=41.5 p1=[205.06 4.96] p2=[205.27 5.69] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=51.5 p1=[235.69 3.40] p2=[237.50 3.40] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=54.0 p1=[243.04 3.40] p2=[244.85 3.40] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=1
+INPUT JOURNEY PASSED: upper, delay 30, opening 1, 53.97s
+RESET t7.45 phase=waiting cp1 positions 44.04 -1.88 / 43.92 3.22
+t=11.5 p1=[33.53 5.23] p2=[35.05 5.97] cp=1 net=login deaths=1
+route=undecided climbs=0/0 bus=0
+RESET t17.65 phase=waiting cp3 positions 75.98 1.00 / 77.11 -4.20
+t=21.5 p1=[90.05 5.06] p2=[90.69 5.06] cp=3 net=success deaths=2
+route=undecided climbs=0/0 bus=0
+t=31.5 p1=[153.26 4.06] p2=[153.26 4.06] cp=5 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=41.5 p1=[205.74 7.78] p2=[207.36 5.33] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=51.5 p1=[235.68 3.40] p2=[237.47 3.40] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=54.0 p1=[243.03 3.40] p2=[244.82 3.40] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 90, opening 1, 53.97s
+ALL FOUR INPUT JOURNEYS PASSED
+LOCAL FORCED-RENDER RESULT: 45.7 FPS at 1280x720
+DEVELOPMENT-MACHINE ACCEPTANCE PASSED. WINDOWS/HUMAN CHECKS NOT INCLUDED.

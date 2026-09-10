@@ -1,0 +1,7 @@
+EXTRACTED PACKAGE HIGH QUALITY
+FORCED north-lake    62.7 FPS at 1280x720
+FORCED network-race  91.6 FPS at 1280x720
+FORCED traffic       70.2 FPS at 1280x720
+FORCED bicycle       89.1 FPS at 1280x720
+FORCED campus       123.3 FPS at 1280x720
+LOCAL FORCED-RENDER MINIMUM: 62.7 FPS across all five pockets

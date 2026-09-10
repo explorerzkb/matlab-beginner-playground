@@ -1,0 +1,29 @@
+MATLAB R2025b development-Mac verification, 2026-09-10
+
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+ALL MATLAB SMOKE TESTS PASSED
+CONTINUOUS PROLOGUE PASSED
+ALL FOUR INPUT JOURNEYS PASSED
+Conservative worktree run while an unrelated orphaned Node server occupied
+about one CPU core:
+FORCED north-lake    41.2 FPS at 960x540
+FORCED network-race  54.1 FPS at 960x540
+FORCED traffic       40.8 FPS at 960x540
+FORCED bicycle       44.4 FPS at 960x540
+FORCED campus        66.4 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 40.8 FPS across all five pockets
+
+Fresh-directory run after extracting the rebuilt Windows validation ZIP:
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+ALL MATLAB SMOKE TESTS PASSED
+FORCED north-lake    59.8 FPS at 960x540
+FORCED network-race  77.1 FPS at 960x540
+FORCED traffic       57.6 FPS at 960x540
+FORCED bicycle       66.0 FPS at 960x540
+FORCED campus       117.9 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 57.6 FPS across all five pockets
+
+The test uses forced drawnow after a 30-frame warm-up in each pocket. It is
+stricter than the interactive loop's drawnow limitrate, but remains local Mac
+evidence. It does not prove Windows 11 frame rate, keyboard rollover, display
+scaling, or three-session stability.

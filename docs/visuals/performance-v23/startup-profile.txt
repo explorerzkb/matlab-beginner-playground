@@ -1,0 +1,26 @@
+TOTAL 4.400 s
+  4.399 s     1 calls startGame
+  4.097 s     1 calls runGame
+  1.862 s     1 calls runGame>runTestLevel
+  1.559 s    19 calls renderFrame
+  1.343 s     1 calls HTMLCanvasPlugin.HTMLCanvasPlugin>HTMLCanvasPlugin.createCanvas
+  1.311 s     1 calls renderFrame>initializeScene
+  0.687 s     1 calls renderFrame>drawStaticBackground
+  0.681 s     1 calls drawContinuousBackground
+  0.460 s    11 calls imread
+  0.393 s    11 calls imread>call_format_specific_reader
+  0.321 s     1 calls initialize
+  0.269 s     2 calls drawContinuousBackground>drawTexturePlate
+  0.252 s    73 calls stepLevel
+  0.247 s    10 calls matlab_im/private/readpng
+  0.244 s    73 calls stepContinuousWorld
+  0.243 s    10 calls matlab_im/private/readpngutil
+  0.243 s     7 calls path
+  0.194 s     3 calls addpath
+  0.171 s     1 calls initializeContinuousHandles
+  0.142 s     1 calls matlab_im/private/readjpg
+  0.140 s    97 calls prepareAxes
+  0.137 s    19 calls renderFrame>updateMechanic
+  0.131 s    97 calls newplot
+  0.131 s     1 calls FigureMessageService>FigureMessageService.subscribeToChannel
+  0.129 s    19 calls updateContinuousMechanic

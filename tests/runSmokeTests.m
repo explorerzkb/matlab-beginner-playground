@@ -1,0 +1,72 @@
+function runSmokeTests()
+%RUNSMOKETESTS Execute data, physics, mechanics, and lifecycle checks.
+
+projectRoot = fileparts(fileparts(mfilename('fullpath')));
+addpath(projectRoot);
+addpath(fullfile(projectRoot, 'config'));
+addpath(fullfile(projectRoot, 'levels'));
+addpath(fullfile(projectRoot, 'src'));
+addpath(fullfile(projectRoot, 'tests'));
+
+fprintf('Running level-data checks...\n');
+testLevelData();
+testCampusPresentation();
+testPixelRectToWorld();
+fprintf('Running input-mapping checks...\n');
+testInputMappings();
+testGameImageCache();
+testWindowsValidationSummary();
+fprintf('Running shared physics and state checks...\n');
+testPhysics();
+testPearExpressions();
+testMovingPlatform();
+testCameraTracking();
+testContinuousWorld();
+testHealthSystem();
+testConsumables();
+testTeaPickups();
+testCheckpointReset();
+fprintf('Running North Lake checks...\n');
+testWorldAnimals();
+testAlpacaShortcut();
+testAnimalBoostLandings();
+testPlaygroundRace();
+fprintf('Running campus-network checks...\n');
+testNetworkPixelLayout();
+testNetworkCheckpoint();
+testNetworkCredentials();
+testNetworkLogin();
+testNetworkElevator();
+testNetworkPlatforms();
+testNetworkLag();
+testTimeoutExtraHold();
+testNetworkReachability();
+fprintf('Running traffic checks...\n');
+testTrafficRoutes();
+testPlayabilityV30();
+testTrafficSignal();
+testTrafficCars();
+testTrafficCrowd();
+testTrafficTraversal();
+testBridgeReentry();
+testBridgeGroundPassage();
+testBridgeOcclusion();
+testVisualFeedbackV29();
+fprintf('Running bicycle-flight and campus-bus checks...\n');
+testBicycleLaunch();
+testBusRoute();
+testBoardingForgiveness();
+testCountdownSkip();
+testVehicleDamage();
+testDeathRenderRecovery();
+testFlightRecovery();
+testFlightCameraContinuity();
+testRecoverySafety();
+fprintf('Running invisible continuous-world lifecycle check...\n');
+figuresBefore = findall(groot, 'Type', 'figure');
+startGame('TestMode', true);
+figuresAfter = findall(groot, 'Type', 'figure');
+assert(numel(figuresAfter) == numel(figuresBefore), ...
+    'Test-mode game left a figure or callback lifecycle behind.');
+fprintf('ALL MATLAB SMOKE TESTS PASSED\n');
+end

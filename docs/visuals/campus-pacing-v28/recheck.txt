@@ -1,0 +1,83 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+FLIGHT CAMERA PASSED: continuous launch/apex/landing; 85.2 forced render FPS
+BRIDGE OCCLUSION PASSED: pier and near rail pixel comparisons
+t=10.0 p1=[76.55 -14.74] p2=[77.28 -19.93] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.28 phase=waiting cp3 positions 76.56 -20.97 / 77.28 -26.17
+t=20.0 p1=[129.49 5.25] p2=[129.49 5.25] cp=4 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=30.0 p1=[233.86 2.35] p2=[237.35 2.35] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+RESET t31.83 phase=landed cp7 positions 248.57 5.31 / 249.37 3.40
+t=40.0 p1=[255.30 7.78] p2=[257.25 3.88] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=0
+t=50.0 p1=[285.66 3.40] p2=[287.43 3.40] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=0
+t=58.0 p1=[309.53 3.40] p2=[311.34 3.40] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=1
+INPUT JOURNEY PASSED: upper, delay 0, opening 0, 57.97s
+t=10.0 p1=[76.55 -14.74] p2=[77.28 -19.93] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.28 phase=waiting cp3 positions 76.56 -20.97 / 77.28 -26.17
+t=20.0 p1=[116.94 1.00] p2=[116.94 1.00] cp=4 net=success deaths=1
+route=undecided climbs=0/0 bus=0
+t=30.0 p1=[142.64 1.00] p2=[142.64 1.00] cp=4 net=success deaths=1
+route=lower climbs=0/0 bus=0
+RESET t39.97 phase=landed cp7 positions 245.54 4.92 / 247.35 3.40
+t=40.0 p1=[226.22 1.24] p2=[227.72 1.24] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=50.0 p1=[261.21 3.40] p2=[263.04 3.40] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=60.0 p1=[291.07 7.53] p2=[292.89 5.34] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=66.1 p1=[309.53 3.40] p2=[311.34 3.40] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 0, opening 0, 66.10s
+t=11.5 p1=[76.24 -2.64] p2=[77.17 -7.84] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t12.35 phase=waiting cp3 positions 76.58 -20.97 / 77.25 -26.17
+t=21.5 p1=[124.69 5.25] p2=[124.69 5.25] cp=4 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=31.5 p1=[229.06 5.23] p2=[232.55 5.23] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+RESET t32.60 phase=landed cp7 positions 237.77 4.74 / 239.32 3.40
+t=41.5 p1=[257.86 3.40] p2=[259.69 3.40] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=0
+t=51.5 p1=[287.91 3.40] p2=[289.68 3.40] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=0
+t=58.7 p1=[309.53 3.40] p2=[311.34 3.40] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=1
+INPUT JOURNEY PASSED: upper, delay 30, opening 1, 58.73s
+RESET t7.45 phase=waiting cp1 positions 44.04 -1.88 / 43.92 3.22
+t=11.5 p1=[33.53 5.23] p2=[35.05 5.97] cp=1 net=login deaths=1
+route=undecided climbs=0/0 bus=0
+RESET t18.65 phase=waiting cp3 positions 76.59 -20.97 / 77.27 -26.17
+t=21.5 p1=[82.05 8.44] p2=[82.69 8.44] cp=3 net=success deaths=2
+route=undecided climbs=0/0 bus=0
+t=31.5 p1=[116.94 1.00] p2=[116.94 1.00] cp=4 net=success deaths=2
+route=undecided climbs=0/0 bus=0
+t=41.5 p1=[174.62 29.94] p2=[174.91 30.73] cp=5 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=51.5 p1=[258.18 4.33] p2=[261.43 2.56] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+RESET t52.92 phase=landed cp7 positions 264.96 3.40 / 271.03 4.17
+t=61.5 p1=[256.74 5.52] p2=[258.74 3.40] cp=7 net=success deaths=3
+route=lower climbs=0/0 bus=0
+t=71.5 p1=[286.96 3.40] p2=[288.73 3.40] cp=7 net=success deaths=3
+route=lower climbs=0/0 bus=0
+t=79.0 p1=[309.53 3.40] p2=[311.34 3.40] cp=7 net=success deaths=3
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 90, opening 1, 79.05s
+ALL FOUR INPUT JOURNEYS PASSED
+FORCED north-lake    64.7 FPS at 960x540
+FORCED network-race  91.9 FPS at 960x540
+FORCED traffic       81.3 FPS at 960x540
+FORCED bicycle       95.1 FPS at 960x540
+FORCED campus        89.8 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 64.7 FPS across all five pockets
+PACED  north-lake    49.6 FPS at 960x540
+PACED  network-race  49.6 FPS at 960x540
+PACED  traffic       49.6 FPS at 960x540
+PACED  bicycle       49.6 FPS at 960x540
+PACED  campus        49.6 FPS at 960x540
+PACED FULL-DRAW MINIMUM: 49.6 FPS across all five pockets

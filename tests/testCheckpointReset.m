@@ -1,0 +1,66 @@
+function testCheckpointReset()
+%TESTCHECKPOINTRESET Verify retained progress and safe v3 transient reset.
+
+projectRoot = fileparts(fileparts(mfilename('fullpath')));
+addpath(fullfile(projectRoot, 'config'));
+addpath(fullfile(projectRoot, 'levels'));
+addpath(fullfile(projectRoot, 'src'));
+cfg = gameConfig(projectRoot);
+world = continuousCampusWorld();
+state = createInitialState(world, cfg, []);
+state = stepLevel(state, world, cfg, 0);
+state.checkpointIndex = 5;
+state.status.currentHearts = 1;
+state.inventory.teaCount = 1;
+state.inventory.collectedTeaIds = "north-lake-tea-1";
+state.levelState.network.authenticated = true;
+state.levelState.network.pageMode = 'success';
+state.levelState.traffic.route = 'lower';
+state.levelState.traffic.cars(:, 2) = ...
+    world.mechanic.traffic.crosswalk(2) + 0.2;
+state.levelState.bicycle.phase = 'warning';
+state.levelState.bicycle.timer = 0.2;
+state.levelState.bicycle.launched = false;
+for playerIndex = 1:2
+    state.players(playerIndex).pos = [160 + playerIndex, 6];
+    state.players(playerIndex).vel = [8, -12];
+end
+state.rope.currentTension = 50;
+
+state = resetToCheckpoint(state, world);
+assert(state.status.currentHearts == cfg.health.maxHearts && ...
+    state.inventory.teaCount == 1 && ...
+    any(state.inventory.collectedTeaIds == "north-lake-tea-1"), ...
+    'Reset did not restore hearts or preserve iced-tea inventory.');
+assert(state.levelState.network.authenticated && ...
+    strcmp(state.levelState.network.pageMode, 'success') && ...
+    strcmp(state.levelState.traffic.route, 'lower'), ...
+    'Reset discarded completed network progress or the route choice.');
+assert(all(state.players(1).vel == 0) && ...
+    all(state.players(2).vel == 0) && state.rope.currentTension == 0, ...
+    'Reset did not clear player velocity and rope tension.');
+assert(state.levelState.traffic.carsMayMove && ...
+    ~state.levelState.traffic.pedestriansMayCross, ...
+    'Traffic did not reset to the pedestrian-red vehicle phase.');
+assert(isequal(state.levelState.traffic.carDepth,world.mechanic.traffic.carData(:,2)), ...
+    'Reset collapsed the separated traffic queue.');
+for carIndex = 1:size(state.levelState.traffic.cars, 1)
+    assert(abs(state.levelState.traffic.carDepth(carIndex))> ...
+        world.mechanic.traffic.contactDepth, ...
+        'A reset vehicle remained inside the pedestrian crossing.');
+end
+assert(strcmp(state.levelState.bicycle.phase, 'waiting') && ...
+    ~state.levelState.bicycle.launched, ...
+    'An unfinished bicycle launch was not restored to its trigger state.');
+assert(isfield(state.levelState,'bus') && isfield(state.levelState,'race'), ...
+    'Reset returned a state that cannot be rendered immediately.');
+bus=state.levelState.bus;
+assert(isequal(bus.rects,bus.previousRects) && all(isfinite(bus.rects),'all'), ...
+    'Reset retained stale bus carry coordinates.');
+for index=1:size(bus.rects,1)
+    assert(any(all(abs(state.levelState.oneWayPlatforms-bus.rects(index,:))<1e-9,2)), ...
+        'Reset bus roof and collision platform disagree.');
+end
+assert(state.stats.failures == 1, ...
+    'The shared checkpoint reset was not counted exactly once.');
+end

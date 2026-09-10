@@ -1,0 +1,302 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+Running level-data checks...
+CAMPUS PRESENTATION PASSED: 6s hold, one-way wrap, world-anchored handscroll, continuous flight/reset views
+Running input-mapping checks...
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 0 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: INCOMPLETE
+
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 3 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: PASS
+
+Running shared physics and state checks...
+{Error using assert
+Two players on one bus did not finish at the Sports Center.
+
+Error in testContinuousWorld (line 33)
+assert(state.completed && state.levelState.bus.completed, ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in runSmokeTests (line 24)
+testContinuousWorld();
+^^^^^^^^^^^^^^^^^^^^^
+} 
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+Running level-data checks...
+CAMPUS PRESENTATION PASSED: 6s hold, one-way wrap, world-anchored handscroll, continuous flight/reset views
+Running input-mapping checks...
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 0 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: INCOMPLETE
+
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 3 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: PASS
+
+Running shared physics and state checks...
+Running North Lake checks...
+ANIMAL BOOST LANDINGS PASSED: 12 tethered cases at gravity -25
+PLAYGROUND RACE PASSED: normal lead 0.542, normal 2.244s, tea 1.793s; loss and reset recover.
+Running campus-network checks...
+TIMEOUT HOLD PASSED: extra 1 second on actual harmless reset path
+Running traffic checks...
+BRIDGE REENTRY PASSED
+BRIDGE GROUND PASSAGE PASSED
+BRIDGE OCCLUSION PASSED: pier and near rail pixel comparisons
+Running bicycle-flight and campus-bus checks...
+VEHICLE DAMAGE PASSED: bus 3 hearts, roof safe, cars outside crossing, bridge safe.
+DEATH RENDER RECOVERY PASSED: 14 immediate reset frames, all seven checkpoints.
+FLIGHT RECOVERY PASSED: 7 height pairs x neutral/left/right inputs
+FLIGHT CAMERA PASSED: continuous launch/apex/landing; 88.2 forced render FPS
+RECOVERY SAFETY PASSED
+Running invisible continuous-world lifecycle check...
+ALL MATLAB SMOKE TESTS PASSED
+t=10.0 p1=[76.55 -14.74] p2=[77.28 -19.93] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.28 phase=waiting cp3 positions 76.56 -20.97 / 77.28 -26.17
+t=20.0 p1=[129.49 5.25] p2=[129.49 5.25] cp=4 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=30.0 p1=[233.86 2.35] p2=[237.35 2.35] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+RESET t31.83 phase=landed cp7 positions 248.57 5.31 / 249.37 3.40
+RESET t33.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t35.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t37.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t38.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=40.0 p1=[232.40 1.48] p2=[234.75 3.40] cp=7 net=success deaths=6
+route=upper climbs=4/4 bus=0
+RESET t40.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t42.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t44.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t45.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t47.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t49.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=50.0 p1=[228.40 5.33] p2=[230.65 5.33] cp=7 net=success deaths=12
+route=upper climbs=4/4 bus=0
+RESET t51.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t52.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t54.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t56.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t58.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t59.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=60.0 p1=[224.71 2.94] p2=[226.96 2.94] cp=7 net=success deaths=18
+route=upper climbs=4/4 bus=0
+RESET t61.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t63.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t65.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t66.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t68.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=70.0 p1=[234.28 3.46] p2=[235.59 3.40] cp=7 net=success deaths=23
+route=upper climbs=4/4 bus=0
+RESET t70.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t72.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t73.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t75.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t77.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t79.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=80.0 p1=[230.40 4.19] p2=[232.65 4.19] cp=7 net=success deaths=29
+route=upper climbs=4/4 bus=0
+RESET t80.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t82.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t84.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t86.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t87.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t89.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=90.0 p1=[226.40 4.92] p2=[228.65 4.92] cp=7 net=success deaths=35
+route=upper climbs=4/4 bus=0
+RESET t91.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t93.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t94.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t96.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t98.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=100.0 p1=[235.52 5.13] p2=[236.34 3.40] cp=7 net=success deaths=40
+route=upper climbs=4/4 bus=0
+RESET t100.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t101.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t103.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t105.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t107.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t108.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=110.0 p1=[232.40 1.48] p2=[234.75 3.40] cp=7 net=success deaths=46
+route=upper climbs=4/4 bus=0
+RESET t110.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t112.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t114.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t115.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t117.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t119.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=120.0 p1=[228.40 5.33] p2=[230.65 5.33] cp=7 net=success deaths=52
+route=upper climbs=4/4 bus=0
+RESET t121.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t122.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t124.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t126.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t128.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t129.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=130.0 p1=[224.71 2.94] p2=[226.96 2.94] cp=7 net=success deaths=58
+route=upper climbs=4/4 bus=0
+RESET t131.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t133.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t135.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t136.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t138.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=140.0 p1=[234.28 3.46] p2=[235.59 3.40] cp=7 net=success deaths=63
+route=upper climbs=4/4 bus=0
+RESET t140.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t142.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t143.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t145.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t147.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t149.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=150.0 p1=[230.40 4.19] p2=[232.65 4.19] cp=7 net=success deaths=69
+route=upper climbs=4/4 bus=0
+RESET t150.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t152.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t154.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t156.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t157.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t159.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=160.0 p1=[226.40 4.92] p2=[228.65 4.92] cp=7 net=success deaths=75
+route=upper climbs=4/4 bus=0
+RESET t161.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t163.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t164.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t166.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t168.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=170.0 p1=[235.52 5.13] p2=[236.34 3.40] cp=7 net=success deaths=80
+route=upper climbs=4/4 bus=0
+RESET t170.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t171.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t173.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t175.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t177.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t178.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=180.0 p1=[232.40 1.48] p2=[234.75 3.40] cp=7 net=success deaths=86
+route=upper climbs=4/4 bus=0
+RESET t180.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t182.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t184.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t185.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t187.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t189.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=190.0 p1=[228.40 5.33] p2=[230.65 5.33] cp=7 net=success deaths=92
+route=upper climbs=4/4 bus=0
+RESET t191.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t192.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t194.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t196.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t198.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t199.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=200.0 p1=[224.71 2.94] p2=[226.96 2.94] cp=7 net=success deaths=98
+route=upper climbs=4/4 bus=0
+RESET t201.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t203.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t205.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t206.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t208.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=210.0 p1=[234.28 3.46] p2=[235.59 3.40] cp=7 net=success deaths=103
+route=upper climbs=4/4 bus=0
+RESET t210.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t212.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t213.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t215.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t217.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t219.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=220.0 p1=[230.40 4.19] p2=[232.65 4.19] cp=7 net=success deaths=109
+route=upper climbs=4/4 bus=0
+RESET t220.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t222.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t224.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t226.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t227.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t229.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=230.0 p1=[226.40 4.92] p2=[228.65 4.92] cp=7 net=success deaths=115
+route=upper climbs=4/4 bus=0
+RESET t231.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t233.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t234.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t236.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t238.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=240.0 p1=[235.52 5.13] p2=[236.34 3.40] cp=7 net=success deaths=120
+route=upper climbs=4/4 bus=0
+RESET t240.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t241.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t243.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t245.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t247.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t248.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=250.0 p1=[232.40 1.48] p2=[234.75 3.40] cp=7 net=success deaths=126
+route=upper climbs=4/4 bus=0
+RESET t250.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t252.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t254.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t255.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t257.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t259.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=260.0 p1=[228.40 5.33] p2=[230.65 5.33] cp=7 net=success deaths=132
+route=upper climbs=4/4 bus=0
+RESET t261.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t262.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t264.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t266.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t268.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t269.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=270.0 p1=[224.71 2.94] p2=[226.96 2.94] cp=7 net=success deaths=138
+route=upper climbs=4/4 bus=0
+RESET t271.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t273.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t275.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t276.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t278.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=280.0 p1=[234.28 3.46] p2=[235.59 3.40] cp=7 net=success deaths=143
+route=upper climbs=4/4 bus=0
+RESET t280.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t282.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t283.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t285.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t287.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t289.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=290.0 p1=[230.40 4.19] p2=[232.65 4.19] cp=7 net=success deaths=149
+route=upper climbs=4/4 bus=0
+RESET t290.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t292.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t294.33 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t296.08 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t297.83 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+RESET t299.58 phase=landed cp7 positions 235.87 5.33 / 236.59 3.40
+t=300.0 p1=[226.40 4.92] p2=[228.65 4.92] cp=7 net=success deaths=155
+route=upper climbs=4/4 bus=0
+{Error using assert
+Input journey stalled before the Sports Center.
+
+Error in runGameplayJourney (line 125)
+assert(state.completed,'Input journey stalled before the Sports Center.');
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in runEndToEndChecks (line 3)
+runGameplayJourney('upper',0,false);
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 

@@ -1,0 +1,13 @@
+Package: dist/matlabHi-windows-validation.zip
+Project files: 131
+Manifest: matlabHi/SHA256.json
+ZIP entries: 132
+ZIP bytes: 27270062
+SHA-256: 373be75eb0b6c824ac91168b598ec28f8d38431baedb706dd98cda873f711f2f
+ZIP integrity: PASS
+Per-file manifest verification: PASS
+Fresh extracted-package acceptance: PASS
+Forced-render minimum: 69.2 FPS
+Paced full-draw minimum: 45.0 FPS
+High-quality paced full-draw minimum: 43.8 FPS
+Target Windows execution: NOT RUN

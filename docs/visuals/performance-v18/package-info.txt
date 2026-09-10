@@ -1,0 +1,11 @@
+Package: dist/matlabHi-windows-validation.zip
+Project files: 128
+Manifest: matlabHi/SHA256.json
+ZIP entries: 129
+ZIP bytes: 27267645
+SHA-256: 95669ade5a8f5d5dc5cfba09f515cb49742cb3416b47ed577806ad18977a4459
+ZIP integrity: PASS
+Per-file manifest verification: PASS
+Fresh extracted-package acceptance: PASS
+Fresh extracted-package high-quality minimum: 62.7 FPS
+Target Windows execution: NOT RUN

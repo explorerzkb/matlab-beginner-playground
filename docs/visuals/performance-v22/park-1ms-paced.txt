@@ -1,0 +1,8 @@
+WARNING: package sun.awt.X11 not in java.desktop
+WARNING: package sun.awt.X11 not in java.desktop
+PACED  north-lake    47.2 FPS at 960x540
+PACED  network-race  48.2 FPS at 960x540
+PACED  traffic       48.0 FPS at 960x540
+PACED  bicycle       48.4 FPS at 960x540
+PACED  campus        48.2 FPS at 960x540
+PACED FULL-DRAW MINIMUM: 47.2 FPS across all five pockets

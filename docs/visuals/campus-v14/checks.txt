@@ -1,0 +1,19 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+{Error using assert
+Assertion failed.
+
+Error in testCampusPresentation (line 48)
+assert(isequal(get(s.render.handles.continuous.buses(1),'Position'),s.levelState.bus.rects(1,:)));
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+CAMPUS PRESENTATION PASSED: 5s hold, one-way wrap, sky/side-view/reset views
+DEATH RENDER RECOVERY PASSED: 14 immediate reset frames, all seven checkpoints.
+LOCAL FORCED-RENDER RESULT: 9.1 FPS at 960x540
+{Error using assert
+Local forced rendering did not reach the low-power target of 20 FPS.
+
+Error in runPerformanceCheck (line 51)
+assert(framesPerSecond >= 20, ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}

@@ -1,0 +1,19 @@
+SECOND TOTAL 1.472 s
+  1.472 s     1 calls startGame
+  1.251 s     1 calls runGame
+  1.181 s     1 calls runGame>runTestLevel
+  0.824 s    19 calls renderFrame
+  0.616 s     1 calls renderFrame>initializeScene
+  0.265 s     1 calls renderFrame>drawStaticBackground
+  0.264 s     1 calls drawContinuousBackground
+  0.216 s     8 calls imread
+  0.209 s     5 calls path
+  0.206 s     8 calls imread>call_format_specific_reader
+  0.204 s    72 calls stepPhysics
+  0.189 s     7 calls matlab_im/private/readpng
+  0.188 s     7 calls matlab_im/private/readpngutil
+  0.162 s     3 calls addpath
+  0.155 s    73 calls stepLevel
+  0.155 s   144 calls resolveCollisions
+  0.152 s    73 calls stepContinuousWorld
+  0.126 s     1 calls initializeContinuousHandles

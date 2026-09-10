@@ -1,0 +1,15 @@
+PACED  north-lake    49.6 FPS at 1280x720
+PACED  network-race  49.6 FPS at 1280x720
+PACED  traffic       49.6 FPS at 1280x720
+PACED  bicycle       49.6 FPS at 1280x720
+PACED  campus        49.6 FPS at 1280x720
+PACED FULL-DRAW MINIMUM: 49.6 FPS across all five pockets
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 0 / 0 / 0
+Full playthrough at 100/125/150%: 0 / 0 / 0
+Completed two-person sessions: 0 / 3
+Sessions with visual/control confirmation: 0 / 3
+Routes upper/lower: 0 / 0
+Player-2 keys primary/alternate: 0 / 0
+OVERALL TARGET-WINDOWS EVIDENCE: INCOMPLETE

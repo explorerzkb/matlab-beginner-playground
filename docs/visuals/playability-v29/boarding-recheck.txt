@@ -1,0 +1,68 @@
+{Error using assert
+Normal rear jump killed a pear at offset -3.8.
+
+Error in testBoardingForgiveness (line 38)
+        assert(s.status.currentHearts==3,'Normal rear jump killed a pear at offset %.1f.',offset);
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 
+BUS REAR GRACE PASSED: five real paired jumps, bounded grace, middle/front/ground lethal
+t=10.0 p1=[76.55 -14.74] p2=[77.28 -19.93] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.28 phase=waiting cp3 positions 76.56 -20.97 / 77.28 -26.17
+t=20.0 p1=[129.49 5.25] p2=[129.49 5.25] cp=4 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=30.0 p1=[321.83 2.94] p2=[324.60 2.94] cp=6 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=40.0 p1=[381.76 4.90] p2=[381.41 4.90] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=48.0 p1=[411.25 4.90] p2=[410.90 4.90] cp=7 net=success deaths=1
+route=upper climbs=4/4 bus=1
+INPUT JOURNEY PASSED: upper, delay 0, opening 0, 48.02s
+t=10.0 p1=[76.55 -14.74] p2=[77.28 -19.93] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.28 phase=waiting cp3 positions 76.56 -20.97 / 77.28 -26.17
+t=20.0 p1=[136.85 1.00] p2=[137.49 1.00] cp=4 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=30.0 p1=[329.54 1.24] p2=[332.24 1.00] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=40.0 p1=[381.77 4.90] p2=[383.43 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=50.0 p1=[417.22 4.90] p2=[423.38 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=53.6 p1=[427.53 4.90] p2=[427.53 4.83] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 0, opening 0, 53.63s
+t=11.5 p1=[76.24 -2.64] p2=[77.17 -7.84] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t12.35 phase=waiting cp3 positions 76.58 -20.97 / 77.25 -26.17
+t=21.5 p1=[124.69 5.25] p2=[124.69 5.25] cp=4 net=success deaths=1
+route=upper climbs=4/4 bus=0
+t=31.5 p1=[310.25 29.16] p2=[311.19 31.73] cp=5 net=success deaths=1
+route=upper climbs=4/4 bus=0
+RESET t33.82 phase=landed cp7 positions 335.23 5.33 / 338.30 5.33
+t=41.5 p1=[353.75 7.36] p2=[354.80 8.64] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=0
+t=51.5 p1=[384.26 4.90] p2=[386.02 4.90] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=0
+t=59.9 p1=[409.51 4.90] p2=[411.28 4.90] cp=7 net=success deaths=2
+route=upper climbs=4/4 bus=1
+INPUT JOURNEY PASSED: upper, delay 30, opening 1, 59.93s
+RESET t7.45 phase=waiting cp1 positions 44.04 -1.88 / 43.92 3.22
+t=11.5 p1=[33.53 5.23] p2=[35.05 5.97] cp=1 net=login deaths=1
+route=undecided climbs=0/0 bus=0
+RESET t18.65 phase=waiting cp3 positions 76.59 -20.97 / 77.27 -26.17
+t=21.5 p1=[82.05 8.44] p2=[82.69 8.44] cp=3 net=success deaths=2
+route=undecided climbs=0/0 bus=0
+t=31.5 p1=[168.09 25.00] p2=[168.45 24.09] cp=5 net=success deaths=2
+route=lower climbs=0/0 bus=0
+RESET t41.32 phase=landed cp7 positions 349.99 4.90 / 354.94 1.54
+t=41.5 p1=[326.77 3.29] p2=[328.27 3.29] cp=7 net=success deaths=3
+route=lower climbs=0/0 bus=0
+t=51.5 p1=[361.72 4.90] p2=[363.49 4.90] cp=7 net=success deaths=3
+route=lower climbs=0/0 bus=0
+t=61.5 p1=[391.58 9.27] p2=[393.47 4.90] cp=7 net=success deaths=3
+route=lower climbs=0/0 bus=0
+t=67.4 p1=[409.51 4.90] p2=[411.28 4.90] cp=7 net=success deaths=3
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 90, opening 1, 67.43s
+ALL FOUR INPUT JOURNEYS PASSED

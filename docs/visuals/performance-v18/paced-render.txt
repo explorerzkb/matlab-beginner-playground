@@ -1,0 +1,8 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+DEFAULT PACED
+PACED  north-lake    30.3 FPS at 960x540
+PACED  network-race  44.0 FPS at 960x540
+PACED  traffic       44.0 FPS at 960x540
+PACED  bicycle       44.2 FPS at 960x540
+PACED  campus        39.0 FPS at 960x540
+PACED FULL-DRAW MINIMUM: 30.3 FPS across all five pockets
