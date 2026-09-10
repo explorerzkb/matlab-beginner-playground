@@ -6,6 +6,21 @@
 
 当前材料：
 
+- `performance-v24/`：修复终段背景重复采样后的完整回归、高画质截图与独立包复验。
+- `performance-v23/`：图片采样缓存、启动计时、默认／高画质完整刷新、15 张高画质运行图和独立包复验。
+- `continuous-world-v4-space-card.md`：2026-09-09 实际看图的空间依据和边界。
+- `continuous-world-v4-review.md`：本轮修改、测试结果、截图复核及剩余阶段门。
+- `runtime-snapshots-world-v4/`、`runtime-snapshots-prologue-v4/`：当前世界与序章摆位／逐帧检查图。
+- `input-journey-upper-v4/`、`input-journey-lower-v4/`：由完整输入旅程产生的截图与输入轨迹。
+- `acceptance-v4/latest-run.txt`：统一开发机验收输出。
+
+
+- `continuous-world-v3-review.md`：本轮连续世界的现实证据、空间卡、15 张截图结论和硬问题／可选精修边界。
+- `runtime-snapshots-world-v3/`：本轮修改前的 MATLAB R2025b 导出的 15 张连续路线截图，以体育馆为终点。
+- `runtime-snapshots-health-v3/`：当前三心、冰红茶和六格绳力 HUD 证据。
+- `runtime-snapshots-network-v6/`：固定世界网页的登录、超时、加载和成功四态。
+- `runtime-snapshots-pear-v3/`：当前圆润双梨的跳跃、受击和绳索表情近景。
+- `campus-network-sixth-round-review.md`：校园网页面确定性超时和原位成功切换的专项复核。
 - `target-gameplay-north-lake-v1.png`：第一关目标视觉预演 v1；
 - `target-gameplay-north-lake-v1-prompt.md`：生成该图所用的提示词与证据边界；
 - `target-gameplay-north-lake-v1-review.md`：按现行 SOP 对 v1 的复核结论。
@@ -14,11 +29,9 @@
 - `tropical-iced-tea-source-review.md`：用户指定冰红茶图片的目视结果、哈希、唯一视觉源约束与发布边界。
 - `campus-network-fifth-round-review.md`：公告框入口、自动填表、按钮平台、掉线遮罩与可达性复核。
 - `lexue-interaction-source-review.md`：两张私有乐学参考图的像素框、脱敏和使用边界；原图不在 Git 中。
-- `continuous-world-round3-review.md`：第三轮车流、动物、页面布局与十张运行帧的当前复核。
-- `runtime-snapshots-round3/`：MATLAB R2025b 导出的十张第三轮机制截图。
+- `continuous-world-round3-review.md` 与 `runtime-snapshots-round3/`：被当前 v3 覆盖的旧运行证据，不得作为当前验收结论。
 - `final-art-asset-notes.md`：最终手绘背景、官方校徽与现实参考的用途和空间边界。
-- `final-visual-acceptance.md`：最终视觉阶段的逐项目视、工程验证和未完成边界。
-- `runtime-snapshots-final/`：当前 MATLAB R2025b 直接导出的 12 张世界、3 张表情和 2 张界面证据。
+- `final-visual-acceptance.md` 与 `runtime-snapshots-final/`：早于本轮玩法重构的美术阶段证据；其中现实素材边界仍可参考，但截图不代表当前运行时。
 - `continuous-world-round2-review.md` 与 `runtime-snapshots-round2/`：被后续真人试玩部分推翻的第二轮历史证据，不得作为当前验收结论。
 - `runtime-scene-implementation-review.md`：四关程序绘制场景所用证据、真假分层和逐项复核；
 - `runtime-snapshots/`：MATLAB R2025b 直接导出的四关 16:9 与第二关 3:2 验收截图。

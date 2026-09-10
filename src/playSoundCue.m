@@ -7,6 +7,11 @@ end
 try
     sampleRate = 8000;
     switch cue
+        case 'pop'
+            t = 0:1/sampleRate:0.055;
+            signal = 0.20*sin(2*pi*(1200*t-6500*t.^2)).*exp(-80*t);
+            sound(signal,sampleRate);
+            return;
         case 'checkpoint'
             frequencies = [660, 880];
             duration = 0.08;

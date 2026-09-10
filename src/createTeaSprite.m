@@ -13,6 +13,37 @@ end
 stride = max(1, round(stride));
 style = applyStyleDefaults(style);
 
+[rgb, alpha, aspectRatio] = preparedTeaTexture( ...
+    imagePath, stride, style);
+
+sprite = surface(ax, nan(2), nan(2), zeros(2), ...
+    'CData', flipud(rgb), 'FaceColor', 'texturemap', ...
+    'AlphaData', flipud(alpha), 'FaceAlpha', 'texturemap', ...
+    'AlphaDataMapping', 'none', 'EdgeColor', 'none', 'Visible', 'off', ...
+    'UserData', aspectRatio);
+end
+
+function [rgb, alpha, aspectRatio] = preparedTeaTexture(imagePath, stride, style)
+% One game scene contains several identical tea surfaces. Decode and style
+% each resolution once; every surface may safely share the immutable arrays.
+persistent cacheKeys cacheRgb cacheAlpha cacheAspect
+key = sprintf('%s|%d|%.5g|%.5g|%.5g|%.5g|%.5g|%.5g|%.5g', imagePath, stride, ...
+    style.capWidthMultiplier, style.capHeightMultiplier, ...
+    style.outlineColor, style.outlineAlpha, style.outlineRadiusPixels);
+if isempty(cacheKeys)
+    cacheKeys = {};
+    cacheRgb = {};
+    cacheAlpha = {};
+    cacheAspect = [];
+end
+cacheIndex = find(strcmp(cacheKeys, key), 1);
+if ~isempty(cacheIndex)
+    rgb = cacheRgb{cacheIndex};
+    alpha = cacheAlpha{cacheIndex};
+    aspectRatio = cacheAspect(cacheIndex);
+    return;
+end
+
 [rgb, ~, alpha] = imread(imagePath);
 if isempty(alpha)
     alpha = ones(size(rgb, 1), size(rgb, 2));
@@ -38,11 +69,10 @@ alpha = alpha(1:stride:end, 1:stride:end);
     style.outlineAlpha, style.outlineRadiusPixels);
 
 aspectRatio = size(rgb, 2) / size(rgb, 1);
-sprite = surface(ax, nan(2), nan(2), zeros(2), ...
-    'CData', flipud(rgb), 'FaceColor', 'texturemap', ...
-    'AlphaData', flipud(alpha), 'FaceAlpha', 'texturemap', ...
-    'AlphaDataMapping', 'none', 'EdgeColor', 'none', 'Visible', 'off', ...
-    'UserData', aspectRatio);
+cacheKeys{end + 1} = key;
+cacheRgb{end + 1} = rgb;
+cacheAlpha{end + 1} = alpha;
+cacheAspect(end + 1) = aspectRatio;
 end
 
 function style = applyStyleDefaults(style)

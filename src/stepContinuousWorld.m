@@ -2,20 +2,61 @@ function state = stepContinuousWorld(state, world, cfg, dt)
 %STEPCONTINUOUSWORLD Advance global region, checkpoint, and finish state.
 
 state.levelState.colliders = world.platforms;
+state.levelState.oneWayPlatforms = zeros(0, 4);
 centreX = mean([state.players(1).pos(1), state.players(2).pos(1)]);
+minimumX = min([state.players(1).pos(1), state.players(2).pos(1)]);
 regionIndex = findRegionIndex(centreX, world.regions);
 state.world.previousRegionIndex = state.world.activeRegionIndex;
 state.world.activeRegionIndex = regionIndex;
 state.levelState.activeRegionId = world.regions(regionIndex).id;
 state = collectTeaPickups(state, world);
-state = stepWorldAnimals(state, world, cfg, dt);
-state = stepWorldNetwork(state, world, cfg, dt);
-state = stepWorldTraffic(state, world, cfg, dt);
-state = stepWorldLexue(state, world, cfg, dt);
+campusOnly = isfield(state.levelState, 'bicycle') && ...
+    state.levelState.bicycle.landed && ...
+    min([state.players(1).pos(1), state.players(2).pos(1)]) >= 170;
+if campusOnly
+    % Earlier regions can no longer affect the players after the compulsory
+    % flight has landed.  Updating every retired mechanic at 60 Hz copied a
+    % large nested state tree and consumed more time than the bus gameplay.
+    state.levelState.oneWayPlatforms = zeros(0, 4);
+    state = stepWorldBus(state, world, cfg, dt);
+else
+    % Each mechanic owns a disjoint horizontal pocket.  They are initialized
+    % together on the zero-time setup step, then only nearby mechanics advance
+    % at 60 Hz.  Off-screen traffic is derived from levelTime when needed, so
+    % this does not change collision or route state at the player position.
+    requiredStates = {'animals', 'race', 'traffic', 'bicycle', 'bus'};
+    initializeAll = dt == 0 && ...
+        any(~isfield(state.levelState, requiredStates));
+    if initializeAll || centreX < 66
+        state = stepWorldAnimals(state, world, cfg, dt);
+    end
+    playgroundRoadSeam = world.mechanic.network.successFloor(1) + ...
+        world.mechanic.network.successFloor(3);
+    networkNearby = centreX >= 58 && minimumX < playgroundRoadSeam;
+    if initializeAll || networkNearby
+        state = stepWorldNetwork(state, world, cfg, dt);
+    end
+    raceRunning = isfield(state.levelState, 'race') && ...
+        strcmp(state.levelState.race.phase, 'running');
+    if initializeAll || (centreX >= 58 && centreX < 112) || raceRunning
+        state = stepWorldRace(state, world, dt);
+    end
+    if initializeAll || (centreX >= 106 && centreX < 150)
+        state = stepWorldTraffic(state, world, cfg, dt);
+    end
+    bicycleActive = isfield(state.levelState, 'bicycle') && ...
+        (strcmp(state.levelState.bicycle.phase, 'warning') || ...
+        strcmp(state.levelState.bicycle.phase, 'flight'));
+    if initializeAll || (centreX >= 142 && centreX < 176) || bicycleActive
+        state = stepWorldBicycle(state, world, cfg, dt);
+    end
+    if initializeAll || centreX >= 176
+        state = stepWorldBus(state, world, cfg, dt);
+    end
+end
 
-minimumX = min(state.players(1).pos(1), state.players(2).pos(1));
 for index = state.checkpointIndex + 1:numel(world.checkpoints)
-    if checkpointSatisfied(state, world.checkpoints(index), minimumX)
+    if checkpointSatisfied(state, world, index, minimumX)
         state.checkpointIndex = index;
     else
         break;
@@ -24,18 +65,17 @@ end
 
 if state.players(1).pos(2) < world.killY || ...
         state.players(2).pos(2) < world.killY
-    state = applyBreakEvent(state, cfg, 'major');
+    if strcmp(state.levelState.network.pageMode, 'timeout')
+        % Falling from the scripted timeout page is the joke itself, not a
+        % damage event. The reset keeps failureSeen and restores the page.
+        state.requestReset = true;
+    else
+        state = applyDamageEvent(state, cfg, 'fatal');
+    end
 end
 
-player1InLucy = playerOverlaps(state.players(1), world.finish);
-player2InLucy = playerOverlaps(state.players(2), world.finish);
-state.levelState.lucy.touched = player1InLucy || player2InLucy;
-if state.levelState.lucy.touched
-    state.status.breakValue = 0;
-end
-state.completed = player1InLucy && player2InLucy && ...
-    state.levelState.lexue.homeActive && ...
-    state.levelState.lexue.courseCardReached;
+state.completed = isfield(state.levelState, 'bus') && ...
+    state.levelState.bus.completed;
 
 state.trajectorySampleClock = state.trajectorySampleClock + dt;
 if state.trajectorySampleClock >= 0.1
@@ -52,23 +92,28 @@ if any(~isfinite([state.players(1).pos, state.players(1).vel, ...
         '物理状态出现 NaN 或 Inf，游戏已安全停止。');
 end
 
-% cfg is part of the public stepping interface. Later continuous systems use
-% it for break events, timed traffic, and consumables.
-if cfg.break.maxValue <= 0
-    error('matlabHi:InvalidBreakConfig', '破防值上限必须为正数。');
+state = stepCameraTracking(state, world, cfg, dt);
+
+if cfg.health.maxHearts <= 0
+    error('matlabHi:InvalidHealthConfig', '共享爱心上限必须为正数。');
 end
 end
 
-function tf = checkpointSatisfied(state, checkpoint, minimumX)
-switch checkpoint.trigger
-    case 'networkCheckbox'
-        tf = minimumX >= checkpoint.x && ...
-            state.levelState.network.rememberChecked;
-    case 'lexueCourseCard'
-        tf = minimumX >= checkpoint.x && ...
-            state.levelState.lexue.courseCardReached;
-    otherwise
-        tf = minimumX >= checkpoint.x;
+function tf = checkpointSatisfied(state, world, index, minimumX)
+checkpoint = world.checkpoints(index);
+tf = minimumX >= checkpoint.x && ~state.status.deathPending && ...
+    all([state.players(1).pos(2), state.players(2).pos(2)] >= 0.9);
+if index == 3
+    % Reaching the notice panel is progress; passing beneath it is not.
+    top = world.mechanic.network.noticePanel(2) + ...
+        world.mechanic.network.noticePanel(4);
+    tf = tf && (state.levelState.network.authenticated || ...
+        all([state.players(1).pos(2), state.players(2).pos(2)] >= top - 0.1));
+elseif index >= 4
+    tf = tf && state.levelState.network.authenticated;
+end
+if index >= 6
+    tf = tf && state.levelState.bicycle.landed;
 end
 end
 
@@ -81,12 +126,4 @@ for candidate = 1:numel(regions)
         return;
     end
 end
-end
-
-function tf = playerOverlaps(player, rect)
-halfWidth = player.size(1) / 2;
-tf = player.pos(1) + halfWidth > rect(1) && ...
-     player.pos(1) - halfWidth < rect(1) + rect(3) && ...
-     player.pos(2) + player.size(2) > rect(2) && ...
-     player.pos(2) < rect(2) + rect(4);
 end

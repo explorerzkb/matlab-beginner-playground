@@ -1,0 +1,24 @@
+MATLAB R2025b development-Mac final-code repeat checks, 2026-09-10
+
+An unrelated orphaned Node service remained at about 100% CPU during checks.
+Each pocket uses 30 warm-up frames followed by 120 frames with forced drawnow.
+The final unified-acceptance run is recorded in latest-run.txt.
+
+Immediate repeat 1:
+FORCED north-lake    62.1 FPS at 960x540
+FORCED network-race  92.2 FPS at 960x540
+FORCED traffic       69.4 FPS at 960x540
+FORCED bicycle       90.4 FPS at 960x540
+FORCED campus       125.6 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 62.1 FPS across all five pockets
+
+Immediate repeat 2:
+FORCED north-lake    86.4 FPS at 960x540
+FORCED network-race 102.0 FPS at 960x540
+FORCED traffic       82.1 FPS at 960x540
+FORCED bicycle      103.5 FPS at 960x540
+FORCED campus       150.3 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 82.1 FPS across all five pockets
+
+These local Mac results do not prove Windows frame rate, keyboard rollover,
+display scaling, or three-session stability.

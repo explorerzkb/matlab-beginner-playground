@@ -1,5 +1,5 @@
 function testWorldAnimals()
-%TESTWORLDANIMALS Verify the extended mixed-animal route and alpaca impulse.
+%TESTWORLDANIMALS Verify solid riders, yielding, damage, kick, and bounce.
 
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(projectRoot, 'config'));
@@ -7,92 +7,101 @@ addpath(fullfile(projectRoot, 'levels'));
 addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
-state = createInitialState(world, cfg, []);
 animals = world.mechanic.animals;
-northLakeWidth = diff(world.regions(2).xRange);
-assert(northLakeWidth >= 2 * cfg.render.viewportWidth, ...
-    'The North Lake animal route is shorter than two complete views.');
-assert(size(animals.geese, 1) >= 4 && size(animals.ducks, 1) >= 3, ...
-    'The extended route does not contain enough geese and ducks.');
-assert(numel(unique(animals.geese(:, 5))) > 1 && ...
-    numel(unique(animals.ducks(:, 3))) > 1, ...
-    'Geese and ducks do not vary in movement rhythm and body size.');
+state = createInitialState(world, cfg, []);
+state = stepLevel(state, world, cfg, 0);
 
-nose = animals.alpacaNose;
-state.players(1).pos = [nose(1) + nose(3) / 2, 1.0];
+assert(size(state.levelState.animals.entityColliderRects, 1) == 8, ...
+    'Not every duck and goose became a physical entity collider.');
+for index = 1:size(state.levelState.animals.entityColliderRects, 1)
+    assert(hasRect(state.levelState.colliders, ...
+        state.levelState.animals.entityColliderRects(index, :)), ...
+        'A visible duck or goose is missing from the collider list.');
+end
 
-state = stepWorldAnimals(state, world, cfg, 0.01);
-assert(state.levelState.animals.sneezeWarning > 0, ...
-    'Touching the alpaca nose did not start the warning.');
-assert(size(state.levelState.animals.geeseRects, 1) == 4 && ...
-    size(state.levelState.animals.duckRects, 1) == 4, ...
-    'North Lake geese and ducks were not created as moving boundaries.');
-expectedColliderCount = size(world.platforms, 1) + 1;
-assert(size(state.levelState.colliders, 1) == expectedColliderCount, ...
-    'Geese or ducks still entered the rigid collider list.');
-assert(size(state.levelState.animals.softObstacleRects, 1) == 8, ...
-    'Not every goose and duck participates in soft pushback.');
-assert(animals.softPushSpeed < cfg.physics.maxRunSpeed, ...
-    'Animal pushback is too strong for a player to push through.');
-assert(~state.levelState.animals.shortcutSolid, ...
-    'The one-way red bridge blocked players before the sneeze flight.');
+% A pear already standing on a back must inherit the animal displacement.
+firstRect = state.levelState.animals.entityColliderRects(1, :);
+state.players(1).pos = [firstRect(1) + 0.5 * firstRect(3), ...
+    firstRect(2) + firstRect(4)];
+oldX = state.players(1).pos(1);
+state = stepLevel(state, world, cfg, 0.10);
+newRect = state.levelState.animals.entityColliderRects(1, :);
+assert(abs((state.players(1).pos(1) - oldX) - ...
+    (newRect(1) - firstRect(1))) < 1e-9, ...
+    'A pear standing on an animal was not carried by its movement.');
 
-% Starting inside a goose must create a finite escape nudge without adding
-% a rigid wall. This models the worst overlap caused by moving animals.
-state.players(2).pos = [state.levelState.animals.geeseRects(1, 1) + ...
-    state.levelState.animals.geeseRects(1, 3) / 2, 1.0];
-state.players(2).vel = [0, 0];
-state = stepWorldAnimals(state, world, cfg, 0.10);
-assert(abs(state.players(2).vel(1)) > 0 && ...
-    abs(state.players(2).vel(1)) <= animals.softPushSpeed + eps, ...
-    'An overlapping animal did not provide a bounded escape nudge.');
-
-% Two tethered players holding right must physically get past the first
-% goose's entire patrol range before the next ground gap. This guards the
-% player-facing promise that an animal can delay, but cannot seal the route.
+% Sustained pushing should start one bounded 1.2-unit retreat.
 pushState = createInitialState(world, cfg, []);
-pushState.players(1).pos = [15.9, 1.0];
-pushState.players(2).pos = [16.7, 1.0];
-pushState.players(1).onGround = true;
-pushState.players(2).onGround = true;
-pushState = stepLevel(pushState, world, cfg, 0);
-input = rightInput();
-firstGooseRight = animals.geese(1, 1) + animals.geese(1, 3) + ...
-    animals.geese(1, 6);
-passedGoose = false;
-for stepIndex = 1:round(1.5 / cfg.physics.fixedDt)
-    pushState = stepPhysics(pushState, input, world, cfg, ...
+pushState.levelTime = animals.geese(1, 5) / 4;
+pushState = stepWorldAnimals(pushState, world, cfg, 0);
+rect = pushState.levelState.animals.entityColliderRects(1, :);
+pushState.players(1).pos = [rect(1) - cfg.player.width / 2, rect(2)];
+pushState.players(1).moveIntent = 1;
+for index = 1:ceil(animals.pushHoldDuration / cfg.physics.fixedDt) + 1
+    pushState = stepWorldAnimals(pushState, world, cfg, ...
         cfg.physics.fixedDt);
-    pushState = stepLevel(pushState, world, cfg, cfg.physics.fixedDt);
-    playerXs = arrayfun(@(player) player.pos(1), pushState.players);
-    if all(playerXs > firstGooseRight)
-        passedGoose = true;
-        break;
-    end
 end
-assert(passedGoose, ...
-    'Two tethered players could not force through the first moving goose.');
+assert(pushState.levelState.animals.yieldRemaining(1) > 0 && ...
+    pushState.levelState.animals.yieldDirections(1) == 1, ...
+    'Sustained rightward pressure did not make the animal yield right.');
+for index = 1:ceil(animals.yieldDistance / ...
+        (animals.yieldSpeed * cfg.physics.fixedDt)) + 1
+    pushState = stepWorldAnimals(pushState, world, cfg, ...
+        cfg.physics.fixedDt);
+end
+assert(abs(pushState.levelState.animals.yieldOffsets(1) - ...
+    animals.yieldDistance) < 1e-8, ...
+    'The yielding animal did not retreat by the configured distance.');
 
-initialVelocity = state.players(1).vel;
-for index = 1:10
-    state = stepWorldAnimals(state, world, cfg, 0.05);
+% Only an active head-on meeting at sufficient relative speed costs a heart.
+hitState = createInitialState(world, cfg, []);
+hitState = stepWorldAnimals(hitState, world, cfg, 0);
+rect = hitState.levelState.animals.entityColliderRects(1, :);
+hitState.players(1).pos = [rect(1) + rect(3) + ...
+    cfg.player.width / 2, rect(2)];
+hitState.players(1).preCollisionVelocityX = -4.0;
+hitState.players(1).moveIntent = -1;
+hitState = stepWorldAnimals(hitState, world, cfg, 0);
+assert(hitState.status.currentHearts == cfg.health.maxHearts - 1, ...
+    'A configured active head-on animal collision did not cost one heart.');
+
+safeState = createInitialState(world, cfg, []);
+safeState = stepWorldAnimals(safeState, world, cfg, 0);
+rect = safeState.levelState.animals.entityColliderRects(1, :);
+safeState.players(1).pos = [rect(1) + 0.5 * rect(3), ...
+    rect(2) + rect(4)];
+safeState.players(1).preCollisionVelocityX = -8;
+safeState = stepWorldAnimals(safeState, world, cfg, 0);
+assert(safeState.status.currentHearts == cfg.health.maxHearts, ...
+    'Standing on an animal incorrectly caused heart damage.');
+
+% The alpaca is pass-through; entering its right-rear zone starts a kick.
+kickState = createInitialState(world, cfg, []);
+rear = animals.alpacaRearZone;
+kickState.players(1).pos = [rear(1) + 0.5 * rear(3), rear(2)];
+kickState = stepWorldAnimals(kickState, world, cfg, 0);
+assert(kickState.levelState.animals.kickWarning > 0, ...
+    'Crossing behind the left-facing alpaca did not start its kick warning.');
+for index = 1:ceil(animals.kickWarning / cfg.physics.fixedDt) + 1
+    kickState = stepWorldAnimals(kickState, world, cfg, ...
+        cfg.physics.fixedDt);
 end
-assert(state.players(1).vel(2) > initialVelocity(2), ...
-    'Alpaca sneeze did not apply an upward impulse.');
-assert(state.stats.alpacaBoosts == 1 && ...
-    state.levelState.animals.sneezeCooldown > 0, ...
-    'Alpaca boost did not latch into cooldown.');
+assert(kickState.players(1).vel(1) > 0 && ...
+    kickState.players(1).vel(2) > 0 && ...
+    kickState.stats.alpacaBoosts == 1, ...
+    'The alpaca kick did not launch its target up and right exactly once.');
+
+% An open peacock provides a harmless upward recovery impulse.
+peacockState = createInitialState(world, cfg, []);
+zone = animals.peacockBounceZone;
+peacockState.players(1).pos = [zone(1) + 0.5 * zone(3), zone(2)];
+peacockState = stepWorldAnimals(peacockState, world, cfg, 0);
+assert(peacockState.levelState.animals.peacockOpen && ...
+    peacockState.players(1).vel(2) >= animals.peacockImpulse(2) && ...
+    peacockState.status.currentHearts == cfg.health.maxHearts, ...
+    'The open peacock did not provide a harmless upward bounce.');
 end
 
-function input = rightInput()
-for playerIndex = 1:2
-    input.player(playerIndex).left = false;
-    input.player(playerIndex).right = true;
-    input.player(playerIndex).jump = false;
-end
-input.pause = false;
-input.reset = false;
-input.quit = false;
-input.useItem = false;
-input.rawKeys = {};
+function tf = hasRect(rects, target)
+tf = any(all(abs(rects - target) < 1e-9, 2));
 end

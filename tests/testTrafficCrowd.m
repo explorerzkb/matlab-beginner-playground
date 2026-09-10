@@ -44,9 +44,30 @@ boostedState.inventory.buffTimer = 1;
 boostedState.players(1).pos = [target(1) + target(3) / 2, target(2)];
 boostedState.players(1).vel = [0, 0];
 boostedState = stepWorldTraffic(boostedState, world, cfg, 0.1);
-assert(abs(boostedState.players(1).vel(1)) < ...
-    abs(normalState.players(1).vel(1)), ...
-    'Iced-tea buff did not reduce environmental crowd knockback.');
+assert(abs(boostedState.players(1).vel(1) - ...
+    normalState.players(1).vel(1)) < 1e-12, ...
+    'Iced tea incorrectly changed environmental crowd knockback.');
+
+% Inspect three full cycles, including both sides of every signal boundary.
+probe=createInitialState(world,cfg,[]);
+probe.players(1).pos=[80 1]; probe.players(2).pos=[81 1];
+probe=stepWorldTraffic(probe,world,cfg,0);
+previous=probe.levelState.traffic.crowd;
+dt=cfg.physics.fixedDt;
+for tick=1:ceil(3*sum(traffic.signalPhaseDurations)/dt)
+    probe.levelState.colliders=zeros(0,4);
+    probe=stepWorldTraffic(probe,world,cfg,dt);
+    current=probe.levelState.traffic.crowd;
+    assert(all(abs(current(:,1)-previous(:,1))<=3*dt+1e-8), ...
+        'A pedestrian teleported at a signal change or crossing wrap.');
+    if ~probe.levelState.traffic.pedestriansMayCross
+        for p=1:size(current,1)
+            assert(~rectanglesOverlap(current(p,:),traffic.crosswalk), ...
+                'A pedestrian remained in the crossing during a vehicle phase.');
+        end
+    end
+    previous=current;
+end
 end
 
 function tf = rectanglesOverlap(first, second)

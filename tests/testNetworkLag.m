@@ -1,5 +1,5 @@
 function testNetworkLag()
-%TESTNETWORKLAG Force the random gag and verify recovery is deterministic.
+%TESTNETWORKLAG Verify the deterministic full-page timeout and recovery.
 
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(projectRoot, 'config'));
@@ -7,75 +7,57 @@ addpath(fullfile(projectRoot, 'levels'));
 addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
+network = world.mechanic.network;
 state = createInitialState(world, cfg, []);
+state.checkpointIndex = 3;
 state.levelState.network.credentialsReady = true;
-state.levelState.network.lagEligible = true;
-state.levelState.network.lagDelay = 0;
+loginTop = network.loginButton(2) + network.loginButton(4);
+state.players(1).pos = [network.loginButton(1) + 0.30, loginTop];
+state.players(2).pos = [network.noticePanel(1) + 1.0, ...
+    network.noticePanel(2) + network.noticePanel(4)];
 
-state = stepWorldNetwork(state, world, cfg, cfg.physics.fixedDt);
-assert(strcmp(state.levelState.network.lagPhase, 'warning'), ...
-    'Forced network lag did not show its warning phase first.');
-assert(hasButtons(state.levelState.colliders, world.mechanic.network), ...
-    'The lag warning removed platforms before the warning elapsed.');
+heartsBefore = state.status.currentHearts;
+state = stepWorldNetwork(state, world, cfg, 0);
+assert(strcmp(state.levelState.network.pageMode, 'timeout') && ...
+    state.levelState.network.failureSeen && ...
+    state.stats.networkAttempts == 1, ...
+    'The first login contact did not deterministically open the timeout page.');
+assert(~hasPageSupports(state.levelState.colliders, network), ...
+    'The timeout page still supported a pear with login-page geometry.');
+assert(hasRect(state.levelState.colliders, network.authGate), ...
+    'The timeout page lost the gate that prevents skipping the retry.');
 
-warningSteps = ceil(world.mechanic.network.lagWarningDuration / ...
-    cfg.physics.fixedDt) + 1;
-for index = 1:warningSteps
-    state = stepWorldNetwork(state, world, cfg, cfg.physics.fixedDt);
-end
-assert(strcmp(state.levelState.network.lagPhase, 'outage'), ...
-    'The lag warning did not advance to the outage.');
-assert(~hasButtons(state.levelState.colliders, world.mechanic.network), ...
-    'Login or self-service remained physical during the outage.');
-
-outageSteps = ceil(world.mechanic.network.lagOutageDuration / ...
-    cfg.physics.fixedDt) + 1;
-for index = 1:outageSteps
-    state = stepWorldNetwork(state, world, cfg, cfg.physics.fixedDt);
-end
-assert(strcmp(state.levelState.network.lagPhase, 'spent') && ...
-    hasButtons(state.levelState.colliders, world.mechanic.network), ...
-    'The outage did not restore both platforms exactly once.');
-
-dropState = createInitialState(world, cfg, []);
-dropState.checkpointIndex = 3;
-dropState.levelState.network.rememberChecked = true;
-dropState.levelState.network.credentialsReady = true;
-dropState.levelState.network.lagPhase = 'outage';
-dropState.levelState.network.lagPhaseTimer = ...
-    world.mechanic.network.lagOutageDuration;
-login = world.mechanic.network.loginButton;
-loginTop = login(2) + login(4);
-dropState.players(1).pos = [login(1) + 0.30, loginTop];
-dropState.players(2).pos = [login(1) + login(3) - 0.30, loginTop];
-dropState.players(1).onGround = true;
-dropState.players(2).onGround = true;
-dropState = stepLevel(dropState, world, cfg, 0);
 input = neutralInput();
-for index = 1:round(1.8 / cfg.physics.fixedDt)
-    dropState = stepPhysics(dropState, input, world, cfg, ...
-        cfg.physics.fixedDt);
-    dropState = stepLevel(dropState, world, cfg, cfg.physics.fixedDt);
-    if dropState.requestReset
+for index = 1:round(2.5 / cfg.physics.fixedDt)
+    state = stepPhysics(state, input, world, cfg, cfg.physics.fixedDt);
+    state = stepLevel(state, world, cfg, cfg.physics.fixedDt);
+    if state.requestReset
         break;
     end
 end
-assert(dropState.requestReset, ...
-    'Removing both button platforms did not make their riders fall.');
-dropState = resetToCheckpoint(dropState, world);
-dropState = stepLevel(dropState, world, cfg, 0);
-positions = vertcat(dropState.players.pos);
-notice = world.mechanic.network.noticePanel;
-assert(strcmp(dropState.levelState.network.lagPhase, 'spent') && ...
-    all(abs(positions(:, 2) - (notice(2) + notice(4))) < 1e-9) && ...
-    hasButtons(dropState.levelState.colliders, world.mechanic.network), ...
-    'Outage respawn did not restore a safe, retryable route.');
+assert(state.requestReset && ...
+    state.status.currentHearts == heartsBefore, ...
+    'Timeout falling did not reset harmlessly.');
+
+state = resetToCheckpoint(state, world);
+state = stepLevel(state, world, cfg, 0);
+positions = vertcat(state.players.pos);
+noticeTop = network.noticePanel(2) + network.noticePanel(4);
+assert(strcmp(state.levelState.network.pageMode, 'retry') && ...
+    state.levelState.network.failureSeen && ...
+    all(abs(positions(:, 2) - noticeTop) < 1e-9) && ...
+    hasPageSupports(state.levelState.colliders, network), ...
+    'Timeout reset did not restore one safe, non-repeating login route.');
 end
 
-function tf = hasButtons(rects, network)
-loginPresent = any(all(abs(rects - network.loginButton) < 1e-9, 2));
-selfPresent = any(all(abs(rects - network.selfServiceButton) < 1e-9, 2));
-tf = loginPresent && selfPresent;
+function tf = hasPageSupports(rects, network)
+tf = hasRect(rects, network.noticePanel) || ...
+    hasRect(rects, network.loginButton) || ...
+    hasRect(rects, network.selfServiceButton);
+end
+
+function tf = hasRect(rects, target)
+tf = any(all(abs(rects - target) < 1e-9, 2));
 end
 
 function input = neutralInput()

@@ -14,5 +14,8 @@ end
 if isappdata(fig, 'closeRequested')
     rmappdata(fig, 'closeRequested');
 end
+if isappdata(fig, 'pendingKeyPresses')
+    rmappdata(fig, 'pendingKeyPresses');
+end
 delete(fig);
 end

@@ -1,0 +1,13 @@
+2026-09-10 / macOS / MATLAB R2025b / 960x540 forced render
+
+Run 1: north-lake 19.7, network-race 39.0, traffic 50.2, bicycle 57.5, campus 95.7 FPS
+Run 2: north-lake 34.2, network-race 47.5, traffic 35.1, bicycle 45.8, campus 67.3 FPS
+Run 3: north-lake 39.6, network-race 49.6, traffic 42.9, bicycle 48.9, campus 46.2 FPS
+Run 4: north-lake 33.5, network-race 60.6, traffic 48.2, bicycle 58.8, campus 85.3 FPS
+
+The changed campus pocket exceeded 40 FPS in all four runs. The full five-pocket
+gate did not pass because unrelated pockets fell below 40. During these runs,
+PID 41301 (`node server.js`, cwd `/Users/zjh/projects/01/opportunities/sillytavern-case/runtime`)
+was observed at about 100 percent CPU. This is a contemporaneous observation,
+not proof that the Node process caused every low sample; the process was not
+stopped or modified.

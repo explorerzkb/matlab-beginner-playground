@@ -8,7 +8,7 @@ addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 state = createInitialState(continuousCampusWorld(), cfg, []);
 state.inventory.teaCount = 2;
-state.status.breakValue = 5;
+state.status.currentHearts = 1;
 input = emptyInput();
 input.useItem = true;
 
@@ -18,8 +18,8 @@ for index = 1:steps
 end
 assert(state.inventory.teaCount == 1, ...
     'Drinking did not consume exactly one shared tea.');
-assert(state.status.breakValue == 3, ...
-    'Tea did not reduce the current break value by two.');
+assert(state.status.currentHearts == 1, ...
+    'Tea incorrectly changed the shared-heart count.');
 assert(state.inventory.buffTimer > 0 && state.stats.teaUsed == 1, ...
     'Tea did not start the boost or update use statistics.');
 
@@ -45,6 +45,18 @@ boostedState = stepPhysics(boostedState, moveInput, ...
     continuousCampusWorld(), cfg, cfg.physics.fixedDt);
 assert(boostedState.players(1).vel(1) > normalState.players(1).vel(1), ...
     'Active tea boost did not increase run acceleration.');
+
+normalState = createInitialState(continuousCampusWorld(), cfg, []);
+boostedState = normalState;
+boostedState.inventory.buffTimer = 1;
+normalState.players(1).onGround = false;
+boostedState.players(1).onGround = false;
+normalState = stepPhysics(normalState, moveInput, ...
+    continuousCampusWorld(), cfg, cfg.physics.fixedDt);
+boostedState = stepPhysics(boostedState, moveInput, ...
+    continuousCampusWorld(), cfg, cfg.physics.fixedDt);
+assert(boostedState.players(1).vel(1) > normalState.players(1).vel(1), ...
+    'Active tea boost did not increase air control.');
 end
 
 function input = emptyInput()

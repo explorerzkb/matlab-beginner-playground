@@ -1,0 +1,24 @@
+matlabHi v17 extracted-package verification, 2026-09-10
+
+Package: dist/matlabHi-windows-validation.zip
+Package bytes: 27261719
+Package SHA-256: ca0aadf01bfc34b763c057c3f29bd19211f54f8888143d4f52312ff6f179f536
+ZIP entries: 126 (125 project files plus SHA256.json)
+Extracted manifest: 125 files, 0 mismatches
+
+MATLAB R2025b / MACA64 in a fresh temporary extraction:
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+ALL MATLAB SMOKE TESTS PASSED
+CONTINUOUS PROLOGUE PASSED
+ALL FOUR INPUT JOURNEYS PASSED
+FORCED north-lake    77.7 FPS at 960x540
+FORCED network-race 100.5 FPS at 960x540
+FORCED traffic       76.1 FPS at 960x540
+FORCED bicycle       91.9 FPS at 960x540
+FORCED campus       141.0 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 76.1 FPS across all five pockets
+DEVELOPMENT-MACHINE ACCEPTANCE PASSED. WINDOWS/HUMAN CHECKS NOT INCLUDED.
+
+This proves the rebuilt archive is internally consistent and runs on the
+development Mac. It does not prove target-Windows frame rate, keyboard
+rollover, display scaling, or three-session stability.

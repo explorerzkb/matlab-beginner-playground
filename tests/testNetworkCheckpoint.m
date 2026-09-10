@@ -1,5 +1,5 @@
 function testNetworkCheckpoint()
-%TESTNETWORKCHECKPOINT Verify the page checkbox controls the save point.
+%TESTNETWORKCHECKPOINT Verify the retry point is reached on page entry.
 
 projectRoot = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(projectRoot, 'config'));
@@ -7,32 +7,36 @@ addpath(fullfile(projectRoot, 'levels'));
 addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 world = continuousCampusWorld();
+network = world.mechanic.network;
 state = createInitialState(world, cfg, []);
 state.checkpointIndex = 2;
-checkbox = world.mechanic.network.rememberCheckbox;
 
-pageExit = world.mechanic.network.authGate(1) - 1.5;
-state.players(1).pos = [pageExit, 1];
-state.players(2).pos = [pageExit + 1, 1];
+beforeEntry = world.checkpoints(3).x - 0.2;
+state.players(1).pos = [beforeEntry, 1];
+state.players(2).pos = [beforeEntry + 0.05, 1];
 state = stepLevel(state, world, cfg, 0.1);
 assert(state.checkpointIndex == 2, ...
-    'Passing the page without checking it incorrectly saved progress.');
+    'The network retry checkpoint activated before both pears entered.');
 
-state.players(1).pos = [checkbox(1) + 0.25, checkbox(2)];
-state.players(2).pos = [checkbox(1) + checkbox(3) - 0.25, checkbox(2)];
+afterEntry = world.checkpoints(3).x + 0.2;
+state.players(1).pos = [afterEntry, 1];
+state.players(2).pos = [afterEntry + 0.1, 1];
 state = stepLevel(state, world, cfg, 0.1);
-assert(state.levelState.network.rememberChecked && ...
-    state.checkpointIndex == 3, ...
-    'Touching the remember-login checkbox did not save progress.');
+assert(state.checkpointIndex == 2, ...
+    'Passing underneath the page incorrectly teleported progress upstairs.');
+noticeTop = network.noticePanel(2) + network.noticePanel(4);
+state.players(1).pos(2) = noticeTop;
+state.players(2).pos(2) = noticeTop;
+state = stepLevel(state, world, cfg, 0.1);
+assert(state.checkpointIndex == 3, ...
+    'Entering the embedded page did not establish its retry checkpoint.');
 
-state.players(1).pos = [pageExit, 1];
-state.players(2).pos = [pageExit + 1, 1];
 state = resetToCheckpoint(state, world);
-assert(norm(state.players(1).pos - world.checkpoints(3).spawn(1, :)) < ...
-    1e-9, 'Reset did not use the page checkbox checkpoint.');
-noticeTop = world.mechanic.network.noticePanel(2) + ...
-    world.mechanic.network.noticePanel(4);
+noticeTop = network.noticePanel(2) + network.noticePanel(4);
 positions = vertcat(state.players.pos);
-assert(all(abs(positions(:, 2) - noticeTop) < 1e-9), ...
-    'The remember-password checkpoint no longer respawns on the notice panel.');
+assert(all(abs(positions(:, 2) - noticeTop) < 1e-9) && ...
+    all(positions(:, 1) > network.noticePanel(1)) && ...
+    all(positions(:, 1) < network.noticePanel(1) + ...
+    network.noticePanel(3)), ...
+    'The network retry checkpoint is not safely on the notice panel.');
 end

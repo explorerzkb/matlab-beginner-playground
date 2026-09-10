@@ -1,0 +1,13 @@
+Package: dist/matlabHi-windows-validation.zip
+Project files: 134
+ZIP entries including SHA256.json: 135
+Bytes: 27275412
+SHA-256: 6d6f9e6e6fbb777695a373fb68f15f4b93939f4a440c8db3127ad101a4a22a79
+ZIP integrity: PASS
+Manifest hashes: PASS
+Manifest versus current worktree: 134 files, 0 mismatches
+Extracted package forced-render minimum: 76.2 FPS
+Extracted package 50 Hz paced minimum: 49.6 FPS
+Extracted package high-quality paced minimum: 49.6 FPS
+Extracted package empty Windows coverage: INCOMPLETE, 0 / 3 sessions
+Platform: Apple Silicon Mac, MATLAB R2025b; not target-Windows evidence

@@ -28,8 +28,10 @@ hint = text(ax, 0.5, 0.10, 'Esc 暂停 · 按住 R 0.8 秒重来 · Q 退出', .
     'Color', cfg.presentation.colors.muted); %#ok<NASGU>
 
 seenP1 = false;
-seenP2 = false;
-seenTogether = false;
+seenP2Primary = false;
+seenP2Alternate = false;
+seenTogetherPrimary = false;
+seenTogetherAlternate = false;
 seenItem = false;
 clock = tic;
 while toc(clock) < cfg.runtime.inputCheckDuration && isgraphics(fig)
@@ -41,18 +43,25 @@ while toc(clock) < cfg.runtime.inputCheckDuration && isgraphics(fig)
         return;
     end
     p1Active = input.player(1).left || input.player(1).right || input.player(1).jump;
-    p2Active = input.player(2).left || input.player(2).right || input.player(2).jump;
+    p2Primary = anyMappedKey(input.rawKeys, cfg.input.player2);
+    p2Alternate = anyMappedKey(input.rawKeys, cfg.input.player2Alternate);
     seenP1 = seenP1 || p1Active;
-    seenP2 = seenP2 || p2Active;
-    seenTogether = seenTogether || (p1Active && p2Active);
+    seenP2Primary = seenP2Primary || p2Primary;
+    seenP2Alternate = seenP2Alternate || p2Alternate;
+    seenTogetherPrimary = seenTogetherPrimary || (p1Active && p2Primary);
+    seenTogetherAlternate = seenTogetherAlternate || (p1Active && p2Alternate);
     seenItem = seenItem || input.useItem;
     set(p1Text, 'Color', statusColor(seenP1, cfg), ...
         'String', appendStatus(cfg.input.player1.label, seenP1));
-    set(p2Text, 'Color', statusColor(seenP2, cfg), ...
-        'String', {appendStatus(cfg.input.player2.label, seenP2), ...
-        cfg.input.player2Alternate.label});
-    if seenTogether
-        set(simultaneousText, 'String', '✓ 已识别双人同时输入', ...
+    seenEitherP2 = seenP2Primary || seenP2Alternate;
+    set(p2Text, 'Color', statusColor(seenEitherP2, cfg), ...
+        'String', {appendStatus(cfg.input.player2.label, seenP2Primary), ...
+        appendStatus(cfg.input.player2Alternate.label, seenP2Alternate)});
+    if seenTogetherPrimary
+        set(simultaneousText, 'String', '✓ 主键位已识别双人同时输入', ...
+            'Color', cfg.presentation.colors.safe, 'FontWeight', 'bold');
+    elseif seenTogetherAlternate
+        set(simultaneousText, 'String', '✓ 备用键位已识别双人同时输入', ...
             'Color', cfg.presentation.colors.safe, 'FontWeight', 'bold');
     end
     set(itemText, 'Color', statusColor(seenItem, cfg), ...
@@ -63,6 +72,11 @@ while toc(clock) < cfg.runtime.inputCheckDuration && isgraphics(fig)
     pause(0.01);
 end
 continueGame = true;
+end
+
+function tf = anyMappedKey(keys, mapping)
+tf = any(strcmpi(keys, mapping.left)) || any(strcmpi(keys, mapping.right)) || ...
+    any(strcmpi(keys, mapping.jump));
 end
 
 function value = appendStatus(label, passed)

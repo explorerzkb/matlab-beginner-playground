@@ -1,0 +1,17 @@
+HIGH-QUALITY 1280x720 / background stride 2
+RUN 1 (preceding measured run)
+north-lake 62.6 | network-race 92.1 | traffic 71.4 | bicycle 90.0 | campus 131.8 | min 62.6
+RUN 2
+FORCED north-lake    62.4 FPS at 1280x720
+FORCED network-race  91.8 FPS at 1280x720
+FORCED traffic       67.2 FPS at 1280x720
+FORCED bicycle       89.3 FPS at 1280x720
+FORCED campus       132.6 FPS at 1280x720
+LOCAL FORCED-RENDER MINIMUM: 62.4 FPS across all five pockets
+RUN 3
+FORCED north-lake    88.4 FPS at 1280x720
+FORCED network-race  96.5 FPS at 1280x720
+FORCED traffic       84.0 FPS at 1280x720
+FORCED bicycle      100.6 FPS at 1280x720
+FORCED campus       146.9 FPS at 1280x720
+LOCAL FORCED-RENDER MINIMUM: 84.0 FPS across all five pockets

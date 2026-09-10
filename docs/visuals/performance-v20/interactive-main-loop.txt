@@ -1,0 +1,14 @@
+MATLABHI INTERACTIVE PERFORMANCE
+Time: 10-Sep-2026 07:12:31
+MATLAB: 25.2.0.2998904 (R2025b)
+Computer: MACA64
+Window: 960 x 540 | target render: 50.0 Hz | physics: 60.0 Hz
+Completed: 0 | game seconds: 10.5
+
+north-lake     49.7 FPS | 8.9 s | 445 frames | enough sample: 1
+network-race    NaN FPS | 0.0 s | 0 frames | enough sample: 0
+traffic         NaN FPS | 0.0 s | 0 frames | enough sample: 0
+bicycle         NaN FPS | 0.0 s | 0 frames | enough sample: 0
+campus          NaN FPS | 0.0 s | 0 frames | enough sample: 0
+
+A pocket needs at least 2 seconds of gameplay before its FPS is usable evidence. This file does not prove keyboard feel or visual quality.

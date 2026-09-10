@@ -1,8 +1,14 @@
 function state = stepConsumables(state, input, cfg, dt)
-%STEPCONSUMABLES Update shared tea use, boost time, and hit immunity.
+%STEPCONSUMABLES Update tea use, movement boost, and shared-heart timers.
 
 state.status.hitCooldown = max(0, state.status.hitCooldown - dt);
 state.inventory.buffTimer = max(0, state.inventory.buffTimer - dt);
+if state.status.deathPending
+    state.status.deathTimer = max(0, state.status.deathTimer - dt);
+    if state.status.deathTimer == 0
+        state.requestReset = true;
+    end
+end
 
 if input.useItem
     if ~state.inventory.useLatched
@@ -13,8 +19,6 @@ if input.useItem
             state.inventory.buffTimer = cfg.tea.buffDuration;
             state.inventory.useLatched = true;
             state.inventory.useHeldTime = 0;
-            state.status.breakValue = max(0, ...
-                state.status.breakValue - cfg.tea.breakReduction);
             state.stats.teaUsed = state.stats.teaUsed + 1;
         end
     end

@@ -4,3 +4,7 @@
 # User-provided screenshots that contain personal information.
 # Keep local for layout reference only; never include in Git or release assets.
 assets/reference/private/
+
+# Rebuildable local validation packages.
+dist/
+windows-validation-results/

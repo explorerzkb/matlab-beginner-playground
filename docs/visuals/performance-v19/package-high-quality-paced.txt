@@ -1,0 +1,6 @@
+PACED  north-lake    43.8 FPS at 1280x720
+PACED  network-race  44.8 FPS at 1280x720
+PACED  traffic       44.6 FPS at 1280x720
+PACED  bicycle       45.0 FPS at 1280x720
+PACED  campus        45.0 FPS at 1280x720
+PACED FULL-DRAW MINIMUM: 43.8 FPS across all five pockets

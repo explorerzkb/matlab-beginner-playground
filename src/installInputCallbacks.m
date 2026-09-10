@@ -2,6 +2,7 @@ function installInputCallbacks(fig)
 %INSTALLINPUTCALLBACKS Store key state only; gameplay reads it on fixed steps.
 
 setappdata(fig, 'pressedKeys', {});
+setappdata(fig, 'pendingKeyPresses', {});
 setappdata(fig, 'closeRequested', false);
 set(fig, ...
     'WindowKeyPressFcn', @keyPressed, ...
@@ -18,6 +19,9 @@ key = char(event.Key);
 if ~any(strcmpi(keys, key))
     keys{end + 1} = key;
     setappdata(src, 'pressedKeys', keys);
+    pending = getappdata(src, 'pendingKeyPresses');
+    pending{end + 1} = key;
+    setappdata(src, 'pendingKeyPresses', pending);
 end
 end
 

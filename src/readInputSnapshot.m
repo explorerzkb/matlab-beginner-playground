@@ -8,6 +8,11 @@ else
     if isempty(keys)
         keys = {};
     end
+    pending = getappdata(fig, 'pendingKeyPresses');
+    if ~isempty(pending)
+        keys = unique([keys, pending], 'stable');
+        setappdata(fig, 'pendingKeyPresses', {});
+    end
 end
 
 input.rawKeys = keys;

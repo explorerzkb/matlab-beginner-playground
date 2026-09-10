@@ -1,78 +1,123 @@
 function state = stepWorldNetwork(state, world, cfg, dt)
-%STEPWORLDNETWORK Advance the physical campus-network login page.
+%STEPWORLDNETWORK Advance the world-embedded campus-network page.
 
 network = world.mechanic.network;
+mode = state.levelState.network.pageMode;
+loginPageActive = any(strcmp(mode, {'login', 'retry', 'loading'}));
 
-if ~state.levelState.network.rememberChecked && ...
+if loginPageActive && ~state.levelState.network.rememberChecked && ...
         any(playersOverlapping(state.players, network.rememberCheckbox))
     state.levelState.network.rememberChecked = true;
 end
 
-usernamePlayers = playersOverlapping(state.players, network.usernameField);
-passwordPlayers = playersOverlapping(state.players, network.passwordField);
+if loginPageActive
+    usernamePlayers = playersOverlapping(state.players, ...
+        network.usernameField);
+    passwordPlayers = playersOverlapping(state.players, ...
+        network.passwordField);
+else
+    usernamePlayers = false(1, 2);
+    passwordPlayers = false(1, 2);
+end
 state.levelState.network.fieldOccupancy = [sum(usernamePlayers), ...
     sum(passwordPlayers)];
 if ~state.levelState.network.credentialsReady && any(usernamePlayers)
     state.levelState.network.credentialsReady = true;
 end
 
-state = stepLagEasterEgg(state, network, cfg, dt);
-loginPlayers = playersStandingOn(state.players, network.loginButton);
-bothOnLogin = all(loginPlayers);
-anyOnLogin = any(loginPlayers);
-if bothOnLogin && ~state.levelState.network.loginPressLatched
-    state.stats.networkAttempts = state.stats.networkAttempts + 1;
-    state.levelState.network.loginPressLatched = true;
+loginPlayers = false(1, 2);
+if loginPageActive
+    loginPlayers = playersStandingOn(state.players, network.loginButton);
 end
-if ~bothOnLogin
+anyOnLogin = any(loginPlayers);
+bothOnLogin = all(loginPlayers);
+if ~anyOnLogin
     state.levelState.network.loginPressLatched = false;
 end
 
-lagBlocksLogin = strcmp(state.levelState.network.lagPhase, 'warning') || ...
-    strcmp(state.levelState.network.lagPhase, 'outage');
-if state.levelState.network.authenticated
-    state.levelState.network.feedback = 'success';
-elseif strcmp(state.levelState.network.lagPhase, 'warning')
-    state.levelState.network.feedback = 'lagWarning';
-elseif strcmp(state.levelState.network.lagPhase, 'outage')
-    state.levelState.network.feedback = 'lagOutage';
-elseif ~state.levelState.network.credentialsReady
-    if anyOnLogin
-        state.levelState.network.feedback = 'needCredentials';
-    else
-        state.levelState.network.feedback = 'idle';
-    end
-elseif bothOnLogin && ~lagBlocksLogin
-    state.levelState.network.authenticated = true;
-    state.levelState.network.feedback = 'success';
-elseif anyOnLogin
-    state.levelState.network.feedback = 'needPartner';
-else
-    state.levelState.network.feedback = 'ready';
+switch mode
+    case {'login', 'retry'}
+        if ~state.levelState.network.credentialsReady
+            if anyOnLogin
+                state.levelState.network.feedback = 'needCredentials';
+            else
+                state.levelState.network.feedback = 'idle';
+            end
+        elseif ~state.levelState.network.failureSeen && anyOnLogin && ...
+                ~state.levelState.network.loginPressLatched
+            % The first real login contact always replaces the entire page
+            % with the supplied Chrome timeout page. No warning or fade.
+            state.stats.networkAttempts = state.stats.networkAttempts + 1;
+            state.levelState.network.loginPressLatched = true;
+            state.levelState.network.failureSeen = true;
+            state.levelState.network.pageMode = 'timeout';
+            state.levelState.network.feedback = 'timeout';
+        elseif state.levelState.network.failureSeen && bothOnLogin && ...
+                ~state.levelState.network.loginPressLatched
+            state.stats.networkAttempts = state.stats.networkAttempts + 1;
+            state.levelState.network.loginPressLatched = true;
+            state.levelState.network.pageMode = 'loading';
+            state.levelState.network.loadingTimer = network.loadingDuration;
+            state.levelState.network.feedback = 'loading';
+        elseif state.levelState.network.failureSeen && anyOnLogin
+            state.levelState.network.feedback = 'needPartner';
+        else
+            state.levelState.network.feedback = 'ready';
+        end
+
+    case 'timeout'
+        % This state deliberately persists until the unsupported player
+        % falls below the world and resetToCheckpoint restores the login page.
+        state.levelState.network.feedback = 'timeout';
+
+    case 'loading'
+        state.levelState.network.loadingTimer = max(0, ...
+            state.levelState.network.loadingTimer - dt);
+        state.levelState.network.feedback = 'loading';
+        if state.levelState.network.loadingTimer == 0
+            state.levelState.network.authenticated = true;
+            state.levelState.network.pageMode = 'success';
+            state.levelState.network.feedback = 'success';
+        end
+
+    case 'success'
+        state.levelState.network.authenticated = true;
+        state.levelState.network.feedback = 'success';
+
+    otherwise
+        error('matlabHi:UnknownNetworkPageMode', ...
+            '未知校园网页面状态：%s', mode);
 end
 
+mode = state.levelState.network.pageMode;
+pageRects = [network.noticePanel; network.loginButton; ...
+    network.selfServiceButton; network.successFloor];
+for index = 1:size(pageRects, 1)
+    state.levelState.colliders = removeRect( ...
+        state.levelState.colliders, pageRects(index, :));
+end
 state.levelState.colliders = removeRect( ...
     state.levelState.colliders, network.authGate);
-if ~state.levelState.network.authenticated
-    state.levelState.colliders = [state.levelState.colliders; network.authGate];
+
+switch mode
+    case {'login', 'retry', 'loading'}
+        state.levelState.colliders = [state.levelState.colliders; ...
+            network.noticePanel; network.loginButton; ...
+            network.selfServiceButton; network.authGate];
+    case 'timeout'
+        % The visual plane stays put, but the web page no longer supports
+        % either pear. The closed gate only prevents skipping the retry.
+        state.levelState.colliders = [state.levelState.colliders; ...
+            network.authGate];
+    case 'success'
+        % The successful page contains a playground. Its lower edge becomes
+        % one continuous road so the players can simply keep walking right.
+        state.levelState.colliders = [state.levelState.colliders; ...
+            network.successFloor];
 end
 
-% The notice panel is the landing object reached from the North Lake red
-% bridge. Only the two first-row buttons are physical platforms. Username,
-% password, remember-password, and recharge controls remain trigger/visual
-% regions so they cannot catch a pear during the outage gag.
-state.levelState.colliders = removeRect( ...
-    state.levelState.colliders, network.noticePanel);
-state.levelState.colliders = removeRect( ...
-    state.levelState.colliders, network.loginButton);
-state.levelState.colliders = removeRect( ...
-    state.levelState.colliders, network.selfServiceButton);
-state.levelState.colliders = [state.levelState.colliders; network.noticePanel];
-if ~strcmp(state.levelState.network.lagPhase, 'outage')
-    state.levelState.colliders = [state.levelState.colliders; ...
-        network.loginButton; network.selfServiceButton];
-end
-
+state.levelState.dynamicObjects.network.pageRect = network.pageRect;
+state.levelState.dynamicObjects.network.pageMode = mode;
 state.levelState.dynamicObjects.network.noticePanel = network.noticePanel;
 state.levelState.dynamicObjects.network.usernameField = ...
     network.usernameField;
@@ -85,39 +130,13 @@ state.levelState.dynamicObjects.network.authGate = network.authGate;
 state.levelState.dynamicObjects.network.selfServiceButton = ...
     network.selfServiceButton;
 state.levelState.dynamicObjects.network.rechargePads = network.rechargePads;
-end
+state.levelState.dynamicObjects.network.successFloor = network.successFloor;
 
-function state = stepLagEasterEgg(state, network, cfg, dt)
-phase = state.levelState.network.lagPhase;
-switch phase
-    case 'waiting'
-        fixedStep = dt > 0 && dt <= cfg.physics.fixedDt * 1.01;
-        if state.levelState.network.credentialsReady && ...
-                ~state.levelState.network.authenticated && ...
-                state.levelState.network.lagEligible && fixedStep
-            state.levelState.network.lagClock = ...
-                state.levelState.network.lagClock + dt;
-            if state.levelState.network.lagClock >= ...
-                    state.levelState.network.lagDelay
-                state.levelState.network.lagPhase = 'warning';
-                state.levelState.network.lagPhaseTimer = ...
-                    network.lagWarningDuration;
-            end
-        end
-    case 'warning'
-        state.levelState.network.lagPhaseTimer = max(0, ...
-            state.levelState.network.lagPhaseTimer - dt);
-        if state.levelState.network.lagPhaseTimer == 0
-            state.levelState.network.lagPhase = 'outage';
-            state.levelState.network.lagPhaseTimer = ...
-                network.lagOutageDuration;
-        end
-    case 'outage'
-        state.levelState.network.lagPhaseTimer = max(0, ...
-            state.levelState.network.lagPhaseTimer - dt);
-        if state.levelState.network.lagPhaseTimer == 0
-            state.levelState.network.lagPhase = 'spent';
-        end
+% cfg remains part of the stepping interface; validate the only timing
+% relationship that could otherwise leave the page stuck forever.
+if cfg.physics.fixedDt <= 0 || network.loadingDuration <= 0
+    error('matlabHi:InvalidNetworkTiming', ...
+        '校园网固定步长和加载时长必须为正数。');
 end
 end
 

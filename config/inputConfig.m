@@ -20,5 +20,5 @@ input.pause = 'escape';
 input.reset = 'r';
 input.quit = 'q';
 input.useItem = 'space';
-input.useItemLabel = '全局道具：长按 Space 饮用破防水';
+input.useItemLabel = '全局道具：长按 Space 共饮冰红茶';
 end

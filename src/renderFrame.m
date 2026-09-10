@@ -1,44 +1,94 @@
-function state = renderFrame(fig, ax, state, level, cfg)
+function state = renderFrame(~, ax, state, level, cfg)
 %RENDERFRAME Create scene objects once, then update their data in place.
 
+mode = campusRenderMode(state,level);
+if ~isfield(state.render,'viewMode') || ~strcmp(state.render.viewMode,mode)
+    if isfield(state.render, 'handles') && ...
+            isfield(state.render.handles, 'campusBackgroundAxes') && ...
+            isgraphics(state.render.handles.campusBackgroundAxes)
+        delete(state.render.handles.campusBackgroundAxes);
+    end
+    state.render.initialized = false;
+    state.render.viewMode = mode;
+    if isfield(state.render,'labelsClipped')
+        state.render = rmfield(state.render,'labelsClipped');
+    end
+end
+if strcmp(mode,'sky')
+    state = renderFlightView(ax,state,level,cfg);
+    return;
+end
+
 if ~state.render.initialized || state.render.levelId ~= level.id
-    state.render.handles = initializeScene(ax, level, cfg);
+    renderCfg = cfg;
+    renderCfg.render.activeSegment = mode;
+    state.render.handles = initializeScene(ax, level, renderCfg,strcmp(mode,'campus'));
     state.render.initialized = true;
     state.render.levelId = level.id;
+    state.render.backgroundVisibilityCache = [];
 end
 handles = state.render.handles;
 
-cameraTarget = mean([state.players(1).pos(1), state.players(2).pos(1)]);
-if strcmp(level.mechanic.type, 'continuousCampus') && ...
-        isfield(state.levelState, 'activeRegionId') && ...
-        strcmp(state.levelState.activeRegionId, 'network')
-    page = level.mechanic.network.pageRect;
-    cameraTarget = page(1) + page(3) / 2;
-elseif strcmp(level.mechanic.type, 'continuousCampus') && ...
-        isfield(state.levelState, 'activeRegionId') && ...
-        strcmp(state.levelState.activeRegionId, 'lexue') && ...
-        isfield(state.levelState, 'lexue')
-    if ~state.levelState.lexue.homeActive
-        page = level.mechanic.lexue.selectionPageRect;
-        cameraTarget = page(1) + page(3) / 2;
-    elseif cameraTarget >= level.mechanic.lexue.homePageRect(1) - 1.0
-        page = level.mechanic.lexue.homePageRect;
-        cameraTarget = page(1) + page(3) / 2;
-    end
-end
 if ~isfield(state.render, 'cameraCentre')
-    state.render.cameraCentre = cameraTarget;
-else
-    state.render.cameraCentre = state.render.cameraCentre + ...
-        0.22 * (cameraTarget - state.render.cameraCentre);
+    state.render.cameraCentre = mean([state.players(1).pos(1), ...
+        state.players(2).pos(1)]);
 end
 cameraCentre = state.render.cameraCentre;
 halfView = cfg.render.viewportWidth / 2;
 cameraCentre = min(max(cameraCentre, halfView), level.worldWidth - halfView);
 state.render.cameraCentre = cameraCentre;
+halfViewY = cfg.render.viewportHeight / 2;
+minimumCentreY = -0.4 + halfViewY;
+maximumCentreY = max(minimumCentreY, level.worldHeight - halfViewY);
+if ~isfield(state.render, 'cameraCentreY') || ...
+        ~isfinite(state.render.cameraCentreY)
+    state.render.cameraCentreY = minimumCentreY;
+end
+cameraCentreY = min(max(state.render.cameraCentreY, ...
+    minimumCentreY), maximumCentreY);
+state.render.cameraCentreY = cameraCentreY;
 xBounds = [cameraCentre - halfView, cameraCentre + halfView];
-xlim(ax, xBounds);
-ylim(ax, [-0.4, cfg.render.worldHeight]);
+yBounds = [cameraCentreY - halfViewY, cameraCentreY + halfViewY];
+if isfield(handles, 'campusBackgroundAxes') && ...
+        isgraphics(handles.campusBackgroundAxes)
+    bus = level.mechanic.bus;
+    panRange = bus.backgroundPanCameraRange;
+    progress = (cameraCentre - panRange(1)) / diff(panRange);
+    progress = min(1, max(0, progress));
+    viewFraction = bus.backgroundViewFraction;
+    backdropBounds = (1 - viewFraction) * progress + [0, viewFraction];
+    if ~isequal(handles.campusBackgroundAxes.XLim, backdropBounds)
+        set(handles.campusBackgroundAxes, 'XLim', backdropBounds);
+    end
+end
+if isfield(handles, 'cameraCulledBackgrounds') && ...
+        ~isempty(handles.cameraCulledBackgrounds)
+    backgrounds = handles.cameraCulledBackgrounds;
+    visibility = false(size(backgrounds));
+    for backgroundIndex = 1:numel(backgrounds)
+        range = get(backgrounds(backgroundIndex), 'UserData');
+        visibility(backgroundIndex) = range(2) >= xBounds(1) - 1 && ...
+            range(1) <= xBounds(2) + 1;
+    end
+    if ~isequal(state.render.backgroundVisibilityCache, visibility)
+        set(backgrounds(~visibility), 'Visible', 'off');
+        set(backgrounds(visibility), 'Visible', 'on');
+        state.render.backgroundVisibilityCache = visibility;
+    end
+end
+if isfield(handles, 'worldTransform') && isgraphics(handles.worldTransform)
+    % Keep the axes fixed and move the entire world with one matrix.  Updating
+    % XLim/YLim makes MATLAB rebuild its interaction manager on every camera
+    % tick, which was the largest measured render cost.
+    matrix = makehgtform('translate', [-xBounds(1), -yBounds(1), 0]);
+    set(handles.worldTransform, 'Matrix', matrix);
+    xBounds = [0, cfg.render.viewportWidth];
+    yBounds = [0, cfg.render.viewportHeight];
+    cameraCentre = halfView;
+    cameraCentreY = halfViewY;
+elseif ~isequal(ax.XLim, xBounds) || ~isequal(ax.YLim, yBounds)
+    set(ax, 'XLim', xBounds, 'YLim', yBounds);
+end
 
 for playerIndex = 1:2
     otherIndex = 3 - playerIndex;
@@ -65,6 +115,11 @@ else
 end
 
 handles = updateMechanic(handles, state, level, cfg);
+% World labels must stay inside the game viewport while the camera moves.
+if ~isfield(state.render, 'labelsClipped')
+    set(findall(ax, 'Type', 'text'), 'Clipping', 'on');
+    state.render.labelsClipped = true;
+end
 
 if isfield(level, 'regions')
     regionLabel = level.regions(state.world.activeRegionIndex).label;
@@ -72,36 +127,97 @@ else
     regionLabel = level.name;
 end
 if state.inventory.buffTimer > 0
-    buffLabel = sprintf(' · 强化 %.1fs', state.inventory.buffTimer);
+    buffLabel = sprintf('  BOOST %.1fs', state.inventory.buffTimer);
 else
     buffLabel = '';
 end
-hudText = sprintf(['%s  ·  破防 %d/%d  ·  共同复活 %d  ·  ' ...
-    '冰红茶 %d/%d%s  ·  绳力 %.1f'], ...
-    regionLabel, state.status.breakValue, cfg.break.maxValue, ...
-    state.stats.failures, state.inventory.teaCount, ...
-    state.inventory.teaMax, buffLabel, state.rope.currentTension);
-set(handles.hud, 'Position', [xBounds(1) + 0.45, 12.45, 0], ...
+instructionLabel = currentWorldInstruction(state, level);
+hudCache = struct( ...
+    'mode', mode, ...
+    'region', state.world.activeRegionIndex, ...
+    'hearts', state.status.currentHearts, ...
+    'deathPending', state.status.deathPending, ...
+    'deathTenths', round(10 * state.status.deathTimer), ...
+    'failures', state.stats.failures, ...
+    'teaCount', state.inventory.teaCount, ...
+    'buffTenths', round(10 * state.inventory.buffTimer), ...
+    'ropeSegments', min(6, max(0, ceil(6 * state.rope.currentTension / ...
+        cfg.rope.maxTension))), ...
+    'checkpoint', state.checkpointIndex, ...
+    'paused', state.paused, ...
+    'instruction', instructionLabel, ...
+    'screenBounds', [xBounds, yBounds]);
+hudDirty = ~isfield(state.render, 'hudCache') || ...
+    ~isequaln(state.render.hudCache, hudCache);
+if hudDirty
+panelLeft = xBounds(1) + 0.28;
+panelBottom = yBounds(2) - 1.14;
+set(handles.hudPanel, 'XData', panelLeft + [0, 11.75, 11.75, 0], ...
+    'YData', panelBottom + [0, 0, 0.95, 0.95]);
+if state.status.deathPending
+    set(handles.hudPanel, 'FaceColor', [0.30, 0.07, 0.08]);
+else
+    set(handles.hudPanel, 'FaceColor', [0.035, 0.075, 0.095]);
+end
+for heartIndex = 1:numel(handles.hudHearts)
+    heartRect = [panelLeft + 0.30 + (heartIndex - 1) * 0.66, ...
+        panelBottom + 0.25, 0.56, 0.49];
+    heartFull = heartIndex <= state.status.currentHearts;
+    positionHeartSprite(handles.hudHearts(heartIndex), ...
+        heartRect, heartFull);
+end
+for teaIndex = 1:numel(handles.hudTea)
+    teaRect = [panelLeft + 2.45 + (teaIndex - 1) * 0.48, ...
+        panelBottom + 0.13, 0.40, 0.69];
+    positionTeaSprite(handles.hudTea(teaIndex), teaRect, 1.0);
+    if teaIndex <= state.inventory.teaCount
+        set(handles.hudTea(teaIndex), 'Visible', 'on');
+    else
+        set(handles.hudTea(teaIndex), 'Visible', 'off');
+    end
+end
+ropeBarX = panelLeft + 4.45 + (0:5) * 0.27;
+ropeBarY = repmat(panelBottom + 0.49, 1, 6);
+filledRopeSegments = hudCache.ropeSegments;
+set(handles.hudRopeBase, 'XData', ropeBarX, 'YData', ropeBarY);
+set(handles.hudRopeFill, 'XData', ropeBarX(1:filledRopeSegments), ...
+    'YData', ropeBarY(1:filledRopeSegments));
+set(handles.hudRopeLabel, 'Position', ...
+    [panelLeft + 3.55, panelBottom + 0.48, 0]);
+if state.status.deathPending
+    healthLabel = sprintf('复活中 %.1fs', state.status.deathTimer);
+else
+    healthLabel = sprintf('复活 %d', state.stats.failures);
+end
+hudText = sprintf('%s  |  %s%s', regionLabel, healthLabel, buffLabel);
+set(handles.hud, 'Position', [panelLeft + 6.25, panelBottom + 0.48, 0], ...
     'String', hudText);
-set(handles.instruction, 'Position', [xBounds(1) + 0.45, 11.75, 0], ...
-    'String', currentWorldInstruction(state, level));
-set(handles.checkpointText, 'Position', [xBounds(2) - 0.45, 12.45, 0], ...
+set(handles.instruction, 'Position', ...
+    [xBounds(1) + 0.45, yBounds(2) - 1.55, 0], ...
+    'String', instructionLabel);
+set(handles.checkpointText, 'Position', ...
+    [xBounds(2) - 0.45, yBounds(2) - 0.55, 0], ...
     'String', sprintf('检查点 %d / %d', state.checkpointIndex, ...
     numel(level.checkpoints)));
-set(handles.controlsHint, 'Position', [xBounds(2) - 0.45, 11.75, 0]);
+set(handles.controlsHint, 'Position', ...
+    [xBounds(2) - 0.45, yBounds(2) - 1.25, 0]);
 
 if state.paused
     set(handles.pauseShade, ...
         'XData', [xBounds(1), xBounds(2), xBounds(2), xBounds(1)], ...
-        'YData', [-0.4, -0.4, cfg.render.worldHeight, ...
-        cfg.render.worldHeight], 'Visible', 'on');
-    set(handles.pauseCard, 'Position', ...
-        [cameraCentre - 4.4, 4.35, 8.8, 4.35], 'Visible', 'on');
-    set(handles.pauseAccent, 'XData', [cameraCentre - 3.15, ...
-        cameraCentre + 3.15], 'YData', [5.65, 5.65], 'Visible', 'on');
-    set(handles.pauseText, 'Position', [cameraCentre, 7.35, 0], ...
+        'YData', [yBounds(1), yBounds(1), yBounds(2), yBounds(2)], ...
         'Visible', 'on');
-    set(handles.pauseHint, 'Position', [cameraCentre, 5.15, 0], ...
+    set(handles.pauseCard, 'Position', ...
+        [cameraCentre - 4.4, cameraCentreY - 2.18, 8.8, 4.35], ...
+        'Visible', 'on');
+    set(handles.pauseAccent, 'XData', [cameraCentre - 3.15, ...
+        cameraCentre + 3.15], 'YData', ...
+        [cameraCentreY - 0.88, cameraCentreY - 0.88], 'Visible', 'on');
+    set(handles.pauseText, 'Position', ...
+        [cameraCentre, cameraCentreY + 0.82, 0], ...
+        'Visible', 'on');
+    set(handles.pauseHint, 'Position', ...
+        [cameraCentre, cameraCentreY - 1.38, 0], ...
         'Visible', 'on');
 else
     set(handles.pauseShade, 'Visible', 'off');
@@ -110,45 +226,178 @@ else
     set(handles.pauseText, 'Visible', 'off');
     set(handles.pauseHint, 'Visible', 'off');
 end
+state.render.hudCache = hudCache;
+end
 
 state.render.handles = handles;
-if isgraphics(fig)
-    drawnow limitrate;
-end
 end
 
-function handles = initializeScene(ax, level, cfg)
+function state = renderFlightView(ax,state,level,cfg)
+% Hide scenery during the launch; landing returns to the side-view camera.
+if ~state.render.initialized
+    cla(ax); hold(ax,'on'); axis(ax,'manual');
+    set(ax,'XTick',[],'YTick',[],'Color',[.60 .80 .93], ...
+        'SortMethod','childorder','Box','off');
+    xlim(ax,[0 22]); ylim(ax,[0 13.4]);
+    h = struct();
+    h.clouds=patch(ax,nan,nan,[.91 .97 1], ...
+        'EdgeColor','none','FaceAlpha',.72);
+    h.rope=plot(ax,nan,nan,'-','Color',cfg.presentation.colors.rope,'LineWidth',2);
+    h.players=repmat(emptyPlayerHandles(),1,2);
+    for p=1:2, h.players(p)=createPear(ax,p,cfg); end
+    h.hud=text(ax,.35,12.8,'','FontName',cfg.render.fontName, ...
+        'Color',[.97 .98 .92],'BackgroundColor',[.04 .10 .10], ...
+        'FontWeight','bold','FontSize',11,'Margin',5,'Clipping','on');
+    h.hint=text(ax,.35,12.05,'','FontName',cfg.render.fontName, ...
+        'Color',[.97 .98 .92],'BackgroundColor',[.04 .10 .10], ...
+        'FontSize',10,'Margin',4,'Clipping','on');
+    h.pause=text(ax,11,7,'','HorizontalAlignment','center', ...
+        'FontName',cfg.render.fontName,'FontSize',17,'FontWeight','bold', ...
+        'Color','white','BackgroundColor',[.06 .12 .14],'Margin',12, ...
+        'Visible','off');
+    state.render.handles=h;
+    state.render.initialized=true;
+    state.render.levelId=level.id;
+end
+h=state.render.handles;
+projected=state.players;
+centre=mean(reshape([state.players.pos],2,[]),2)';
+for p=1:2
+    projected(p).pos=[10+(state.players(p).pos(1)-centre(1))*.75, ...
+        5.3+(state.players(p).pos(2)-centre(2))*.75];
+    projected(p).size=state.players(p).size*.95;
+end
+drift=mod(state.levelTime*5,24);
+theta=linspace(0,2*pi,24)';
+cloudX=[1+2*cos(theta),3+1.3*cos(theta), ...
+    13+2.3*cos(theta),15+1.4*cos(theta)];
+cloudY=[3+.45*sin(theta),3.3+.65*sin(theta), ...
+    9+.45*sin(theta),9.25+.65*sin(theta)];
+set(h.clouds,'XData',cloudX-drift+7,'YData',cloudY);
+for p=1:2
+    direction=projected(3-p).pos-projected(p).pos;
+    h.players(p)=updatePear(h.players(p),projected(p),p,direction, ...
+        state.rope.currentTension,cfg);
+    detailScale=projected(p).size(1)/state.players(p).size(1);
+    set(h.players(p).eyeWhites,'MarkerSize',6.4*detailScale);
+    set(h.players(p).pupils,'MarkerSize',11*detailScale);
+    set(h.players(p).blush,'MarkerSize',16*detailScale);
+    set(h.players(p).ring,'MarkerSize',5*detailScale);
+    set(h.players(p).shadow,'Visible','off');
+end
+anchors=[projected(1).pos+.55*projected(1).size; ...
+    projected(2).pos+.55*projected(2).size];
+mid=mean(anchors,1)-[0 .2];
+set(h.rope,'XData',[anchors(1,1) mid(1) anchors(2,1)], ...
+    'YData',[anchors(1,2) mid(2) anchors(2,2)]);
+set(h.hud,'String',sprintf('爱心 %d/3   冰红茶 %d   P1 A/D/W   P2 方向键   Space 喝茶', ...
+    state.status.currentHearts,state.inventory.teaCount));
+caption='撞飞了！';
+if state.status.deathPending
+    caption=sprintf('复活中 %.1fs',state.status.deathTimer);
+end
+set(h.hint,'String',caption);
+if state.paused
+    set(h.pause,'String','已暂停 · Esc 继续','Visible','on');
+else
+    set(h.pause,'Visible','off');
+end
+state.render.handles=h;
+end
+
+function handles = initializeScene(ax, level, cfg,campusOnly)
 cla(ax);
 hold(ax, 'on');
-set(ax, 'Color', cfg.presentation.colors.sky, ...
+axesColour = cfg.presentation.colors.sky;
+if campusOnly
+    axesColour = 'none';
+end
+set(ax, 'Color', axesColour, ...
     'XTick', [], 'YTick', [], ...
     'XGrid', 'off', 'YGrid', 'off', ...
     'Layer', 'top', 'FontName', cfg.render.fontName, ...
     'Box', 'off', 'LineWidth', 1.2, 'SortMethod', 'childorder');
 axis(ax, 'manual');
+disableDefaultInteractivity(ax);
 
-drawStaticBackground(ax, level, cfg);
+if ~campusOnly
+    previousChildCount = numel(ax.Children);
+    drawStaticBackground(ax, level, cfg);
+    newChildCount = numel(ax.Children) - previousChildCount;
+    tagCameraCulledObjects(ax.Children(1:newChildCount));
+end
 
-handles.platforms = gobjects(size(level.platforms, 1), 1);
-for index = 1:size(level.platforms, 1)
+handles.campusBackgroundAxes = gobjects(1);
+handles.campusBackdrop = gobjects(1);
+handles.campusRoad = gobjects(1);
+if campusOnly
+    % This plate is only needed after the bicycle flight. Creating its axes
+    % and decoding the full image during the opening scene delayed startup,
+    % even though both objects stayed hidden for almost the whole game.
+    fig = ancestor(ax, 'figure');
+    backgroundAxes = axes(fig, 'Position', ax.Position, 'XLim', [0, 1], ...
+        'YLim', [0, 1], 'YDir', 'normal', 'Visible', 'off', ...
+        'HitTest', 'off', 'PickableParts', 'none');
+    uistack(backgroundAxes, 'bottom');
+    stride = max(1, cfg.render.campusHandscrollTextureStride);
+    rgb = readGameImage(cfg.assets.lastBusHandscroll, stride);
+    handles.campusBackgroundAxes = backgroundAxes;
+    handles.campusBackdrop = image('Parent', backgroundAxes, ...
+        'CData', flipud(rgb), ...
+        'XData', [0 1], 'YData', [0 1], 'Visible', 'off');
+    handles.campusRoad = patch(ax, [170 254 254 170], ...
+        [-.4 -.4 1.48 1.48], [.39 .43 .42], ...
+        'EdgeColor', 'none', 'Visible', 'off');
+    set(handles.campusBackdrop, 'Visible', 'on');
+    set(handles.campusRoad, 'Visible', 'on');
+end
+
+platformIndices = 1:size(level.platforms, 1);
+if campusOnly
+    platformIndices = zeros(1, 0);
+elseif strcmp(level.mechanic.type, 'continuousCampus')
+    segmentRange = activeSegmentRange(cfg.render.activeSegment);
+    rightEdge = level.platforms(:, 1) + level.platforms(:, 3);
+    platformIndices = find(rightEdge >= segmentRange(1) & ...
+        level.platforms(:, 1) <= segmentRange(2));
+end
+platformCount = numel(platformIndices);
+previousChildCount = numel(ax.Children);
+handles.platforms = gobjects(platformCount, 1);
+for handleIndex = 1:platformCount
+    index = platformIndices(handleIndex);
     rect = level.platforms(index, :);
     [faceColor, edgeColor] = platformPalette(rect, level, cfg);
-    handles.platforms(index) = rectangle(ax, 'Position', rect, ...
-        'FaceColor', faceColor, ...
-        'EdgeColor', edgeColor, ...
+    if strcmp(level.mechanic.type,'continuousCampus') && ...
+            rect(1)<170 && rect(1)+rect(3)>240 && rect(2)==0
+        % The central narrow road already has a grass foreground texture.
+        % Keep the same continuous collider, but don't cover its lawn in grey.
+        rect(3)=170-rect(1);
+    end
+    handles.platforms(handleIndex) = rectangle(ax, 'Position', rect, ...
+        'FaceColor', faceColor, 'EdgeColor', edgeColor, ...
         'LineWidth', 1.8, 'Curvature', 0.04);
     drawPlatformTrim(ax, rect, edgeColor);
 end
+newChildCount = numel(ax.Children) - previousChildCount;
+tagCameraCulledObjects(ax.Children(1:newChildCount));
 
-handles.finish = rectangle(ax, 'Position', level.finish, ...
-    'FaceColor', [0.87, 0.96, 0.89], ...
-    'EdgeColor', cfg.presentation.colors.safe, ...
-    'LineWidth', 2.4, 'LineStyle', '--');
-text(ax, level.finish(1) + level.finish(3) / 2, ...
-    level.finish(2) + level.finish(4) + 0.25, '两人出口', ...
-    'HorizontalAlignment', 'center', 'FontWeight', 'bold', ...
-    'FontName', cfg.render.fontName, ...
-    'Color', cfg.presentation.colors.safe);
+isContinuous = strcmp(level.mechanic.type, 'continuousCampus');
+handles.finish = gobjects(1);
+if ~isContinuous
+    handles.finish = rectangle(ax, 'Position', level.finish, ...
+        'FaceColor', 'none', ...
+        'EdgeColor', cfg.presentation.colors.safe, ...
+        'LineWidth', 2.4, 'LineStyle', '--');
+    if strcmp(level.mechanic.type, 'continuousCampus')
+        set(handles.finish, 'Visible', 'off');
+    end
+    text(ax, level.finish(1) + level.finish(3) / 2, ...
+        level.finish(2) + level.finish(4) + 0.25, '体育馆终点', ...
+        'HorizontalAlignment', 'center', 'FontWeight', 'bold', ...
+        'FontName', cfg.render.fontName, ...
+        'Color', cfg.presentation.colors.safe);
+end
 
 handles.rope = plot(ax, [0, 0, 0], [0, 0, 0], '-', ...
     'Color', cfg.presentation.colors.rope, 'LineWidth', 2.2);
@@ -159,7 +408,12 @@ end
 
 gooseCount = 2;
 duckCount = 0;
-if strcmp(level.mechanic.type, 'continuousCampus')
+if isContinuous && ~strcmp(cfg.render.activeSegment, 'world')
+    % The post-flight campus view can never show the north-lake animals.
+    % Avoid creating their 60+ hidden graphics objects: hidden HG objects
+    % still participate in MATLAB's renderer bookkeeping.
+    gooseCount = 0;
+elseif strcmp(level.mechanic.type, 'continuousCampus')
     gooseCount = size(level.mechanic.animals.geese, 1);
     duckCount = size(level.mechanic.animals.ducks, 1);
 elseif strcmp(level.mechanic.type, 'geese')
@@ -173,30 +427,15 @@ handles.gooseWings = gobjects(gooseCount, 1);
 handles.gooseEyes = gobjects(gooseCount, 1);
 handles.gooseLegs = gobjects(gooseCount, 1);
 handles.gooseShadows = gobjects(gooseCount, 1);
-for index = 1:gooseCount
-    handles.geese(index) = patch(ax, nan, nan, [0.97, 0.97, 0.93], ...
-        'EdgeColor', cfg.presentation.colors.ink, 'LineWidth', 1.8, ...
-        'Visible', 'off');
-    handles.gooseNecks(index) = patch(ax, nan, nan, [0.98, 0.98, 0.95], ...
-        'EdgeColor', cfg.presentation.colors.ink, 'LineWidth', 1.5, ...
-        'Visible', 'off');
-    handles.gooseHeads(index) = patch(ax, nan, nan, [0.98, 0.98, 0.95], ...
-        'EdgeColor', cfg.presentation.colors.ink, 'LineWidth', 1.5, ...
-        'Visible', 'off');
-    handles.gooseBeaks(index) = patch(ax, nan, nan, [0.96, 0.55, 0.12], ...
-        'EdgeColor', [0.55, 0.26, 0.06], 'LineWidth', 1.1, ...
-        'Visible', 'off');
-    handles.gooseWings(index) = patch(ax, nan, nan, [0.86, 0.87, 0.82], ...
-        'EdgeColor', [0.43, 0.45, 0.42], 'LineWidth', 1.0, ...
-        'Visible', 'off');
-    handles.gooseEyes(index) = plot(ax, nan, nan, 'o', ...
-        'LineStyle', 'none', 'MarkerSize', 3.6, ...
-        'MarkerFaceColor', [0.08, 0.08, 0.07], ...
-        'MarkerEdgeColor', [0.08, 0.08, 0.07], 'Visible', 'off');
-    handles.gooseLegs(index) = plot(ax, nan, nan, '-', ...
-        'Color', [0.82, 0.43, 0.10], 'LineWidth', 1.4, 'Visible', 'off');
-    handles.gooseShadows(index) = patch(ax, nan, nan, [0.20, 0.18, 0.13], ...
-        'EdgeColor', 'none', 'FaceAlpha', 0.22, 'Visible', 'off');
+if isContinuous && gooseCount > 0
+    handles.geese = createCompoundBirdPatch(ax, 'goose', gooseCount);
+else
+    for index = 1:gooseCount
+        [vertices, faces, colours] = birdPatchGeometry('goose');
+        handles.geese(index) = patch(ax, 'Vertices', vertices, 'Faces', faces, ...
+            'FaceVertexCData', colours, 'FaceColor', 'flat', ...
+            'EdgeColor', 'none', 'Visible', 'off', 'UserData', vertices);
+    end
 end
 handles.ducks = gobjects(duckCount, 1);
 handles.duckHeads = gobjects(duckCount, 1);
@@ -205,35 +444,27 @@ handles.duckWings = gobjects(duckCount, 1);
 handles.duckEyes = gobjects(duckCount, 1);
 handles.duckLegs = gobjects(duckCount, 1);
 handles.duckShadows = gobjects(duckCount, 1);
-for index = 1:duckCount
-    handles.ducks(index) = patch(ax, nan, nan, [0.63, 0.43, 0.26], ...
-        'EdgeColor', [0.20, 0.18, 0.13], 'LineWidth', 1.7, ...
-        'Visible', 'off');
-    handles.duckHeads(index) = patch(ax, nan, nan, [0.18, 0.46, 0.32], ...
-        'EdgeColor', [0.10, 0.24, 0.18], 'LineWidth', 1.4, ...
-        'Visible', 'off');
-    handles.duckBeaks(index) = patch(ax, nan, nan, [0.95, 0.64, 0.16], ...
-        'EdgeColor', [0.55, 0.31, 0.06], 'LineWidth', 1.0, ...
-        'Visible', 'off');
-    handles.duckWings(index) = patch(ax, nan, nan, [0.82, 0.65, 0.45], ...
-        'EdgeColor', [0.35, 0.25, 0.16], 'LineWidth', 0.9, ...
-        'Visible', 'off');
-    handles.duckEyes(index) = plot(ax, nan, nan, 'o', ...
-        'LineStyle', 'none', 'MarkerSize', 3.2, ...
-        'MarkerFaceColor', [0.06, 0.07, 0.06], ...
-        'MarkerEdgeColor', [0.06, 0.07, 0.06], 'Visible', 'off');
-    handles.duckLegs(index) = plot(ax, nan, nan, '-', ...
-        'Color', [0.83, 0.43, 0.10], 'LineWidth', 1.2, 'Visible', 'off');
-    handles.duckShadows(index) = patch(ax, nan, nan, [0.20, 0.18, 0.13], ...
-        'EdgeColor', 'none', 'FaceAlpha', 0.20, 'Visible', 'off');
+if isContinuous && duckCount > 0
+    handles.ducks = createCompoundBirdPatch(ax, 'duck', duckCount);
+else
+    for index = 1:duckCount
+        [vertices, faces, colours] = birdPatchGeometry('duck');
+        handles.ducks(index) = patch(ax, 'Vertices', vertices, 'Faces', faces, ...
+            'FaceVertexCData', colours, 'FaceColor', 'flat', ...
+            'EdgeColor', 'none', 'Visible', 'off', 'UserData', vertices);
+    end
 end
 
-handles.cardImage = surface(ax, nan(2), nan(2), zeros(2), ...
-    'CData', zeros(2, 2, 3), 'FaceColor', 'texturemap', ...
-    'EdgeColor', 'none', 'Visible', 'off');
-handles.cardFrame = patch(ax, nan, nan, [1, 1, 1], ...
-    'FaceColor', 'none', 'EdgeColor', [0.05, 0.45, 0.72], ...
-    'LineWidth', 2.4, 'Visible', 'off');
+handles.cardImage = gobjects(1);
+handles.cardFrame = gobjects(1);
+if ~isContinuous
+    handles.cardImage = surface(ax, nan(2), nan(2), zeros(2), ...
+        'CData', zeros(2, 2, 3), 'FaceColor', 'texturemap', ...
+        'EdgeColor', 'none', 'Visible', 'off');
+    handles.cardFrame = patch(ax, nan, nan, [1, 1, 1], ...
+        'FaceColor', 'none', 'EdgeColor', [0.05, 0.45, 0.72], ...
+        'LineWidth', 2.4, 'Visible', 'off');
+end
 
 routeCount = 0;
 if strcmp(level.mechanic.type, 'navigation')
@@ -247,23 +478,29 @@ for index = 1:routeCount
         'EdgeColor', [0.45, 0.48, 0.50], 'LineStyle', '--', ...
         'LineWidth', 1.8);
 end
-handles.switches = gobjects(2, 1);
-for index = 1:2
+switchCount = 2 * double(~isContinuous);
+handles.switches = gobjects(switchCount, 1);
+for index = 1:switchCount
     handles.switches(index) = rectangle(ax, 'Position', [0, 0, 1, 1], ...
         'Curvature', [1, 1], 'FaceColor', [0.72, 0.76, 0.78], ...
         'EdgeColor', cfg.presentation.colors.ink, 'Visible', 'off');
 end
-handles.routeProgress = text(ax, 0, 0, '', 'Visible', 'off', ...
-    'FontName', cfg.render.fontName, 'FontWeight', 'bold', ...
-    'HorizontalAlignment', 'center');
-handles.auxCurve = plot(ax, nan, nan, 'o-', ...
-    'Color', [0.65, 0.20, 0.72], 'MarkerFaceColor', [0.90, 0.62, 0.95], ...
-    'LineWidth', 2.0, 'Visible', 'off');
+handles.routeProgress = gobjects(1);
+handles.auxCurve = gobjects(1);
+if ~isContinuous
+    handles.routeProgress = text(ax, 0, 0, '', 'Visible', 'off', ...
+        'FontName', cfg.render.fontName, 'FontWeight', 'bold', ...
+        'HorizontalAlignment', 'center');
+    handles.auxCurve = plot(ax, nan, nan, 'o-', ...
+        'Color', [0.65, 0.20, 0.72], 'MarkerFaceColor', [0.90, 0.62, 0.95], ...
+        'LineWidth', 2.0, 'Visible', 'off');
+end
 
-handles.taskCards = gobjects(4, 1);
-handles.taskTexts = gobjects(4, 1);
+taskCount = 4 * double(~isContinuous);
+handles.taskCards = gobjects(taskCount, 1);
+handles.taskTexts = gobjects(taskCount, 1);
 taskLabels = {'未交报告', '还有一章', '马上答辩', '小组消息 99+'};
-for index = 1:4
+for index = 1:taskCount
     handles.taskCards(index) = rectangle(ax, 'Position', [0, 0, 1, 1], ...
         'FaceColor', [0.94, 0.35, 0.32], 'EdgeColor', [0.42, 0.08, 0.08], ...
         'LineWidth', 2.0, 'Curvature', 0.08, 'Visible', 'off');
@@ -278,15 +515,53 @@ if strcmp(level.mechanic.type, 'deadlineStorm')
         cfg.render.teaTextureStride, cfg.tea);
 end
 if strcmp(level.mechanic.type, 'continuousCampus')
-    handles.continuous = initializeContinuousHandles(ax, level, cfg);
+    handles.continuous = initializeContinuousHandles(ax, level, cfg,campusOnly);
 else
     handles.continuous = struct();
 end
 
+handles.worldTransform = gobjects(1);
+handles.worldTransform = hgtransform('Parent', ax);
+worldChildren = ax.Children;
+worldChildren(worldChildren == handles.worldTransform) = [];
+% Reparent bottom-to-top so the child order remains exactly the same.  The
+% earlier v14 batch regrouping reversed this order and let the sky cover the
+% scene; the explicit loop preserves the v15 visual fix.
+for childIndex = numel(worldChildren):-1:1
+    set(worldChildren(childIndex), 'Parent', handles.worldTransform);
+end
+handles.cameraCulledBackgrounds = findobj(handles.worldTransform, ...
+    '-regexp', 'Tag', '^cameraCulled');
+set(ax, 'XLim', [0, cfg.render.viewportWidth], ...
+    'YLim', [0, cfg.render.viewportHeight]);
+
+handles.hudPanel = patch(ax, nan, nan, [0.035, 0.075, 0.095], ...
+    'EdgeColor', [0.52, 0.70, 0.65], 'LineWidth', 1.5, ...
+    'FaceAlpha', 0.96);
+handles.hudHearts = gobjects(cfg.health.maxHearts, 1);
+for heartIndex = 1:cfg.health.maxHearts
+    handles.hudHearts(heartIndex) = createPixelHeart(ax);
+end
+handles.hudTea = gobjects(cfg.tea.maxCarried, 1);
+for teaIndex = 1:cfg.tea.maxCarried
+    handles.hudTea(teaIndex) = createTeaSprite(ax, cfg.assets.teaSprite, ...
+        max(8, cfg.render.teaTextureStride), cfg.tea);
+end
+handles.hudRopeBase = plot(ax, nan, nan, 's', ...
+    'LineStyle', 'none', 'MarkerSize', 6.8, ...
+    'MarkerFaceColor', [0.19, 0.27, 0.29], ...
+    'MarkerEdgeColor', [0.45, 0.57, 0.55], 'LineWidth', 0.8);
+handles.hudRopeFill = plot(ax, nan, nan, 's', ...
+    'LineStyle', 'none', 'MarkerSize', 6.8, ...
+    'MarkerFaceColor', [0.95, 0.55, 0.13], ...
+    'MarkerEdgeColor', [1.00, 0.78, 0.28], 'LineWidth', 0.8);
+handles.hudRopeLabel = text(ax, 0, 0, '绳力', ...
+    'FontName', cfg.render.fontName, 'FontWeight', 'bold', ...
+    'FontSize', 8.7, 'Color', [0.93, 0.98, 0.90], ...
+    'VerticalAlignment', 'middle');
 handles.hud = text(ax, 0, 0, '', 'FontName', cfg.render.fontName, ...
-    'FontWeight', 'bold', 'FontSize', 11.5, ...
-    'Color', [1.00, 0.96, 0.83], ...
-    'BackgroundColor', [0.05, 0.11, 0.15], 'Margin', 6);
+    'FontWeight', 'bold', 'FontSize', 9.4, ...
+    'Color', [0.93, 0.98, 0.90], 'Interpreter', 'none');
 handles.instruction = text(ax, 0, 0, '', 'FontName', cfg.render.fontName, ...
     'FontSize', 9.8, 'FontWeight', 'bold', ...
     'Color', [0.97, 0.98, 0.91], ...
@@ -319,31 +594,57 @@ handles.pauseHint = text(ax, 0, 0, ...
     'FontName', cfg.render.fontName, 'FontWeight', 'bold', ...
     'FontSize', 11, 'Color', [0.39, 0.22, 0.08], 'Visible', 'off');
 
-% Dynamic screenshots and route blocks must remain behind the characters.
-uistack(handles.rope, 'top');
+% Set stacking in two batches.  Calling uistack once per object makes the
+% MATLAB web-graphics controller rebuild its child views dozens of times.
+worldTopOrder = handles.rope;
 for playerIndex = 1:2
-    uistack(handles.players(playerIndex).shadow, 'top');
-    uistack(handles.players(playerIndex).body, 'top');
-    uistack(handles.players(playerIndex).highlight, 'top');
-    uistack(handles.players(playerIndex).speckles, 'top');
-    uistack(handles.players(playerIndex).blush, 'top');
-    uistack(handles.players(playerIndex).eyeWhites, 'top');
-    uistack(handles.players(playerIndex).pupils, 'top');
-    uistack(handles.players(playerIndex).eyeLines, 'top');
-    uistack(handles.players(playerIndex).brows, 'top');
-    uistack(handles.players(playerIndex).mouth, 'top');
-    uistack(handles.players(playerIndex).badge, 'top');
-    uistack(handles.players(playerIndex).ring, 'top');
+    pear = handles.players(playerIndex);
+    pearTopOrder = [pear.shadow; pear.stem; pear.body; ...
+        pear.shade; pear.highlight; pear.speckles; pear.blush; ...
+        pear.eyeWhites; pear.pupils; pear.eyeLines; pear.brows; pear.mouth; ...
+        pear.badge; pear.ring];
+    pearChildren = pear.transform.Children;
+    pearRest = pearChildren(~ismember(pearChildren, pearTopOrder));
+    pear.transform.Children = [flipud(pearTopOrder(:)); pearRest];
+    worldTopOrder = [worldTopOrder; pear.transform]; %#ok<AGROW>
 end
-uistack(handles.hud, 'top');
-uistack(handles.instruction, 'top');
-uistack(handles.checkpointText, 'top');
-uistack(handles.controlsHint, 'top');
-uistack(handles.pauseShade, 'top');
-uistack(handles.pauseCard, 'top');
-uistack(handles.pauseAccent, 'top');
-uistack(handles.pauseText, 'top');
-uistack(handles.pauseHint, 'top');
+worldChildren = handles.worldTransform.Children;
+worldRest = worldChildren(~ismember(worldChildren, worldTopOrder));
+handles.worldTransform.Children = [flipud(worldTopOrder(:)); worldRest];
+
+hudTopOrder = [handles.hudPanel; handles.hudHearts(:); handles.hudTea(:); ...
+    handles.hudRopeBase; handles.hudRopeFill; handles.hudRopeLabel; ...
+    handles.hud; handles.instruction; handles.checkpointText; ...
+    handles.controlsHint; handles.pauseShade; handles.pauseCard; ...
+    handles.pauseAccent; handles.pauseText; handles.pauseHint];
+axesChildren = ax.Children;
+axesRest = axesChildren(~ismember(axesChildren, hudTopOrder));
+ax.Children = [flipud(hudTopOrder(:)); axesRest];
+end
+
+function tagCameraCulledObjects(objects)
+for index = 1:numel(objects)
+    object = objects(index);
+    type = get(object, 'Type');
+    switch type
+        case {'line', 'patch', 'surface', 'image'}
+            x = get(object, 'XData');
+            x = x(isfinite(x));
+            if isempty(x)
+                continue;
+            end
+            range = [min(x(:)), max(x(:))];
+        case 'rectangle'
+            position = get(object, 'Position');
+            range = position(1) + [0, position(3)];
+        case 'text'
+            position = get(object, 'Position');
+            range = position(1) + [-4, 4];
+        otherwise
+            continue;
+    end
+    set(object, 'Tag', 'cameraCulledStatic', 'UserData', range);
+end
 end
 
 function [faceColor, edgeColor] = platformPalette(rect, level, cfg)
@@ -358,15 +659,88 @@ if centreX < 64
     faceColor = [0.61, 0.47, 0.28];
     edgeColor = [0.18, 0.29, 0.16];
 elseif centreX < 96
-    faceColor = [0.74, 0.84, 0.88];
-    edgeColor = [0.20, 0.38, 0.50];
+    faceColor = [0.62, 0.62, 0.54];
+    edgeColor = [0.28, 0.34, 0.29];
 elseif centreX < 148
     faceColor = [0.66, 0.62, 0.53];
     edgeColor = [0.25, 0.27, 0.25];
 else
-    faceColor = [0.66, 0.77, 0.87];
-    edgeColor = [0.18, 0.34, 0.55];
+    faceColor = [0.42, 0.44, 0.39];
+    edgeColor = [0.24, 0.29, 0.25];
 end
+end
+
+function range = activeSegmentRange(segment)
+switch segment
+    case 'world'
+        range = [0, 176];
+    case 'network'
+        range = [58, 112];
+    case 'traffic'
+        range = [106, 148];
+    case 'bicycle'
+        range = [142, 176];
+    otherwise
+        range = [-inf, inf];
+end
+end
+
+function [vertices, faces, colours] = birdPatchGeometry(kind)
+theta = linspace(0, 2 * pi, 14)';
+shadow = [0.50 + 0.45 * cos(theta), 0.03 + 0.045 * sin(theta)];
+legs = {[.31 .08; .35 .08; .35 .23; .31 .23], ...
+    [.61 .08; .65 .08; .65 .23; .61 .23]};
+if strcmp(kind, 'goose')
+    body = [.00 .34; .08 .72; .30 .96; .62 .93; .93 .68; 1 .34; ...
+        .80 .15; .52 .10; .23 .13; .04 .23];
+    wing = [.23 .47; .47 .62; .78 .49; .62 .25; .34 .24];
+    neck = [.76 .48; .90 .54; .99 .78; 1.06 1.13; 1.20 1.20; ...
+        1.13 .78; .99 .51; .86 .43];
+    head = [1.19 + .17 * cos(theta), 1.22 + .20 * sin(theta)];
+    beak = [1.31 1.29; 1.54 1.22; 1.32 1.14];
+    eye = [1.27 + .035 * cos(theta), 1.27 + .045 * sin(theta)];
+    polygons = [{shadow}, legs, {body, wing, neck, head, beak, eye}];
+    colours = [0.72 0.69 0.60; .82 .43 .10; .82 .43 .10; ...
+        .97 .97 .93; .86 .87 .82; .98 .98 .95; .98 .98 .95; ...
+        .96 .55 .12; .08 .08 .07];
+else
+    body = [-.01 .43; .13 .78; .40 .97; .75 .82; .98 .52; .90 .20; ...
+        .62 .11; .28 .14; .07 .25];
+    wing = [.22 .47; .48 .68; .78 .52; .62 .24; .32 .25];
+    head = [.87 + .24 * cos(theta), .82 + .34 * sin(theta)];
+    beak = [1.04 .90; 1.32 .82; 1.05 .73];
+    eye = [.96 + .035 * cos(theta), .91 + .045 * sin(theta)];
+    polygons = [{shadow}, legs, {body, wing, head, beak, eye}];
+    colours = [0.72 0.69 0.60; .83 .43 .10; .83 .43 .10; ...
+        .63 .43 .26; .82 .65 .45; .18 .46 .32; .95 .64 .16; .06 .07 .06];
+end
+maxCorners = max(cellfun(@(polygon) size(polygon, 1), polygons));
+faces = nan(numel(polygons), maxCorners);
+vertices = zeros(0, 2);
+for index = 1:numel(polygons)
+    first = size(vertices, 1) + 1;
+    vertices = [vertices; polygons{index}]; %#ok<AGROW>
+    faces(index, 1:size(polygons{index}, 1)) = ...
+        first:(first + size(polygons{index}, 1) - 1);
+end
+end
+
+function object = createCompoundBirdPatch(ax, kind, count)
+[localVertices, localFaces, localColours] = birdPatchGeometry(kind);
+vertexCount = size(localVertices, 1);
+faceCount = size(localFaces, 1);
+vertices = repmat(localVertices, count, 1);
+faces = nan(faceCount * count, size(localFaces, 2));
+for index = 1:count
+    rows = (index - 1) * faceCount + (1:faceCount);
+    faces(rows, :) = localFaces + (index - 1) * vertexCount;
+end
+colours = repmat(localColours, count, 1);
+metadata = struct('localVertices', localVertices, ...
+    'vertexCount', vertexCount, 'birdCount', count);
+object = patch(ax, 'Vertices', vertices, 'Faces', faces, ...
+    'FaceVertexCData', colours, 'FaceColor', 'flat', ...
+    'EdgeColor', 'none', 'Visible', 'off', 'UserData', metadata);
 end
 
 function drawPlatformTrim(ax, rect, edgeColor)
@@ -471,7 +845,7 @@ switch level.background
         patch(ax, [43, 48, 48, 43], [0.2, 0.2, 4.4, 4.4], ...
             [0.38, 0.75, 0.92], 'EdgeColor', [0.12, 0.44, 0.66], ...
             'FaceAlpha', 0.46);
-        text(ax, 45.5, 5.0, 'Lucy 河补给点', ...
+        text(ax, 45.5, 5.0, '课程原型补给点', ...
             'FontName', cfg.render.fontName, 'HorizontalAlignment', 'center', ...
             'FontWeight', 'bold', 'Color', [0.08, 0.34, 0.54]);
 end
@@ -523,12 +897,10 @@ switch level.mechanic.type
         set(handles.cardFrame, 'XData', frameX, 'YData', frameY, ...
             'Visible', 'on');
         if isequal(size(get(handles.cardImage, 'CData')), [2, 2, 3])
-            [rgb, ~, alpha] = imread(cfg.assets.loginImage);
             stride = max(1, round(cfg.render.loginTextureStride));
-            rgb = rgb(1:stride:end, 1:stride:end, :);
+            [rgb, ~, alpha] = readGameImage(cfg.assets.loginImage, stride);
             set(handles.cardImage, 'CData', flipud(rgb));
             if ~isempty(alpha)
-                alpha = alpha(1:stride:end, 1:stride:end);
                 set(handles.cardImage, 'AlphaData', flipud(alpha), ...
                     'AlphaDataMapping', 'none', 'FaceAlpha', 'texturemap');
             end
@@ -587,7 +959,9 @@ end
 end
 
 function handles = emptyPlayerHandles()
-handles = struct('shadow', gobjects(1), 'body', gobjects(1), ...
+handles = struct('transform', gobjects(1), ...
+    'shadow', gobjects(1), 'stem', gobjects(1), ...
+    'body', gobjects(1), 'shade', gobjects(1), ...
     'highlight', gobjects(1), 'speckles', gobjects(1), ...
     'blush', gobjects(1), 'eyeWhites', gobjects(1), ...
     'pupils', gobjects(1), 'eyeLines', gobjects(1), ...
@@ -597,29 +971,44 @@ end
 
 function handles = createPear(ax, playerIndex, cfg)
 handles = emptyPlayerHandles();
-handles.shadow = patch(ax, nan, nan, [0.10, 0.14, 0.15], ...
+handles.transform = hgtransform('Parent', ax);
+t = linspace(0, 2 * pi, 20);
+handles.shadow = patch(ax, 0.52 * cos(t), -0.07 + 0.075 * sin(t), ...
+    [0.10, 0.14, 0.15], ...
     'EdgeColor', 'none', 'FaceAlpha', 0.20);
 if playerIndex == 1
     bodyColor = cfg.presentation.colors.player1;
-    badgeMarker = 'o';
+    outlineColor = [0.24, 0.31, 0.13];
 else
     bodyColor = cfg.presentation.colors.player2;
-    badgeMarker = 'd';
+    outlineColor = [0.36, 0.31, 0.22];
 end
-handles.body = patch(ax, nan, nan, bodyColor, ...
-    'EdgeColor', cfg.presentation.colors.ink, 'LineWidth', 2.2, ...
+handles.stem = plot(ax, [0.00, 0.015, 0.045], [0.98, 1.045, 1.105], ...
+    '-', 'Color', [0.38, 0.23, 0.10], ...
+    'LineWidth', 3.0);
+outline = pearOutline();
+handles.body = patch(ax, outline(:, 1), outline(:, 2), bodyColor, ...
+    'EdgeColor', outlineColor, 'LineWidth', 1.35, ...
     'LineJoin', 'round');
-handles.highlight = patch(ax, nan, nan, [1, 1, 1], ...
-    'EdgeColor', 'none', 'FaceAlpha', 0.18);
-handles.speckles = plot(ax, nan, nan, '.', ...
-    'Color', 0.58 * bodyColor, 'MarkerSize', 7);
+handles.shade = patch(ax, ...
+    [0.14, 0.34, 0.42, 0.37, 0.26, 0.24, 0.24], ...
+    [0.10, 0.18, 0.35, 0.54, 0.66, 0.46, 0.22], 0.72 * bodyColor, ...
+    'EdgeColor', 'none', 'FaceAlpha', 0.075);
+handles.highlight = patch(ax, ...
+    [-0.20, -0.29, -0.22, -0.10, -0.045, -0.12, -0.12], ...
+    [0.31, 0.48, 0.69, 0.84, 0.77, 0.55, 0.36], [1, 1, 1], ...
+    'EdgeColor', 'none', 'FaceAlpha', 0.095);
+handles.speckles = plot(ax, [-0.25, 0.20, 0.30, -0.10, 0.17, -0.20], ...
+    [0.25, 0.30, 0.40, 0.17, 0.52, 0.55], '.', ...
+    'Color', 0.88 * bodyColor, 'MarkerSize', 3.2);
 handles.blush = plot(ax, nan, nan, '.', 'Color', [0.93, 0.39, 0.39], ...
     'MarkerSize', 16);
-handles.eyeWhites = plot(ax, nan, nan, 'o', ...
+handles.eyeWhites = plot(ax, [-0.17, 0.17], [0.69, 0.69], 'o', ...
     'MarkerFaceColor', [1.00, 0.98, 0.91], ...
     'MarkerEdgeColor', cfg.presentation.colors.ink, ...
     'MarkerSize', 6.4, 'LineWidth', 1.0);
-handles.pupils = plot(ax, nan, nan, '.', 'Color', cfg.presentation.colors.ink, ...
+handles.pupils = plot(ax, [-0.17, 0.17], [0.69, 0.69], '.', ...
+    'Color', cfg.presentation.colors.ink, ...
     'MarkerSize', 11);
 handles.eyeLines = plot(ax, nan, nan, '-', ...
     'Color', cfg.presentation.colors.ink, 'LineWidth', 1.8);
@@ -627,15 +1016,27 @@ handles.brows = plot(ax, nan, nan, '-', ...
     'Color', cfg.presentation.colors.ink, 'LineWidth', 1.5);
 handles.mouth = plot(ax, nan, nan, '-', 'Color', cfg.presentation.colors.ink, ...
     'LineWidth', 1.3);
-handles.badge = plot(ax, nan, nan, badgeMarker, ...
+handles.badge = plot(ax, nan, nan, 'o', ...
     'MarkerFaceColor', 'white', 'MarkerEdgeColor', cfg.presentation.colors.ink, ...
     'MarkerSize', 7, 'LineWidth', 1.2);
 handles.ring = plot(ax, nan, nan, 'o', 'MarkerFaceColor', 'none', ...
     'MarkerEdgeColor', cfg.presentation.colors.ink, 'MarkerSize', 5, ...
     'LineWidth', 1.2);
+ringSide = -1;
+if playerIndex == 1
+    ringSide = 1;
+end
+set(handles.ring, 'XData', ringSide * 0.46, 'YData', 0.62);
+names = fieldnames(handles);
+for index = 1:numel(names)
+    object = handles.(names{index});
+    if isgraphics(object) && object ~= handles.transform
+        set(object, 'Parent', handles.transform);
+    end
+end
 end
 
-function handles = updatePear(handles, player, playerIndex, ...
+function handles = updatePear(handles, player, ~, ...
         ropeDirection, ropeTension, ~)
 height = player.size(2);
 width = player.size(1);
@@ -645,101 +1046,141 @@ if player.onGround && abs(player.vel(1)) > 1.0
 end
 squash = 1 / sqrt(stretch);
 tilt = max(-0.18, min(0.18, -player.vel(1) * 0.018));
+matrix = makehgtform('translate', [player.pos, 0]) * ...
+    makehgtform('zrotate', tilt) * ...
+    makehgtform('scale', [width * squash, height * stretch, 1]);
+set(handles.transform, 'Matrix', matrix);
 
-yNorm = linspace(0, 1, 44)';
-halfWidth = 0.06 + ...
-    0.42 * sin(pi * yNorm) .^ 0.70 .* (1.15 - 0.45 * yNorm) + ...
-    0.23 * (1 - yNorm) .^ 5;
-left = [-flipud(halfWidth), flipud(yNorm)];
-right = [halfWidth(2:end), yNorm(2:end)];
-local = [left; right];
-local(:, 1) = local(:, 1) * width * squash;
-local(:, 2) = local(:, 2) * height * stretch;
-rotation = [cos(tilt), -sin(tilt); sin(tilt), cos(tilt)];
-points = local * rotation' + player.pos;
-set(handles.body, 'XData', points(:, 1), 'YData', points(:, 2));
-
-highlightLocal = [-0.29, 0.30; -0.34, 0.48; -0.25, 0.72; ...
-    -0.11, 0.88; -0.03, 0.76; -0.14, 0.54; -0.14, 0.34];
-highlightLocal(:, 1) = highlightLocal(:, 1) * width * squash;
-highlightLocal(:, 2) = highlightLocal(:, 2) * height * stretch;
-highlightPoints = highlightLocal * rotation' + player.pos;
-set(handles.highlight, 'XData', highlightPoints(:, 1), ...
-    'YData', highlightPoints(:, 2));
-set(handles.speckles, ...
-    'XData', player.pos(1) + [-0.27, 0.22, 0.31, -0.18] * width, ...
-    'YData', player.pos(2) + [0.29, 0.37, 0.24, 0.18] * height);
-
-t = linspace(0, 2 * pi, 20);
+persistent shadowTheta
+if isempty(shadowTheta)
+    shadowTheta = linspace(0, 2 * pi, 20);
+end
+t = shadowTheta;
 airHeight = max(0, min(3, player.pos(2) - 1));
-shadowWidth = width * (0.48 + 0.06 * double(player.onGround) - 0.04 * airHeight);
-set(handles.shadow, 'XData', player.pos(1) + shadowWidth * cos(t), ...
-    'YData', player.pos(2) - 0.07 - 0.03 * airHeight + 0.075 * sin(t), ...
+shadowWidth = 0.48 + 0.06 * double(player.onGround) - 0.04 * airHeight;
+set(handles.shadow, 'XData', shadowWidth * cos(t), ...
+    'YData', (-0.07 - 0.03 * airHeight) / stretch + 0.075 * sin(t), ...
     'FaceAlpha', 0.24 - 0.04 * airHeight);
 
 face = pearExpressionState(player, ropeDirection, ropeTension);
-eyeCentresX = player.pos(1) + [-0.17, 0.17] * width;
-eyeY = player.pos(2) + 0.69 * height;
+faceCache = get(handles.transform, 'UserData');
+faceKey = {face.name, round(1000 * face.gaze)};
+if isstruct(faceCache) && isfield(faceCache, 'faceKey') && ...
+        isequal(faceCache.faceKey, faceKey)
+    return;
+end
+eyeCentresX = [-0.17, 0.17];
+eyeY = 0.69;
 set(handles.eyeWhites, 'XData', eyeCentresX, 'YData', [eyeY, eyeY]);
-set(handles.pupils, 'XData', eyeCentresX + face.gaze(1) * width, ...
-    'YData', [eyeY, eyeY] + face.gaze(2) * height);
+set(handles.pupils, 'XData', eyeCentresX + face.gaze(1), ...
+    'YData', [eyeY, eyeY] + face.gaze(2));
 set(handles.eyeLines, 'XData', nan, 'YData', nan);
 set(handles.brows, 'XData', nan, 'YData', nan);
 set(handles.blush, 'XData', nan, 'YData', nan);
 
-mouthY = player.pos(2) + 0.45 * height;
-mouthX = player.pos(1) + [-0.13, -0.06, 0, 0.06, 0.13] * width;
+mouthY = 0.45;
+mouthX = [-0.13, -0.06, 0, 0.06, 0.13];
 switch face.name
     case 'pain'
         set(handles.eyeWhites, 'XData', nan, 'YData', nan);
         set(handles.pupils, 'XData', nan, 'YData', nan);
-        eyeX = player.pos(1) + [-0.25, -0.11, nan, 0.11, 0.25] * width;
-        eyeLineY = eyeY + [0.05, -0.04, nan, -0.04, 0.05] * height;
+        eyeX = [-0.25, -0.11, nan, 0.11, 0.25];
+        eyeLineY = eyeY + [0.05, -0.04, nan, -0.04, 0.05];
         set(handles.eyeLines, 'XData', eyeX, 'YData', eyeLineY);
-        set(handles.brows, 'XData', player.pos(1) + ...
-            [-0.28, -0.11, nan, 0.11, 0.28] * width, ...
-            'YData', eyeY + [0.13, 0.08, nan, 0.08, 0.13] * height);
-        mouthCurve = mouthY + [0.01, 0.05, 0.00, 0.05, 0.01] * height;
+        set(handles.brows, 'XData', [-0.28, -0.11, nan, 0.11, 0.28], ...
+            'YData', eyeY + [0.13, 0.08, nan, 0.08, 0.13]);
+        mouthCurve = mouthY + [0.01, 0.05, 0.00, 0.05, 0.01];
     case 'pulled'
         pullSign = sign(face.gaze(1));
         if pullSign == 0
             pullSign = 1;
         end
-        set(handles.brows, 'XData', player.pos(1) + ...
-            [-0.27, -0.10, nan, 0.10, 0.27] * width, ...
-            'YData', eyeY + [0.11, 0.05, nan, 0.05, 0.11] * height);
-        mouthCurve = mouthY + [0, 0.025, -0.015, 0.025, 0] * height;
-        mouthX = mouthX + 0.035 * pullSign * width;
+        set(handles.brows, 'XData', [-0.27, -0.10, nan, 0.10, 0.27], ...
+            'YData', eyeY + [0.11, 0.05, nan, 0.05, 0.11]);
+        mouthCurve = mouthY + [0, 0.025, -0.015, 0.025, 0];
+        mouthX = mouthX + 0.035 * pullSign;
     case 'joy'
-        set(handles.blush, 'XData', player.pos(1) + [-0.31, 0.31] * width, ...
-            'YData', [mouthY + 0.08 * height, mouthY + 0.08 * height]);
+        set(handles.blush, 'XData', [-0.31, 0.31], ...
+            'YData', [mouthY + 0.08, mouthY + 0.08]);
         set(handles.eyeWhites, 'XData', nan, 'YData', nan);
         set(handles.pupils, 'XData', nan, 'YData', nan);
-        set(handles.eyeLines, 'XData', player.pos(1) + ...
-            [-0.27, -0.18, -0.09, nan, 0.09, 0.18, 0.27] * width, ...
-            'YData', eyeY + [0.00, 0.055, 0.00, nan, ...
-            0.00, 0.055, 0.00] * height);
-        mouthX = player.pos(1) + [-0.18, -0.09, 0, 0.09, 0.18] * width;
-        mouthCurve = mouthY + [0.08, 0.005, -0.07, 0.005, 0.08] * height;
+        set(handles.eyeLines, 'XData', ...
+            [-0.27, -0.18, -0.09, nan, 0.09, 0.18, 0.27], ...
+            'YData', eyeY + [0.00, 0.055, 0.00, nan, 0.00, 0.055, 0.00]);
+        mouthX = [-0.18, -0.09, 0, 0.09, 0.18];
+        mouthCurve = mouthY + [0.08, 0.005, -0.07, 0.005, 0.08];
     case 'surprised'
-        mouthX = player.pos(1) + 0.075 * width * cos(t);
-        mouthCurve = mouthY + 0.085 * height * sin(t);
+        mouthX = 0.075 * cos(t);
+        mouthCurve = mouthY + 0.085 * sin(t);
     case 'playful'
-        set(handles.blush, 'XData', player.pos(1) + [-0.31, 0.31] * width, ...
-            'YData', [mouthY + 0.07 * height, mouthY + 0.07 * height]);
-        mouthCurve = mouthY + [0.025, -0.015, -0.045, -0.01, 0.04] * height;
+        set(handles.blush, 'XData', [-0.31, 0.31], ...
+            'YData', [mouthY + 0.07, mouthY + 0.07]);
+        mouthCurve = mouthY + [0.025, -0.015, -0.045, -0.01, 0.04];
     otherwise
-        set(handles.blush, 'XData', player.pos(1) + [-0.31, 0.31] * width, ...
-            'YData', [mouthY + 0.07 * height, mouthY + 0.07 * height]);
-        mouthCurve = mouthY + [0.035, -0.005, -0.025, -0.005, 0.035] * height;
+        set(handles.blush, 'XData', [-0.31, 0.31], ...
+            'YData', [mouthY + 0.07, mouthY + 0.07]);
+        mouthCurve = mouthY + [0.035, -0.005, -0.025, -0.005, 0.035];
 end
 set(handles.mouth, 'XData', mouthX, 'YData', mouthCurve);
-set(handles.badge, 'XData', player.pos(1), ...
-    'YData', player.pos(2) + 0.28 * height);
-ringSide = -1;
-if playerIndex == 1
-    ringSide = 1;
+set(handles.transform, 'UserData', struct('faceKey', {faceKey}));
 end
-set(handles.ring, 'XData', player.pos(1) + ringSide * 0.46 * width, ...
-    'YData', player.pos(2) + 0.62 * height);
+
+function points = pearOutline()
+sampleCount = 26;
+first = cubicBezier([0.00, 0.02], [-0.23, -0.01], ...
+    [-0.48, 0.13], [-0.47, 0.35], sampleCount);
+second = cubicBezier([-0.47, 0.35], [-0.45, 0.59], ...
+    [-0.27, 0.77], [-0.18, 0.84], sampleCount);
+third = cubicBezier([-0.18, 0.84], [-0.19, 0.94], ...
+    [-0.10, 1.00], [0.00, 1.00], sampleCount);
+left = [first; second(2:end, :); third(2:end, :)];
+right = [-flipud(left(1:end - 1, 1)), flipud(left(1:end - 1, 2))];
+points = [left; right];
+end
+
+function points = cubicBezier(p0, p1, p2, p3, count)
+t = linspace(0, 1, count)';
+points = (1 - t) .^ 3 .* p0 + ...
+    3 * (1 - t) .^ 2 .* t .* p1 + ...
+    3 * (1 - t) .* t .^ 2 .* p2 + t .^ 3 .* p3;
+end
+
+function sprite = createPixelHeart(ax)
+pixels = [ ...
+    0, 1, 1, 0, 0, 1, 1, 0; ...
+    1, 2, 2, 1, 1, 2, 2, 1; ...
+    1, 3, 2, 2, 2, 2, 2, 1; ...
+    1, 2, 2, 2, 2, 2, 2, 1; ...
+    0, 1, 2, 2, 2, 2, 1, 0; ...
+    0, 0, 1, 2, 2, 1, 0, 0; ...
+    0, 0, 0, 1, 1, 0, 0, 0];
+rgb = zeros(7, 8, 3, 'uint8');
+palette = uint8([45, 18, 28; 231, 61, 72; 255, 151, 145]);
+for value = 1:3
+    mask = pixels == value;
+    for channel = 1:3
+        layer = rgb(:, :, channel);
+        layer(mask) = palette(value, channel);
+        rgb(:, :, channel) = layer;
+    end
+end
+alpha = double(pixels > 0);
+sprite = surface(ax, nan(2), nan(2), zeros(2), ...
+    'CData', flipud(rgb), 'FaceColor', 'texturemap', ...
+    'AlphaData', flipud(alpha), 'FaceAlpha', 'texturemap', ...
+    'AlphaDataMapping', 'none', 'EdgeColor', 'none', ...
+    'UserData', alpha);
+end
+
+function positionHeartSprite(sprite, rect, full)
+x = rect(1) + [0, rect(3); 0, rect(3)];
+y = rect(2) + [0, 0; rect(4), rect(4)];
+alpha = get(sprite, 'UserData');
+if full
+    opacity = 1.0;
+else
+    opacity = 0.20;
+end
+set(sprite, 'XData', x, 'YData', y, ...
+    'AlphaData', flipud(alpha * opacity), 'Visible', 'on');
 end

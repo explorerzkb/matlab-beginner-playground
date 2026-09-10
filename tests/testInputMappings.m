@@ -24,5 +24,14 @@ assert(input.player(2).left && input.player(2).right && input.player(2).jump, ..
 assert(input.pause && input.reset && input.quit, ...
     'Pause, reset, or quit mapping was not recognized.');
 assert(input.useItem, 'Global item-use mapping was not recognized.');
+setappdata(fig,'pressedKeys',{});
+press = get(fig,'WindowKeyPressFcn');
+release = get(fig,'WindowKeyReleaseFcn');
+press(fig,struct('Key','w'));
+release(fig,struct('Key','w'));
+input = readInputSnapshot(fig,cfg.input);
+assert(input.player(1).jump,'A short key tap between frames was lost.');
+input = readInputSnapshot(fig,cfg.input);
+assert(~input.player(1).jump,'A released tap remained stuck.');
 clear cleanupGuard;
 end

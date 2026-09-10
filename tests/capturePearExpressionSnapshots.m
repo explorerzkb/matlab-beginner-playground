@@ -19,7 +19,8 @@ cfg.runtime.testMode = true;
 world = continuousCampusWorld();
 sceneNames = {'airborne-joy', 'head-impact-pain', 'rope-pull-gaze'};
 fig = figure('Visible', 'off', 'Position', [50, 50, 1280, 720], ...
-    'Color', [0.08, 0.12, 0.15]);
+    'Color', [0.08, 0.12, 0.15], ...
+    'GraphicsSmoothing', cfg.render.graphicsSmoothing);
 cleanupGuard = onCleanup(@() closeFigure(fig));
 ax = axes(fig, 'Position', [0.045, 0.08, 0.92, 0.86]);
 

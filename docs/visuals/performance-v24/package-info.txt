@@ -1,0 +1,10 @@
+Bundle: dist/matlabHi-windows-validation.zip
+Project files: 136
+ZIP entries including SHA256.json: 137
+Bytes: 27277000
+SHA-256: 31d7448fbf402533a25e4761f7303df4142479ba9eea6e474653d80c18b8ee8e
+Manifest versus current worktree: 0 differences
+Extracted package forced-render minimum: 74.5 FPS
+Extracted package default paced minimum: 49.6 FPS
+Extracted package high-quality paced minimum: 49.6 FPS
+Windows evidence summary: 0/3, INCOMPLETE

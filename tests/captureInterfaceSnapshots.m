@@ -19,7 +19,8 @@ cfg.runtime.testMode = true;
 world = continuousCampusWorld();
 sceneNames = {'hud-origin', 'pause-north-lake'};
 fig = figure('Visible', 'off', 'Position', [50, 50, 1280, 720], ...
-    'Color', [0.04, 0.08, 0.10]);
+    'Color', [0.04, 0.08, 0.10], ...
+    'GraphicsSmoothing', cfg.render.graphicsSmoothing);
 cleanupGuard = onCleanup(@() closeFigure(fig));
 ax = axes(fig, 'Position', [0.025, 0.045, 0.95, 0.92]);
 
