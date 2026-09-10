@@ -18,6 +18,7 @@ assert(strcmp(controller.phase,'active'));
 cursor=[0 0]; jumpStarted=[-inf -inf]; nextJump=[0 0];
 pending=[]; dueTick=inf; failures=0; packets=0; consumed=[0 0];
 lastState=[]; bodyJumps=[0 0];
+sampleTrace=zeros(7200,11); traceCount=0;
 try
     state=runGameplayJourney(route,0,false,'',@adapt);
 catch exception
@@ -39,7 +40,19 @@ fprintf('POSE JOINT JOURNEY PASSED: %s (no camera/model/human acceptance)\n',rou
             pending=[]; dueTick=inf;
         end
         if tick>=dueTick
+            before=controller;
             controller=stepPoseController(controller,pending.points,sz,pending.time,cfg);
+            for i=1:2
+                if pending.attempt(i)>0 && pending.age(i)<=.6
+                    p=before.player(i); f=poseFeatures(pending.points(:,:,i),sz,cfg);
+                    code=find(strcmp(p.jumpPhase,{'standing','airborne','landing'}));
+                    traceCount=traceCount+1;
+                    sampleTrace(traceCount,:)=[pending.time i pending.attempt(i) pending.age(i) ...
+                        code p.standSince p.sequence controller.player(i).sequence ...
+                        (p.hip-f.hip)/p.scale (p.lastHip-f.hip)/p.scale/(pending.time-p.lastTime) ...
+                        double(strcmp(before.phase,'active'))];
+                end
+            end
             pending=[]; dueTick=inf; packets=packets+1;
         end
         if mod(tick-1,sampleTicks)==0
@@ -74,7 +87,8 @@ fprintf('POSE JOINT JOURNEY PASSED: %s (no camera/model/human acceptance)\n',rou
                     points(:,2,i)=points(:,2,i)-50*sin(pi*age/.5);
                 end
             end
-            pending=struct('points',points,'time',now); dueTick=tick+5;
+            pending=struct('points',points,'time',now,'attempt',bodyJumps, ...
+                'age',now-jumpStarted); dueTick=tick+5;
         end
         [pose,cursor]=consumePoseInput(controller,cursor,now,cfg,true);
         consumed=consumed+double([pose.player.jump]);
@@ -87,6 +101,17 @@ fprintf('POSE JOINT JOURNEY PASSED: %s (no camera/model/human acceptance)\n',rou
             'syntheticBodyJumps',bodyJumps,'classifiedJumps',[controller.player.sequence], ...
             'consumedJumps',consumed,'gameSeconds',game.levelTime, ...
             'failures',game.stats.failures,'syntheticJointsOnly',true);
+        result.sampleTrace=sampleTrace(1:traceCount,:);
+        result.traceColumns={'time','player','attempt','bodyAge','phaseBefore_1stand_2air_3land', ...
+            'standSince','sequenceBefore','sequenceAfter','hipRise','hipSpeed','active'};
+        for i=1:2
+            for attempt=1:bodyJumps(i)
+                rows=result.sampleTrace(result.sampleTrace(:,2)==i & result.sampleTrace(:,3)==attempt,:);
+                if isempty(rows) || any(rows(:,8)>rows(:,7)), continue; end
+                fprintf('UNCLASSIFIED player %d body attempt %d; trace columns listed in MAT\n',i,attempt);
+                fprintf('%.17g %g %g %.17g %g %.17g %g %g %.6f %.6f %g\n',rows');
+            end
+        end
         stamp=char(datetime('now','Format','yyyyMMdd-HHmmss-SSS'));
         save(fullfile(root,'docs','validation','pose-control', ...
             ['joint-journey-',strategy,'-',route,'-',stamp,'.mat']),'result');

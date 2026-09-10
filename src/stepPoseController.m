@@ -87,7 +87,12 @@ for i=1:2
         if atGround && abs(hipSpeed)<cfg.jumpVelocity && abs(ankleSpeed)<cfg.jumpVelocity
             if isnan(p.standSince), p.standSince=time; end
             p.jumpPhase='landing';
-            if time-p.standSince>=cfg.standSeconds, p.jumpPhase='standing'; end
+            % Compensate only floating-point timestamp resolution. Without
+            % this, 0.3 s can round below the boundary and cost a camera frame.
+            resolution=2*eps(max(abs([time p.standSince])));
+            if time-p.standSince+resolution>=cfg.standSeconds
+                p.jumpPhase='standing';
+            end
         else
             p.standSince=NaN;
         end

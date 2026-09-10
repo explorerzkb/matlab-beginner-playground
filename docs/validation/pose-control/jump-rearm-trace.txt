@@ -1,0 +1,4 @@
+E:\matlabHi-pose-control\tests\runPoseJourneyCheck.m:49 [AGROW] 变量的大小似乎在每个循环迭代都会更改。请考虑进行预分配以提升速度。
+{错误使用 runCodeChecks (第 22 行)
+MATLAB Code Analyzer found 1 issue(s).
+} 

@@ -33,6 +33,8 @@
 
 12 Hz 上路身体起跳／分类／消费为玩家一 17／17／17、玩家二 18／18／18；下路两人均 18／18／18。10 Hz 上路分别 23／22／22、24／23／23，下路分别 18／17／17、18／18／18，差异保留，尚未定位，不称零漏检。每次运行保存数字 MAT，失败也保存计数。
 
+后续定位（`jump-rearm-trace-2.txt`）：0.3 秒站稳时间的浮点减法略小于阈值，使重新允许起跳晚了一帧。`rearm-precision-reproduction.txt` 独立复现失败；修复仅补偿两个时间戳浮点刻度，真正提前 0.1 ms 的测试仍拒绝。`rearm-precision-checks.txt` 中 10 Hz 上／下路为 71.53／72.15 秒，身体起跳／分类／消费上路为 25／25／25、27／27／27，下路为 18／18／18、17／17／17；回归与 Code Analyzer 通过。前段“尚未定位”为初轮前态，当前已解决该数值边界，仍不外推真人准确率。MAT 增加逐采样时间、起跳编号、判定前状态、站稳起点及事件序号，便于追溯差异。
+
 最初直接策略北湖失败，整体提前预测导致登录停滞，见 `joint-journey-first.txt`、`joint-journey-predicted-2.txt`、`joint-journey-with-counters.txt`；分析器首轮失败也保留。现可比较 `reactive`、`full-predictive` 和仅提前起跳的 `predictive` 三种自动策略。原键盘四路线复跑结果不变，见 `journey-adapter-regression.txt`。
 
 ```matlab
