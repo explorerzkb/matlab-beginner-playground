@@ -75,6 +75,10 @@ for i=1:2
         'MarkerFaceColor',colors{i},'MarkerSize',4); %#ok<AGROW>
     overlay(i).low=plot(ax,nan,nan,'x','Color',[1 .2 .2], ...
         'LineWidth',1.5,'MarkerSize',6); %#ok<AGROW>
+    overlay(i).noseHigh=plot(ax,nan,nan,'o','Color',colors{i}, ...
+        'MarkerFaceColor',colors{i},'MarkerSize',9,'LineWidth',1.5); %#ok<AGROW>
+    overlay(i).noseLow=plot(ax,nan,nan,'x','Color',[1 .2 .2], ...
+        'LineWidth',2,'MarkerSize',10); %#ok<AGROW>
 end
 end
 
@@ -93,11 +97,17 @@ for i=1:2
         'YData',data.player(i).high(:,2));
     set(overlay(i).low,'XData',data.player(i).low(:,1), ...
         'YData',data.player(i).low(:,2));
+    set(overlay(i).noseHigh,'XData',data.player(i).noseHigh(:,1), ...
+        'YData',data.player(i).noseHigh(:,2));
+    set(overlay(i).noseLow,'XData',data.player(i).noseLow(:,1), ...
+        'YData',data.player(i).noseLow(:,2));
 end
 end
 
 function clearOverlay(overlay)
 for i=1:2
-    set([overlay(i).bones overlay(i).high overlay(i).low],'XData',nan,'YData',nan);
+    handles=[overlay(i).bones overlay(i).high overlay(i).low ...
+        overlay(i).noseHigh overlay(i).noseLow];
+    set(handles,'XData',nan,'YData',nan);
 end
 end
