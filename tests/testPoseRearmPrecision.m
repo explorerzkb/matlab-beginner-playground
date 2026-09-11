@@ -17,7 +17,7 @@ for origin=[0 1789060000]
     assert(all(strcmp({early.player.jumpPhase},'landing')),'Actual early jump was rearmed');
     s=stepPoseController(s,pair,sz,boundary,cfg);
     assert(all(strcmp({s.player.jumpPhase},'standing')),'Rounded 0.3-second boundary missed rearm');
-    jump=pair; jump(:,2,:)=jump(:,2,:)-30;
+    jump=pair; jump(1:11,2,:)=jump(1:11,2,:)-30;
     s=stepPoseController(s,jump,sz,boundary+.1,cfg);
     assert(all([s.player.sequence]==1),'Following valid jump was lost');
 end

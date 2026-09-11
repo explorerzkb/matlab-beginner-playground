@@ -1,5 +1,5 @@
 function cfg = poseConfig()
-%POSECONFIG Experimental thresholds, in seconds/degrees/body-scale units.
+%POSECONFIG Experimental thresholds, in seconds/degrees/shoulder-width units.
 % All thresholds require two-person playtesting; none are measured accuracy.
 cfg.renderHz = 30;
 cfg.confidence = 0.35;
@@ -14,10 +14,12 @@ cfg.lossPauseSeconds = 0.60;
 cfg.recoverySeconds = 1.0;
 cfg.countdownSeconds = 3;
 cfg.eventTTL = 0.15;
-cfg.jumpHipRise = 0.045;
-cfg.jumpAnkleRise = 0.035;
-cfg.jumpVelocity = 0.25;
-cfg.landTolerance = 0.035;
+cfg.minimumShoulderPixels = 30;
+cfg.jumpBodyRise = 0.16;
+cfg.jumpHeadRise = 0.12;
+cfg.jumpVelocity = 0.65;
+cfg.jumpShapeTolerance = 0.12;
+cfg.landTolerance = 0.08;
 cfg.standSeconds = 0.30;
 cfg.identityMaxShift = 0.22;
 cfg.identityMargin = 0.08;

@@ -16,7 +16,7 @@ for c=1:2
         elapsed(i)=toc(clock);
     end
     assert(size(p,3)==2,'Expected two instances on public duplicated-person fixture');
-    [~,order]=sort(squeeze(mean(p(12:13,1,:),1)));
+    [~,order]=sort(squeeze(mean(p(6:7,1,:),1)));
     p=p(:,:,order);
     assert(all(p(1,3,:)>0.35),'Expected confident noses');
     % Coarse independently observed public-image positions, not model output.
@@ -24,7 +24,9 @@ for c=1:2
         local=p(:,:,person); local(:,1)=local(:,1)-(person-1)*size(source,2);
         assert(abs(local(1,1)/size(source,2)-0.46)<0.1);
         assert(abs(local(1,2)/size(source,1)-0.42)<0.1);
-        assert(all(local(16:17,2)/size(source,1)>0.80));
+        assert(all(local(6:7,3)>0.35),'Expected confident shoulders');
+        assert(all(local(6:7,1)>0 & local(6:7,1)<size(source,2)));
+        assert(all(local(6:7,2)>0 & local(6:7,2)<size(source,1)));
     end
     report.(names{c})=struct('pairMedianMs',1000*median(elapsed), ...
         'pairMaxMs',1000*max(elapsed),'perPlayerUpdateCeilingHz',1/mean(elapsed), ...

@@ -7,7 +7,6 @@ cla(ax); axis(ax,[0 240 0 180]); axis(ax,'ij'); axis(ax,'off'); hold(ax,'on');
 preview=image(ax,zeros(180,240,3,'uint8'));
 plot(ax,[120 120],[0 180],'y--');
 plot(ax,[0 240],[18 18],'y:');
-plot(ax,[0 240],[171 171],'y:');
 text(ax,60,12,'玩家一','Color','yellow','HorizontalAlignment','center');
 text(ax,180,12,'玩家二','Color','yellow','HorizontalAlignment','center');
 label=title(ax,'正在启动摄像头；K 切键盘，Q 退出','FontName',cfg.render.fontName);
@@ -43,7 +42,7 @@ while isgraphics(fig)
         if ~isempty(s.error), message=s.error; end
         if poseClock()-lastRender>=1/15
             if ~isempty(s.preview), set(preview,'CData',s.preview(:,end:-1:1,:)); end
-            set(label,'String',{message,'全身、外展肘与脚踝入画；顶部留起跳余量 · K 键盘 · Q 退出'});
+            set(label,'String',{message,'头、肩、肘、腕完整入画；头顶留起跳余量 · K 键盘 · Q 退出'});
             drawnow; lastRender=poseClock();
         end
         if all(verified,'all')

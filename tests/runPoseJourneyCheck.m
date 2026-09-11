@@ -49,7 +49,7 @@ fprintf('POSE JOINT JOURNEY PASSED: %s (no camera/model/human acceptance)\n',rou
                     traceCount=traceCount+1;
                     sampleTrace(traceCount,:)=[pending.time i pending.attempt(i) pending.age(i) ...
                         code p.standSince p.sequence controller.player(i).sequence ...
-                        (p.hip-f.hip)/p.scale (p.lastHip-f.hip)/p.scale/(pending.time-p.lastTime) ...
+                        (p.bodyY-f.bodyY)/p.scale (p.lastBodyY-f.bodyY)/p.scale/(pending.time-p.lastTime) ...
                         double(strcmp(before.phase,'active'))];
                 end
             end
@@ -84,7 +84,7 @@ fprintf('POSE JOINT JOURNEY PASSED: %s (no camera/model/human acceptance)\n',rou
                 end
                 age=now-jumpStarted(i);
                 if age>=0 && age<.5
-                    points(:,2,i)=points(:,2,i)-50*sin(pi*age/.5);
+                    points(1:11,2,i)=points(1:11,2,i)-50*sin(pi*age/.5);
                 end
             end
             pending=struct('points',points,'time',now,'attempt',bodyJumps, ...
@@ -103,7 +103,7 @@ fprintf('POSE JOINT JOURNEY PASSED: %s (no camera/model/human acceptance)\n',rou
             'failures',game.stats.failures,'syntheticJointsOnly',true);
         result.sampleTrace=sampleTrace(1:traceCount,:);
         result.traceColumns={'time','player','attempt','bodyAge','phaseBefore_1stand_2air_3land', ...
-            'standSince','sequenceBefore','sequenceAfter','hipRise','hipSpeed','active'};
+            'standSince','sequenceBefore','sequenceAfter','bodyRise','bodySpeed','active'};
         for i=1:2
             for attempt=1:bodyJumps(i)
                 rows=result.sampleTrace(result.sampleTrace(:,2)==i & result.sampleTrace(:,3)==attempt,:);

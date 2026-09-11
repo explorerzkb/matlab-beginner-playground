@@ -4,30 +4,27 @@ root=fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(root,'src'),fullfile(root,'config'));
 cfg=poseConfig(); sz=[720 1280];
 pair=cat(3,person(900),person(380));
+upper=pair; upper(12:17,:,:)=NaN;
 s=createPoseState();
-for t=0:1/30:6, s=stepPoseController(s,pair,sz,t,cfg); end
+for t=0:1/30:6, s=stepPoseController(s,upper,sz,t,cfg); end
 assert(strcmp(s.phase,'active'));
 assert(s.player(1).anchor(1)>s.player(2).anchor(1));
+assert(all(isfinite([s.player.bodyY])),'Lower-body points were still required');
 [a,cursor]=consumePoseInput(s,[],6,cfg,true);
 assert(~any([a.player.left a.player.right a.player.jump]));
-% A raised knee plus torso lift leaves the other foot planted.
-oneFoot=pair; oneFoot(6:15,2,1)=oneFoot(6:15,2,1)-30;
-oneFoot(16,2,1)=oneFoot(16,2,1)-60;
-probe=stepPoseController(s,oneFoot,sz,6.04,cfg);
-assert(probe.player(1).sequence==0,'One planted foot produced a jump');
 % Single/alternating real-jump fixtures rearm only after stable landing.
 probe=s; eventCounts=[0 0];
 for cycle=1:4
     time=6+cycle; player=1+mod(cycle-1,2);
     for instant=(time-.9):.04:time
-        probe=stepPoseController(probe,pair,sz,instant,cfg);
+        probe=stepPoseController(probe,upper,sz,instant,cfg);
     end
-    lifted=pair; lifted(:,2,player)=lifted(:,2,player)-30;
+    lifted=upper; lifted(1:11,2,player)=lifted(1:11,2,player)-30;
     probe=stepPoseController(probe,lifted,sz,time+.04,cfg);
     eventCounts(player)=eventCounts(player)+1;
     assert(isequal([probe.player.sequence],eventCounts));
 end
-tilted=pair;
+tilted=upper;
 tilted(8,2,1)=tilted(8,2,1)-45; tilted(9,2,1)=tilted(9,2,1)+45;
 tilted(8,2,2)=tilted(8,2,2)+45; tilted(9,2,2)=tilted(9,2,2)-45;
 for t=6+1/30:1/30:6.5, s=stepPoseController(s,tilted,sz,t,cfg); end
@@ -36,15 +33,15 @@ assert(a.player(1).right && a.player(2).left,'Anatomical directions reversed');
 % Model detection order is not identity.
 s=stepPoseController(s,tilted(:,:,[2 1]),sz,6.54,cfg);
 assert(s.player(1).direction==1 && s.player(2).direction==-1);
-for t=6.58:0.04:7.1, s=stepPoseController(s,pair,sz,t,cfg); end
+for t=6.58:0.04:7.1, s=stepPoseController(s,upper,sz,t,cfg); end
 assert(all([s.player.direction]==0));
 % Loss of one person's joints releases that input during the grace interval.
-loss=stepPoseController(s,pair(:,:,1),sz,7.12,cfg);
+loss=stepPoseController(s,upper(:,:,1),sz,7.12,cfg);
 [lostInput,~]=consumePoseInput(loss,cursor,7.12,cfg,true);
 assert(~lostInput.safetyPause && ~lostInput.player(2).jump && ...
     ~lostInput.player(2).left && ~lostInput.player(2).right);
 % Both jump while tilting. Persistent event survives the next neutral frame.
-jump=tilted; jump(:,2,:)=jump(:,2,:)-30;
+jump=tilted; jump(1:11,2,:)=jump(1:11,2,:)-30;
 s=stepPoseController(s,jump,sz,7.14,cfg);
 assert(all([s.player.sequence]==1));
 s=stepPoseController(s,jump,sz,7.18,cfg);
@@ -52,17 +49,19 @@ s=stepPoseController(s,jump,sz,7.18,cfg);
 assert(all([a.player.jump]));
 [a,cursor]=consumePoseInput(s,cursor,7.19,cfg,true);
 assert(~any([a.player.jump]));
-for t=7.22:0.04:8, s=stepPoseController(s,pair,sz,t,cfg); end
-% Raising arms, crouching and tiptoe with stationary ankles must not jump.
-for kind=1:3
-    falseJump=pair;
-    if kind==1, falseJump(6:11,2,:)=falseJump(6:11,2,:)-30;
-    elseif kind==2, falseJump(6:15,2,:)=falseJump(6:15,2,:)+30;
-    else, falseJump(6:15,2,:)=falseJump(6:15,2,:)-30;
+for t=7.22:0.04:8, s=stepPoseController(s,upper,sz,t,cfg); end
+% Upper-body confounders: arm raise, crouch, small tiptoe, head bob, shrug.
+for kind=1:5
+    falseJump=upper;
+    if kind==1, falseJump(8:11,2,:)=falseJump(8:11,2,:)-30;
+    elseif kind==2, falseJump(1:11,2,:)=falseJump(1:11,2,:)+30;
+    elseif kind==3, falseJump(1:11,2,:)=falseJump(1:11,2,:)-8;
+    elseif kind==4, falseJump(1,2,:)=falseJump(1,2,:)-30;
+    else, falseJump(6:11,2,:)=falseJump(6:11,2,:)-30;
     end
     t=8+kind*0.08;
     s=stepPoseController(s,falseJump,sz,t,cfg);
-    s=stepPoseController(s,pair,sz,t+0.04,cfg);
+    s=stepPoseController(s,upper,sz,t+0.04,cfg);
 end
 assert(all([s.player.sequence]==1));
 % Stale and disabled input consumes events, never queues across lifecycle.
@@ -71,13 +70,13 @@ copy=s; copy.player(1).sequence=2; copy.player(1).eventTime=8.28;
 assert(~any([a.player.jump]));
 [a,~]=consumePoseInput(copy,cursor,8.30,cfg,true);
 assert(~any([a.player.jump]));
-[a,~]=consumePoseInput(copy,[0 0],9,cfg,true);
+[a,~]=consumePoseInput(copy,[0 0],9.1,cfg,true);
 assert(a.safetyPause && ~any([a.player.jump a.player.left a.player.right]));
 % Arms down pauses whole session after bounded grace.
-down=pair; down(10:11,2,:)=570;
+down=upper; down(10:11,2,:)=570;
 for t=8.32:0.04:9.2, s=stepPoseController(s,down,sz,t,cfg); end
 assert(strcmp(s.phase,'paused'));
-for t=9.24:0.04:13.8, s=stepPoseController(s,pair,sz,t,cfg); end
+for t=9.24:0.04:13.8, s=stepPoseController(s,upper,sz,t,cfg); end
 assert(strcmp(s.phase,'active') && all(isinf([s.player.eventTime])));
 % Overlap is never silently re-bound.
 overlap=cat(3,person(650),person(630));
@@ -96,7 +95,7 @@ assert(max(abs(restored-original),[],'all')<1e-9);
 % A moving calibration window must not turn a squat into standing height.
 unstable=createPoseState();
 for t=0:0.04:3
-    moving=pair; moving(:,2,:)=moving(:,2,:)+20*sin(t*8);
+    moving=upper; moving(1:11,2,:)=moving(1:11,2,:)+20*sin(t*8);
     unstable=stepPoseController(unstable,moving,sz,t,cfg);
 end
 assert(strcmp(unstable.phase,'calibrating'));

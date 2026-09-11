@@ -60,7 +60,7 @@ for i=1:2
     if ~f.valid || ~f.controlPose, continue; end
     dt=time-p.lastTime;
     if ~isfinite(dt) || dt>cfg.staleSeconds
-        dt=1/30; p.lastHip=f.hip; p.lastAnkle=f.ankle;
+        dt=1/30; p.lastBodyY=f.bodyY; p.lastHeadY=f.headY;
         p.jumpPhase='landing'; p.standSince=NaN;
     end
     p.valid=true;
@@ -71,20 +71,21 @@ for i=1:2
             (p.direction<0 && p.angle>=-cfg.exitDegrees)
         p.direction=0;
     end
-    hipRise=(p.hip-f.hip)/p.scale;
-    ankleRise=(p.ankle-f.ankle)/p.scale;
-    hipSpeed=(p.lastHip-f.hip)/p.scale/dt;
-    ankleSpeed=(p.lastAnkle-f.ankle)/p.scale/dt;
-    atGround=abs(hipRise)<cfg.landTolerance && abs(ankleRise)<cfg.landTolerance;
-    if strcmp(p.jumpPhase,'standing') && hipRise>cfg.jumpHipRise && ...
-            ankleRise>cfg.jumpAnkleRise && hipSpeed>cfg.jumpVelocity && ...
-            ankleSpeed>cfg.jumpVelocity
+    bodyRise=(p.bodyY-f.bodyY)/p.scale;
+    headRise=(p.headY-f.headY)/p.scale;
+    bodySpeed=(p.lastBodyY-f.bodyY)/p.scale/dt;
+    headSpeed=(p.lastHeadY-f.headY)/p.scale/dt;
+    shapeStable=abs(f.headGap-p.headGap)/p.scale<=cfg.jumpShapeTolerance;
+    atGround=abs(bodyRise)<cfg.landTolerance && abs(headRise)<cfg.landTolerance;
+    if strcmp(p.jumpPhase,'standing') && bodyRise>cfg.jumpBodyRise && ...
+            headRise>cfg.jumpHeadRise && bodySpeed>cfg.jumpVelocity && ...
+            headSpeed>cfg.jumpVelocity && shapeStable
         p.jumpPhase='airborne'; p.standSince=NaN;
         if strcmp(state.phase,'active')
             p.sequence=p.sequence+1; p.eventTime=time;
         end
     elseif ~strcmp(p.jumpPhase,'standing')
-        if atGround && abs(hipSpeed)<cfg.jumpVelocity && abs(ankleSpeed)<cfg.jumpVelocity
+        if atGround && abs(bodySpeed)<cfg.jumpVelocity && abs(headSpeed)<cfg.jumpVelocity
             if isnan(p.standSince), p.standSince=time; end
             p.jumpPhase='landing';
             % Compensate only floating-point timestamp resolution. Without
@@ -98,7 +99,7 @@ for i=1:2
         end
     end
     % Frozen calibration height avoids learning a crouch, jump or tiptoe.
-    p.lastHip=f.hip; p.lastAnkle=f.ankle; p.lastTime=time;
+    p.lastBodyY=f.bodyY; p.lastHeadY=f.headY; p.lastTime=time;
     if ~strcmp(state.phase,'active')
         p.direction=0; p.eventTime=-inf;
     end
@@ -116,8 +117,8 @@ features=features(order);
 if features(1).centre(1)-features(2).centre(1)<cfg.minimumSeparation
     state.samples=zeros(0,11); return;
 end
-row=[time features(1).angle features(2).angle features(1).hip ...
-    features(2).hip features(1).ankle features(2).ankle ...
+row=[time features(1).angle features(2).angle features(1).bodyY ...
+    features(2).bodyY features(1).headY features(2).headY ...
     features(1).scale features(2).scale features(1).centre(1) features(2).centre(1)];
 state.samples(end+1,:)=row;
 if any(abs(row(2:3))>cfg.enterDegrees) || ...
@@ -131,12 +132,13 @@ base=median(state.samples,1);
 for i=1:2
     state.player(i).anchor=features(i).centre;
     state.player(i).zero=base(1+i);
-    state.player(i).hip=base(3+i);
-    state.player(i).ankle=base(5+i);
+    state.player(i).bodyY=base(3+i);
+    state.player(i).headY=base(5+i);
+    state.player(i).headGap=base(3+i)-base(5+i);
     state.player(i).scale=base(7+i);
     state.player(i).lastTime=time;
-    state.player(i).lastHip=features(i).hip;
-    state.player(i).lastAnkle=features(i).ankle;
+    state.player(i).lastBodyY=features(i).bodyY;
+    state.player(i).lastHeadY=features(i).headY;
 end
 state.phase='countdown'; state.countdownUntil=time+cfg.countdownSeconds;
 state.reason='已绑定：镜像左为玩家一；倒计时后逐人核对左右与试跳';
@@ -145,7 +147,7 @@ end
 
 function [assigned,ok]=matchPlayers(state,features,cfg)
 empty=struct('valid',false,'controlPose',false,'centre',[NaN NaN], ...
-    'scale',NaN,'angle',NaN,'hip',NaN,'ankle',NaN);
+    'scale',NaN,'angle',NaN,'bodyY',NaN,'headY',NaN,'headGap',NaN);
 assigned=repmat(empty,1,2); ok=false;
 if isempty(features), ok=true; return; end
 if isscalar(features)
