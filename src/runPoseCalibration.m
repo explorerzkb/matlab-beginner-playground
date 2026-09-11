@@ -4,11 +4,13 @@ ready=false;
 originalYDir=ax.YDir;
 axesGuard=onCleanup(@() restoreAxes(ax,originalYDir));
 cla(ax); axis(ax,[0 240 0 180]); axis(ax,'ij'); axis(ax,'off'); hold(ax,'on');
-preview=image(ax,zeros(180,240,3,'uint8'));
+preview=image(ax,[0 240],[0 180],zeros(180,240,3,'uint8'));
 plot(ax,[120 120],[0 180],'y--');
 plot(ax,[0 240],[18 18],'y:');
 text(ax,60,12,'玩家一','Color','yellow','HorizontalAlignment','center');
-text(ax,180,12,'玩家二','Color','yellow','HorizontalAlignment','center');
+text(ax,180,12,'玩家二','Color',[0 .85 1],'HorizontalAlignment','center');
+overlay=createOverlay(ax);
+text(ax,4,176,'黄 P1  青 P2  红× 低置信度','Color','white','FontSize',8);
 label=title(ax,'正在启动摄像头；K 切键盘，Q 退出','FontName',cfg.render.fontName);
 verified=false(2,3); lastRender=-inf;
 jumpBaseline=[0 0];
@@ -42,6 +44,11 @@ while isgraphics(fig)
         if ~isempty(s.error), message=s.error; end
         if poseClock()-lastRender>=1/15
             if ~isempty(s.preview), set(preview,'CData',s.preview(:,end:-1:1,:)); end
+            if ~isempty(s.lastPacket)
+                updateOverlay(overlay,s.lastPacket,s.cfg.confidence);
+            else
+                clearOverlay(overlay);
+            end
             set(label,'String',{message,'头、肩、肘、腕完整入画；头顶留起跳余量 · K 键盘 · Q 退出'});
             drawnow; lastRender=poseClock();
         end
@@ -58,4 +65,39 @@ end
 
 function restoreAxes(ax,direction)
 if isgraphics(ax), set(ax,'YDir',direction); end
+end
+
+function overlay=createOverlay(ax)
+colors={[1 .82 0],[0 .85 1]};
+for i=1:2
+    overlay(i).bones=plot(ax,nan,nan,'-','Color',colors{i},'LineWidth',2); %#ok<AGROW>
+    overlay(i).high=plot(ax,nan,nan,'o','Color',colors{i}, ...
+        'MarkerFaceColor',colors{i},'MarkerSize',4); %#ok<AGROW>
+    overlay(i).low=plot(ax,nan,nan,'x','Color',[1 .2 .2], ...
+        'LineWidth',1.5,'MarkerSize',6); %#ok<AGROW>
+end
+end
+
+function updateOverlay(overlay,packet,confidence)
+data=posePreviewOverlayData(packet.points,packet.imageSize,[180 240],confidence);
+for i=1:2
+    segments=data.player(i).segments;
+    if isempty(segments)
+        x=nan; y=nan;
+    else
+        x=[segments(:,1) segments(:,3) nan(size(segments,1),1)]'; x=x(:);
+        y=[segments(:,2) segments(:,4) nan(size(segments,1),1)]'; y=y(:);
+    end
+    set(overlay(i).bones,'XData',x,'YData',y);
+    set(overlay(i).high,'XData',data.player(i).high(:,1), ...
+        'YData',data.player(i).high(:,2));
+    set(overlay(i).low,'XData',data.player(i).low(:,1), ...
+        'YData',data.player(i).low(:,2));
+end
+end
+
+function clearOverlay(overlay)
+for i=1:2
+    set([overlay(i).bones overlay(i).high overlay(i).low],'XData',nan,'YData',nan);
+end
 end

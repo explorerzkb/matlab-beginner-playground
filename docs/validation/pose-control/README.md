@@ -4,6 +4,8 @@
 
 ## 已执行（2026-09-11）
 
+2026-09-12 `pose-preview-overlay-checks.txt`：上半身骨架的镜像坐标、P1/P2 显示排序、低置信度标记和下半身忽略断言通过；校准退出、原姿态控制回归及 Code Analyzer 通过。已实际启动真实摄像头校准窗口，未保存画面；骨架与真人的视觉对齐需由当前窗口观察，未记为双人验收通过。
+
 - `upper-body-checks.txt`：下半身关节全部缺失的校准、方向、跳跃与假动作合成检查通过；姿态生命周期、物理事件、输入映射、原游戏完整冒烟和 Code Analyzer 通过。`upper-body-final-checks.txt` 是最终阈值后的控制、重新允许、稀疏采样、游戏事件和 Code Analyzer 复跑。`upper-body-journey-checks.txt` 使用 83 ms 交付延迟，上路 12 Hz 的 17/18 次、下路 10 Hz 的 18/17 次模拟起跳均全部分类消费并到达终点。`upper-body-model-checks.txt` 另用本机原生 TFLite 重跑公开复合图的鼻尖／肩部断言：SinglePose 每对中位 44.4 ms，MultiPose 200.0 ms；数字 MAT 另存为 `upper-body-model-comparison.mat`，原 `model-comparison.mat` 保留。仍不是真实双人识别或手感证据。
 
 最新延长性能测量见 `extended-pose-performance.txt`：预热模型／相机后每场景 30 秒，显示 29.07／30.00／29.69／29.97／29.34 FPS；>50 ms 帧占比 5.86%／0.44%／1.69%／1.89%／2.27%，P95 帧间隔 51.4／39.7／44.1／45.0／44.1 ms，最大 86.9 ms。物理 59.91–59.97 步／秒。软件采集至绘制均值 98.5–112.7 ms、最大 168.1–230.3 ms；有效双人姿态仍为 0。这是较长的场景负载采样，依然不证明真人手感或持续稳定 30 FPS。可重现命令：`runPoseRenderCheck(true,1:5,30)`。

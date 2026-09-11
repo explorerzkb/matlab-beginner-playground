@@ -14,6 +14,7 @@ testCampusPresentation();
 testPixelRectToWorld();
 fprintf('Running input-mapping checks...\n');
 testInputMappings();
+testPosePreviewOverlay();
 testGameImageCache();
 testWindowsValidationSummary();
 fprintf('Running shared physics and state checks...\n');
