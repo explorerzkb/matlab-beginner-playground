@@ -17,6 +17,9 @@ input.player2Alternate.jump = 'i';
 input.player2Alternate.label = '备用：J / L 移动，I 跳跃';
 
 input.pause = 'escape';
+input.mode = 'keyboard';
+input.toggleMode = 'k';
+input.recalibrate = 'c';
 input.reset = 'r';
 input.quit = 'q';
 input.useItem = 'space';

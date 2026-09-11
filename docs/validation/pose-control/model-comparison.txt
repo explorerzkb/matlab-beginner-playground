@@ -1,0 +1,4 @@
+single paired still: 41.3 ms median / 50.5 max; per-player ceiling 23.83 Hz
+multi paired still: 268.3 ms median / 376.6 max; per-player ceiling 3.77 Hz
+PUBLIC COMPOSITE CHECKS PASSED; not live two-person accuracy or E2E latency.
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES

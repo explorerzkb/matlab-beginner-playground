@@ -1,0 +1,7 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+正在使用 'Processes' 配置文件启动并行池(parpool)...
+已连接到具有 1 个工作进程的并行池。
+POSE TELEMETRY: E:\matlabHi-pose-control\pose-validation-results | capture 8.19 Hz | ROI poses 0.00 / 0.00 Hz
+使用 'Processes' 配置文件的并行池正在关闭。
+LIVE MODE SWITCH PASSED: game -> mirrored calibration -> upright keyboard game; camera reopened
+Timer supplied debug keys only; no human calibration or playthrough claim.

@@ -1,4 +1,4 @@
-function [vertices,faces,colours] = trafficCarGeometry(rects,directions)
+function [vertices,faces,colours] = trafficCarGeometry(rects,directions,roadY)
 %TRAFFICCARGEOMETRY Batched front/rear cars: glass, hood, lamps and wheels.
 persistent base face palette shade
 if isempty(base)
@@ -28,5 +28,15 @@ for k=1:n
     vertices((k-1)*nv+(1:nv),:)=local.*rects(k,3:4)+rects(k,1:2);
     faces((k-1)*nf+(1:nf),:)=face+(k-1)*nv;
     colours((k-1)*nf+(1:nf),:)=c;
+end
+% Every component is an axis-aligned rectangle. Clip its actual geometry,
+% rather than clamping car positions (which would pile cars at the edge).
+% Simulation depth and the ground-contact hitboxes remain unchanged.
+if nargin>=3
+    vertices(:,2)=min(roadY(2),max(roadY(1),vertices(:,2)));
+    heights=reshape(vertices(faces',2),4,[]);
+    visible=max(heights,[],1)>min(heights,[],1);
+    faces=faces(visible,:);
+    colours=colours(visible,:);
 end
 end

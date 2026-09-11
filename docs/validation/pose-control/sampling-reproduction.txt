@@ -1,0 +1,2 @@
+REPRODUCED calibration: Missing camera time counted as stable calibration
+REPRODUCED direction: Skipped neutral sample retained the wrong direction

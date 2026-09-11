@@ -26,7 +26,8 @@ sky=[sky fliplr(sky)];
 sky=[sky;flipud(sky)];
 nx=ceil(world.worldWidth/80);
 ny=ceil((cfg.render.flightCameraCeiling+.4)/26.6667);
-skyImage=image(ax,'CData',repmat(sky,ny,nx),'XData',[0 nx*80], ...
+sky=repmat(sky,ny,nx);
+skyImage=image(ax,'CData',sky,'XData',[0 nx*80], ...
     'YData',[-.4 ny*26.6667-.4]);
 if isprop(skyImage,'Interpolation')
     skyImage.Interpolation='bilinear';
@@ -37,10 +38,11 @@ if strcmp(segment, 'world')
 
     % North Lake uses the two checked painted plates. They intentionally
     % express a playable panorama, not a survey-accurate shoreline.
-    drawTexturePlate(ax, [regions.northLake(1) - 2, 0.15, 30.0, 12.65], ...
-        cfg.assets.northLakeWest, cfg.render.backgroundTextureStride);
+    skyPlate=struct('rgb',sky,'rect',[0 -.4 nx*80 ny*26.6667]);
+    westPlate=drawTexturePlate(ax, [regions.northLake(1) - 2, 0.15, 30.0, 12.65], ...
+        cfg.assets.northLakeWest, cfg.render.backgroundTextureStride,skyPlate,[]);
     drawTexturePlate(ax, [regions.northLake(1) + 24.0, 0.15, 28.4, 12.65], ...
-        cfg.assets.northLakeEast, cfg.render.backgroundTextureStride);
+        cfg.assets.northLakeEast, cfg.render.backgroundTextureStride,skyPlate,westPlate);
     drawSceneLabel(ax, regions.northLake(1) + 3.0, 10.8, ...
         '北湖 · 动物借道', '实体鸭鹅 / 羊驼后踢 / 孔雀弹射', cfg);
     drawAlpacaShortcut(ax, world.mechanic.animals.shortcutPlatforms, cfg);
@@ -160,9 +162,14 @@ text(ax,116.2,3.1,'车道外等候','FontName',cfg.render.fontName, ...
 % Checked architectural sprite shares its deck and footing with the physics.
 drawGreenbelt(ax,range(1)-1,4.3,diff(range)+2,cfg);
 patch(ax, [range(1), range(2), range(2), range(1)], ...
-    [0.65, 0.65, 4.7, 4.7], [0.30, 0.34, 0.36], 'EdgeColor', 'none');
-for laneX=traffic.carData(:,1)'+2.8
-    plot(ax,[laneX laneX],[-.4 4.7],'--', ...
+    traffic.roadRenderY([1 1 2 2]), [0.30, 0.34, 0.36], 'EdgeColor', 'none');
+for laneX=traffic.laneEdges(2:end-1)
+    plot(ax,[laneX laneX],traffic.roadRenderY,'--', ...
+        'Color',[0.90 0.89 0.79],'LineWidth',1.2);
+end
+% Solid outer edges distinguish the four lanes from the waiting shoulders.
+for laneX=traffic.laneEdges([1 end])
+    plot(ax,[laneX laneX],traffic.roadRenderY,'-', ...
         'Color',[0.90 0.89 0.79],'LineWidth',1.2);
 end
 crosswalk=traffic.crosswalk;
@@ -183,6 +190,17 @@ text(ax,mean(deck(1)+[0 deck(3)]),7.5,'北理桥', ...
     'FontName',cfg.render.fontName,'FontWeight','bold','FontSize',13, ...
     'HorizontalAlignment','center','Color',[0.53 0.13 0.10]);
 % No ladder: the upper route is reached with a tea-powered jump.
+signX=deck(1)-2.4;
+plot(ax,[signX signX],[1 3.35],'-','Color',[.34 .37 .32],'LineWidth',2);
+rectangle(ax,'Position',[signX-1.9 3.1 3.8 1.35], ...
+    'Curvature',.06,'FaceColor',[.31 .39 .30], ...
+    'EdgeColor',[.57 .60 .47],'LineWidth',.8);
+text(ax,signX,4.03,'大跳可上桥', ...
+    'FontName',cfg.render.fontName,'FontSize',10,'FontWeight','bold', ...
+    'HorizontalAlignment','center','Color',[.94 .92 .79]);
+text(ax,signX,3.47,'先喝冰红茶', ...
+    'FontName',cfg.render.fontName,'FontSize',8, ...
+    'HorizontalAlignment','center','Color',[.85 .86 .73]);
 end
 
 function drawBicycleJunction(ax, range, cfg)
@@ -242,18 +260,44 @@ backgroundSurface(ax,x+[0 width;0 width], ...
     'AlphaDataMapping','none','EdgeColor','none');
 end
 
-function drawTexturePlate(ax, rect, imagePath, stride)
+function plate = drawTexturePlate(ax, rect, imagePath, stride, sky, previous)
 stride = max(1, round(stride));
 rgb = readGameImage(imagePath, stride);
 % Bake the feather into RGB once.  A full per-pixel AlphaData plane makes
 % every later camera frame pay an expensive transparency-compositing cost.
 alpha = plateAlpha(size(rgb, 1), size(rgb, 2));
-matte = reshape([0.71, 0.86, 0.93], 1, 1, 3);
-rgb = uint8(255 * (double(rgb) / 255 .* alpha + matte .* (1 - alpha)));
+% Match the actual world-space clouds, not a constant blue matte. Include
+% the already-composited western plate wherever the eastern one overlaps it.
+[worldX,worldY]=meshgrid(linspace(rect(1),rect(1)+rect(3),size(rgb,2)), ...
+    linspace(rect(2)+rect(4),rect(2),size(rgb,1)));
+matte=samplePlate(sky,worldX,worldY);
+if ~isempty(previous)
+    under=samplePlate(previous,worldX,worldY);
+    inside=isfinite(under);
+    matte(inside)=under(inside);
+end
+rgb = uint8(double(rgb).*alpha + matte.*(1-alpha));
+plate=struct('rgb',flipud(rgb),'rect',rect);
 x = rect(1) + [0, rect(3); 0, rect(3)];
 y = rect(2) + [0, 0; rect(4), rect(4)];
 backgroundSurface(ax, x, y, zeros(2), 'CData', flipud(rgb), ...
     'FaceColor', 'texturemap', 'EdgeColor', 'none');
+end
+
+function rgb = samplePlate(plate, x, y)
+% Rows run bottom-to-top, as in the image object's world coordinates.
+u=1+(x-plate.rect(1))/plate.rect(3)*(size(plate.rgb,2)-1);
+v=1+(y-plate.rect(2))/plate.rect(4)*(size(plate.rgb,1)-1);
+% Interpolate only the covered window, not the full high-altitude sky atlas.
+left=max(1,min(size(plate.rgb,2)-1,floor(min(u(:)))));
+right=min(size(plate.rgb,2),max(left+1,ceil(max(u(:)))));
+bottom=max(1,min(size(plate.rgb,1)-1,floor(min(v(:)))));
+top=min(size(plate.rgb,1),max(bottom+1,ceil(max(v(:)))));
+rgb=zeros([size(x),3]);
+for channel=1:3
+    rgb(:,:,channel)=interp2(double(plate.rgb(bottom:top,left:right,channel)), ...
+        u-left+1,v-bottom+1,'linear',nan);
+end
 end
 
 function alpha = plateAlpha(height, width)
@@ -261,6 +305,10 @@ function alpha = plateAlpha(height, width)
 edge = min(1, min((0:width-1), (width-1:-1:0)) / (0.075*width));
 edge = edge.^2 .* (3 - 2*edge);
 alpha = repmat(edge, height, 1);
+% Finish within the empty upper sky, before architecture and treetops.
+top=min(1,(0:height-1)'/max(1,.16*(height-1)));
+top=top.^2.*(3-2*top);
+alpha=alpha.*top;
 end
 
 function drawSceneLabel(ax, x, y, titleText, kicker, cfg)

@@ -1,0 +1,39 @@
+POSE TELEMETRY PASSED: separate rates, unique packet latency, pause flush
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+正在使用 'Processes' 配置文件启动并行池(parpool)...
+已连接到具有 1 个工作进程的并行池。
+    GraphicsRenderer: 'WebGL'
+              Vendor: 'Google Inc. (Intel)'
+             Version: 'WebGL 2.0 (OpenGL ES 3.0 Chromium)'
+      RendererDevice: 'ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)'
+             Details: [1×1 struct]
+
+  capture 8.80 Hz | valid ROI 0.00 / 0.00 Hz | infer calls 17.60 Hz | capture->draw mean 141.1 max 183.3 ms (fixture, not action latency)
+POSE DISPLAY network-race 28.40 FPS | 59.79 steps/s | long>50ms 9 | max 72.8ms
+使用 'Processes' 配置文件的并行池正在关闭。
+Report only: no 40/50-FPS gate; not human acceptance or exact monitor presentation timing.
+  53.425       1 runPoseRenderCheck
+  29.262       1 startPoseSession
+  29.082       1 parpool
+  27.836       1 doParpool
+  21.417       1 AbstractClusterPool.AbstractClusterPool>AbstractClusterPool.hBuildPool
+  21.021      19 Job.Job>Job.wait
+  20.975      19 Job.Job>Job.doWait
+  20.972      19 wait
+  20.625       1 AbstractClusterPool.AbstractClusterPool>iStartClient
+  20.606       1 AbstractInteractiveClient>AbstractInteractiveClient.start
+  17.970       1 ClusterClientSession>ClusterClientSession.waitForConnections
+  10.139       1 runPoseRenderCheck>@()stopPoseSession(session)
+  10.136       1 stopPoseSession
+  10.127       2 AbstractClusterPool.delete
+  10.114       1 AbstractClusterPool.AbstractClusterPool>AbstractClusterPool.hDeleteLeaveHandleValid
+  10.109       1 AbstractInteractiveClient>AbstractInteractiveClient.stopLabsAndDisconnect
+  10.108       1 AbstractInteractiveClient>AbstractInteractiveClient.pStopWorkersAndDisconnect
+   7.715       1 AbstractInteractiveClient>iDeleteJobs
+   7.682       1 Cluster.Cluster>Cluster.hDeleteOneJob
+   7.617       1 Cluster.Cluster>Cluster.hCancelAndAwaitWorkerCompletion
+   7.564       1 Local.Local>Local.awaitWorkerCompletion
+   6.291       1 argumentsParser
+   6.288       1 argumentsParser>iGetClusterAndNumWorkers
+   6.274       1 parcluster
+   5.900       1 Local.Local>iGetProcInfo

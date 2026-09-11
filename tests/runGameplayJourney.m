@@ -1,9 +1,10 @@
-function state = runGameplayJourney(route, delayTicks, includeOpening, outputFolder)
+function state = runGameplayJourney(route, delayTicks, includeOpening, outputFolder, inputAdapter)
+if nargin < 5, inputAdapter = []; end
 if nargin < 2, delayTicks = 0; end
 if nargin < 3, includeOpening = false; end
 if nargin < 4, outputFolder = ''; end
 if nargin < 1, route = 'upper'; end
-%RUNGAMEPLAYJOURNEY Drive from the real spawn using keys only; log stalls.
+%RUNGAMEPLAYJOURNEY Reference input policy, optionally transformed by a fixture.
 root = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(root,'config'),fullfile(root,'levels'),fullfile(root,'src'));
 cfg=gameConfig(root); world=continuousCampusWorld();
@@ -24,72 +25,8 @@ if capture
     guard = onCleanup(@() close(fig));
     ax = axes(fig,'Position',[0.045 0.08 0.92 0.86]);
 end
-input.useItem=false;
 for tick=1:18000
-    input.useItem=false;
-    for p=1:2
-        player=state.players(p);
-        input.player(p).left=false;
-        input.player(p).right=true;
-        input.player(p).jump=player.onGround && ~player.jumpHeld;
-        if player.pos(1)>38 && player.pos(1)<43
-            input.player(p).jump=false;
-        end
-        if player.pos(1)>68 && ~state.levelState.network.authenticated
-            target=world.mechanic.network.loginButton(1)+0.45+0.65*(p-1);
-            errorX=target-player.pos(1);
-            demand=3*errorX-player.vel(1);
-            input.player(p).right=demand>0.2;
-            input.player(p).left=demand< -0.2;
-            input.player(p).jump=false;
-        end
-    end
-    for p=1:2
-        player=state.players(p); x=player.pos(1);
-        if x>110 && x<151
-            input.player(p).jump=false;
-            if strcmp(route,'lower') && x<118
-                traffic=state.levelState.traffic;
-                if ~traffic.pedestriansMayCross || traffic.signalProgress>.12
-                    demand=3*(117.0-x)-player.vel(1);
-                    input.player(p).right=demand>.2;
-                    input.player(p).left=demand<-.2;
-                end
-            end
-            if strcmp(route,'upper') && x<118.8 && player.pos(2)<6.5
-                target=115.8;
-                demand=3*(target-x)-player.vel(1);
-                input.player(p).right=demand>.2;
-                input.player(p).left=demand<-.2;
-                if abs(target-x)<.55
-                    input.useItem=state.inventory.buffTimer<=0;
-                    input.player(p).jump=state.inventory.buffTimer>0 && player.onGround && ~player.jumpHeld;
-                end
-            elseif strcmp(route,'upper') && player.pos(2)>=6.5
-                input.player(p).right=true;input.player(p).left=false;
-            end
-        end
-        if x>world.checkpoints(7).x && isfield(state.levelState,'bus')
-            rects=state.levelState.bus.rects;
-            eligible=find(rects(:,1)+rects(:,3)>x-.5);
-            [~,near]=min(abs(rects(eligible,1)-x));
-            idx=eligible(near);
-            bus=rects(idx,:); target=bus(1)+2.0+1.8*(p-1);
-            top=bus(2)+bus(4); riding=abs(player.pos(2)-top)<0.1;
-            if riding
-                input.player(p).right=false; input.player(p).left=false;
-                lamps=world.mechanic.bus.lampColliders(:,1);
-                direction=1;
-                gap=(lamps-x)*direction;
-                input.player(p).jump=any(gap>0 & gap<1.9) && ~player.jumpHeld;
-            else
-                demand=3*(target-x)-player.vel(1);
-                input.player(p).right=demand>0.2; input.player(p).left=demand< -0.2;
-                input.player(p).jump=player.onGround && ~player.jumpHeld;
-
-            end
-        end
-    end
+    input=journeyInput(state,world,route);
     if tick <= delayTicks
         for p=1:2
             input.player(p).left=false;
@@ -97,11 +34,16 @@ for tick=1:18000
             input.player(p).jump=false;
         end
     end
+    if ~isempty(inputAdapter)
+        input=inputAdapter(input,state,tick,@(future) journeyInput(future,world,route));
+    end
     inputTrace(tick,:) = [input.player(1).left, input.player(1).right, ...
         input.player(1).jump, input.player(2).left, input.player(2).right, input.player(2).jump];
-    state=stepConsumables(state,input,cfg,cfg.physics.fixedDt);
-    state=stepPhysics(state,input,world,cfg,cfg.physics.fixedDt);
-    state=stepLevel(state,world,cfg,cfg.physics.fixedDt);
+    if ~isfield(input,'safetyPause') || ~input.safetyPause
+        state=stepConsumables(state,input,cfg,cfg.physics.fixedDt);
+        state=stepPhysics(state,input,world,cfg,cfg.physics.fixedDt);
+        state=stepLevel(state,world,cfg,cfg.physics.fixedDt);
+    end
     if state.requestReset
         fprintf('RESET t%.2f phase=%s cp%d positions %.2f %.2f / %.2f %.2f\n',state.levelTime,state.levelState.bicycle.phase,state.checkpointIndex,state.players(1).pos,state.players(2).pos);
         state=resetToCheckpoint(state,world);
@@ -147,4 +89,71 @@ if capture
 end
 fprintf('INPUT JOURNEY PASSED: %s, delay %d, opening %d, %.2fs\n', ...
     route,delayTicks,includeOpening,state.levelTime);
+end
+
+function input=journeyInput(state,world,route)
+input.useItem=false;
+for p=1:2
+    player=state.players(p);
+    input.player(p).left=false;
+    input.player(p).right=true;
+    input.player(p).jump=player.onGround && ~player.jumpHeld;
+    if player.pos(1)>38 && player.pos(1)<43
+        input.player(p).jump=false;
+    end
+    if player.pos(1)>68 && ~state.levelState.network.authenticated
+        target=world.mechanic.network.loginButton(1)+0.45+0.65*(p-1);
+        errorX=target-player.pos(1);
+        demand=3*errorX-player.vel(1);
+        input.player(p).right=demand>0.2;
+        input.player(p).left=demand< -0.2;
+        input.player(p).jump=false;
+    end
+end
+for p=1:2
+    player=state.players(p); x=player.pos(1);
+    if x>110 && x<151
+        input.player(p).jump=false;
+        if strcmp(route,'lower') && x<118
+            traffic=state.levelState.traffic;
+            if ~traffic.pedestriansMayCross || traffic.signalProgress>.12
+                demand=3*(117.0-x)-player.vel(1);
+                input.player(p).right=demand>.2;
+                input.player(p).left=demand<-.2;
+            end
+        end
+        if strcmp(route,'upper') && x<118.8 && player.pos(2)<6.5
+            target=115.8;
+            demand=3*(target-x)-player.vel(1);
+            input.player(p).right=demand>.2;
+            input.player(p).left=demand<-.2;
+            if abs(target-x)<.55
+                input.useItem=state.inventory.buffTimer<=0;
+                input.player(p).jump=state.inventory.buffTimer>0 && player.onGround && ~player.jumpHeld;
+            end
+        elseif strcmp(route,'upper') && player.pos(2)>=6.5
+            input.player(p).right=true;input.player(p).left=false;
+        end
+    end
+    if x>world.checkpoints(7).x && isfield(state.levelState,'bus')
+        rects=state.levelState.bus.rects;
+        eligible=find(rects(:,1)+rects(:,3)>x-.5);
+        [~,near]=min(abs(rects(eligible,1)-x));
+        idx=eligible(near);
+        bus=rects(idx,:); target=bus(1)+2.0+1.8*(p-1);
+        top=bus(2)+bus(4); riding=abs(player.pos(2)-top)<0.1;
+        if riding
+            input.player(p).right=false; input.player(p).left=false;
+            lamps=world.mechanic.bus.lampColliders(:,1);
+            direction=1;
+            gap=(lamps-x)*direction;
+            input.player(p).jump=any(gap>0 & gap<1.9) && ~player.jumpHeld;
+        else
+            demand=3*(target-x)-player.vel(1);
+            input.player(p).right=demand>0.2; input.player(p).left=demand< -0.2;
+            input.player(p).jump=player.onGround && ~player.jumpHeld;
+
+        end
+    end
+end
 end

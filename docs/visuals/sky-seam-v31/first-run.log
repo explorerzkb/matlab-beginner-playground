@@ -1,0 +1,44 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+WROTE 15 CONTINUOUS-WORLD SNAPSHOTS TO docs/visuals/sky-seam-v31
+Running level-data checks...
+WARNING: package sun.awt.X11 not in java.desktop
+WARNING: package sun.awt.X11 not in java.desktop
+CAMPUS PRESENTATION PASSED: 6s hold, one-way wrap, world-anchored handscroll, continuous flight/reset views
+Running input-mapping checks...
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 0 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: INCOMPLETE
+
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 3 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: PASS
+
+Running shared physics and state checks...
+Running North Lake checks...
+ANIMAL BOOST LANDINGS PASSED: 12 tethered cases at gravity -25
+PLAYGROUND RACE PASSED: normal lead 0.542, normal 2.244s, tea 1.793s; loss and reset recover.
+Running campus-network checks...
+TIMEOUT HOLD PASSED: extra 1 second on actual harmless reset path
+Running traffic checks...
+V30 PASSED: tea-only bridge, arrival red, dense cars, ground impact, three-second immunity.
+{Unrecognized field name "roadRenderY".
+
+Error in testTrafficCars (line 22)
+        [v,f,c]=trafficCarGeometry(t.cars,t.carDirections,d.roadRenderY);
+                                                          ^^^^^^^^^^^^^
+Error in runSmokeTests (line 48)
+testTrafficCars();
+^^^^^^^^^^^^^^^^^
+}

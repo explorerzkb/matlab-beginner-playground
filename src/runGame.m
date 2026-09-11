@@ -16,7 +16,12 @@ fig = figure( ...
     'Position', [80, 80, cfg.render.windowSize]);
 ax = axes(fig, 'Position', [0.045, 0.08, 0.92, 0.86]);
 installInputCallbacks(fig);
+set(fig,'DeleteFcn',@cleanupPoseResources);
 cleanupGuard = onCleanup(@() cleanupGame(fig));
+setappdata(fig,'inputMode',cfg.input.mode);
+if strcmp(cfg.input.mode,'pose') && ~cfg.runtime.testMode
+    setPoseMode(fig,cfg,'pose');
+end
 
 restartRequested = true;
 while restartRequested && isgraphics(fig)
@@ -38,8 +43,11 @@ while restartRequested && isgraphics(fig)
         if cfg.runtime.testMode
             state = runTestLevel(fig, ax, state, level, cfg);
         else
+            flushFigurePose(fig,false);
             state = runPrologue(fig, ax, state, level, cfg);
+            flushFigurePose(fig,false);
             state = runInteractiveLevel(fig, ax, state, level, cfg);
+            flushFigurePose(fig,false);
         end
         stats = state.stats;
 
@@ -62,15 +70,19 @@ clear cleanupGuard;
 end
 
 function state = runInteractiveLevel(fig, ax, state, level, cfg)
-% Prime the JVM call before starting telemetry; its first invocation can
-% take more than a second on a cold MATLAB process.
-java.util.concurrent.locks.LockSupport.parkNanos(int64(250000));
+% Prime the platform timer before starting telemetry.
+gameFrameWait();
 clock = tic;
 previousTime = toc(clock);
 accumulator = 0;
-lastRenderTime = -inf;
-renderInterval = 1 / cfg.render.targetHz;
+nextRenderTime = 0;
+if strcmp(getappdata(fig,'inputMode'),'pose'), cfg.render.targetHz=cfg.pose.renderHz;
+else, cfg.render.targetHz=50;
+end
+renderInterval=1/cfg.render.targetHz;
 telemetry = initializeTelemetry();
+manualPaused=state.paused;
+previousToggle=false; previousCalibration=false;
 
 while ~state.completed && ~state.requestQuit && isgraphics(fig)
     if closeWasRequested(fig)
@@ -82,6 +94,39 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     frameDelta = min(rawFrameDelta, cfg.runtime.maxFrameDelta);
     previousTime = nowTime;
     input = readInputSnapshot(fig, cfg.input);
+    if input.toggleMode && ~previousToggle
+        if input.poseMode, mode='keyboard'; else, mode='pose'; end
+        setPoseMode(fig,cfg,mode);
+        if strcmp(mode,'pose')
+            [state,ready]=calibrateInteractivePose(fig,ax,state,cfg);
+            if ~ready, state.requestQuit=true; break; end
+            mode=getappdata(fig,'inputMode');
+        end
+        if strcmp(mode,'pose'), cfg.render.targetHz=cfg.pose.renderHz;
+        else, cfg.render.targetHz=50;
+        end
+        renderInterval=1/cfg.render.targetHz;
+        nextRenderTime=toc(clock);
+        manualPaused=false;
+        state.input.bufferedLeft=[false false];
+        state.input.bufferedRight=[false false];
+        state.input.bufferedJumps=[false false];
+        accumulator=0; previousTime=toc(clock);
+        input=readInputSnapshot(fig,cfg.input);
+    end
+    previousToggle=input.toggleMode;
+    if input.poseMode && input.recalibrate && ~previousCalibration
+        flushFigurePose(fig,true);
+        [state,ready]=calibrateInteractivePose(fig,ax,state,cfg);
+        if ~ready, state.requestQuit=true; break; end
+        input=readInputSnapshot(fig,cfg.input);
+        if input.poseMode, cfg.render.targetHz=cfg.pose.renderHz;
+        else, cfg.render.targetHz=50;
+        end
+        renderInterval=1/cfg.render.targetHz;
+        accumulator=0; previousTime=toc(clock); nextRenderTime=previousTime;
+    end
+    previousCalibration=input.recalibrate;
     state.input.bufferedLeft = state.input.bufferedLeft | ...
         [input.player(1).left, input.player(2).left];
     state.input.bufferedRight = state.input.bufferedRight | ...
@@ -95,11 +140,29 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     state.input.previousPause = input.pause;
     state.input.previousQuit = input.quit;
     if pauseEdge
-        state.paused = ~state.paused;
+        manualPaused = ~manualPaused;
+        flushFigurePose(fig,false);
         state.input.bufferedLeft = [false false];
         state.input.bufferedRight = [false false];
         state.input.bufferedJumps = [false false];
         state.input.bufferedUseItem = false;
+    end
+    currentPose=readFigurePose(fig,poseClock(),false,true);
+    input.safetyPause=currentPose.safetyPause;
+    state.paused=manualPaused || input.safetyPause;
+    if input.poseMode
+        recordFigurePoseTelemetry(fig,'scene',poseClock(),struct( ...
+            'centre',mean([state.players(1).pos(1),state.players(2).pos(1)]), ...
+            'active',~state.paused,'elapsed',rawFrameDelta));
+    end
+    if input.poseMode
+        state.input.bufferedLeft=[false false];
+        state.input.bufferedRight=[false false];
+        state.input.bufferedJumps=[false false];
+    end
+    if state.paused
+        accumulator=0;
+        readFigurePose(fig,poseClock(),true,false);
     end
     if quitEdge
         state.requestQuit = true;
@@ -134,8 +197,15 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
                     state.input.bufferedJumps(playerIndex);
             end
             stepInput.useItem = input.useItem || state.input.bufferedUseItem;
+            if input.poseMode
+                poseInput=readFigurePose(fig,poseClock(),true,true);
+                stepInput.player=poseInput.player;
+            end
             state = stepConsumables(state, stepInput, cfg, cfg.physics.fixedDt);
             state = stepPhysics(state, stepInput, level, cfg, cfg.physics.fixedDt);
+            if input.poseMode
+                recordFigurePoseTelemetry(fig,'physics',poseClock(),[]);
+            end
             state.input.bufferedLeft = [false false];
             state.input.bufferedRight = [false false];
             state.input.bufferedJumps = [false false];
@@ -146,6 +216,8 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
             if state.requestReset
                 playSoundCue('failure', cfg);
                 state = resetToCheckpoint(state, level, cfg);
+                flushFigurePose(fig,false);
+                accumulator=0;
                 break;
             end
             if state.completed
@@ -157,14 +229,37 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
         end
     end
 
-    if nowTime - lastRenderTime >= renderInterval || state.paused
+    if nowTime >= nextRenderTime
+        if input.poseMode
+            state.poseStatus='等待摄像头／校准 · C 重校准 · K 键盘';
+            if ~isempty(getappdata(fig,'poseError'))
+                state.poseStatus='摄像头／推理异常，资源已释放 · K 切键盘';
+            end
+            if isappdata(fig,'poseSession')
+                session=getappdata(fig,'poseSession');
+                state.poseStatus=session.state.reason;
+                if strcmp(session.state.phase,'countdown')
+                    state.poseStatus=sprintf('稳定恢复：%.0f 秒', ...
+                        max(0,ceil(session.state.countdownUntil-poseClock())));
+                end
+                if ~isempty(session.error), state.poseStatus='摄像头／推理异常 · K 切键盘'; end
+            end
+        else
+            state.poseStatus='';
+        end
         state = renderFrame(fig, ax, state, level, cfg);
         % A scheduled gameplay frame must reach the display. MATLAB caps
         % drawnow limitrate at 20 screen updates per second, below our 50 Hz
         % target; use a full update here and reserve limitrate for callback
         % polling between scheduled frames.
         drawnow;
-        lastRenderTime = nowTime;
+        if input.poseMode && ~state.paused
+            recordFigurePoseTelemetry(fig,'render',poseClock(),[]);
+        end
+        nextRenderTime=nextRenderTime+renderInterval;
+        if toc(clock)-nextRenderTime>renderInterval
+            nextRenderTime=toc(clock);
+        end
         if cfg.runtime.validationMode && ~state.paused
             telemetry = recordRenderedFrame(telemetry, state);
             if telemetry.liveSeconds >= 1
@@ -180,9 +275,8 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     end
     % Park briefly without calling pause. MATLAB documents pause as a full
     % drawnow equivalent, so using it in every polling iteration can flush
-    % redundant frames. A short JVM park also avoids a hot busy-wait while
-    % preserving sub-millisecond input polling between 60 Hz physics steps.
-    java.util.concurrent.locks.LockSupport.parkNanos(int64(250000));
+    % redundant frames. The platform timer avoids a hot busy-wait.
+    gameFrameWait();
 end
 if cfg.runtime.validationMode
     saveInteractiveTelemetry(telemetry, state, cfg);
@@ -190,6 +284,21 @@ if cfg.runtime.validationMode
         set(fig, 'Name', cfg.presentation.title);
     end
 end
+end
+
+function [state,ready]=calibrateInteractivePose(fig,ax,state,cfg)
+% Reuse the full mirror/direction/jump check when switching or recalibrating.
+if isfield(state.render,'handles') && ...
+        isfield(state.render.handles,'campusBackgroundAxes') && ...
+        isgraphics(state.render.handles.campusBackgroundAxes)
+    delete(state.render.handles.campusBackgroundAxes);
+end
+ready=runPoseCalibration(fig,ax,cfg);
+state.render.initialized=false;
+state.input.bufferedLeft=[false false];
+state.input.bufferedRight=[false false];
+state.input.bufferedJumps=[false false];
+state.input.bufferedUseItem=false;
 end
 
 function telemetry = initializeTelemetry()
