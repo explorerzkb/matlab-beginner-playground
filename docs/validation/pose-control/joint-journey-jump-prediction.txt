@@ -1,0 +1,32 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+t=10.0 p1=[77.22 -25.96] p2=[77.96 -23.48] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.02 phase=waiting cp3 positions 77.25 -26.32 / 78.00 -23.85
+t=15.9 p1=[105.61 5.06] p2=[107.43 5.06] cp=3 net=success deaths=1
+route=undecided climbs=0/0 bus=0
+t=25.8 p1=[237.47 118.15] p2=[240.31 117.35] cp=5 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=35.8 p1=[353.71 4.90] p2=[355.67 8.96] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=45.8 p1=[384.41 4.90] p2=[387.07 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=55.8 p1=[414.52 4.90] p2=[417.35 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=59.7 p1=[426.02 4.90] p2=[428.85 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=1
+INPUT JOURNEY PASSED: upper, delay 0, opening 0, 59.68s
+JOINT FIXTURE completed=1 | body jumps 17/18 | classified 17/18 | consumed 17/18
+                   route: 'upper'
+                strategy: 'predictive'
+               completed: 1
+                  poseHz: 12
+    deliveryDelaySeconds: 0.0833
+                 packets: 764
+      syntheticBodyJumps: [17 18]
+         classifiedJumps: [17 18]
+           consumedJumps: [17 18]
+             gameSeconds: 59.6833
+                failures: 1
+     syntheticJointsOnly: 1
+
+POSE JOINT JOURNEY PASSED: upper (no camera/model/human acceptance)

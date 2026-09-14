@@ -11,6 +11,8 @@ addpath(fullfile(projectRoot, 'config'));
 addpath(fullfile(projectRoot, 'levels'));
 addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
+cfg.pose = poseConfig();
+cfg.pose.modelPath = cfg.assets.poseModel;
 if mod(numel(varargin), 2) ~= 0
     error('matlabHi:InvalidArguments', ...
         '可选参数必须使用名称/值成对传入，例如 startGame(''TestMode'', true)。');
@@ -20,6 +22,12 @@ for index = 1:2:numel(varargin)
     name = lower(char(string(varargin{index})));
     value = varargin{index + 1};
     switch name
+        case 'inputmode'
+            cfg.input.mode=validatestring(char(string(value)),{'keyboard','pose'});
+        case 'posemodel'
+            cfg.pose.modelPath=char(string(value));
+        case 'posecamera'
+            cfg.pose.cameraIndex=value;
         case 'testmode'
             cfg.runtime.testMode = logical(value);
         case 'lowpowermode'
@@ -45,6 +53,7 @@ if ~cfg.runtime.lowPowerMode
     cfg.render.windowSize = [1280 720];
     cfg.render.backgroundTextureStride = 2;
 end
+cfg=configureInputPerformance(cfg);
 
 runGame(cfg);
 clear pathGuard;

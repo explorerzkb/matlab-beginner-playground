@@ -1,0 +1,19 @@
+  webcam - 属性:
+
+                     Name: 'HD Camera'
+               Resolution: '1280x720'
+     AvailableResolutions: {'1280x720'  '640x640'  '640x480'  '640x360'}
+    BacklightCompensation: 1
+               Brightness: 0
+                 Contrast: 32
+                 Exposure: -6
+             ExposureMode: 'auto'
+                    Gamma: 100
+                      Hue: 0
+               Saturation: 64
+                Sharpness: 3
+             WhiteBalance: 4600
+         WhiteBalanceMode: 'auto'
+
+60 acquisitions in 3.104s, 19.33 Hz, 1280x720
+REOPEN/CLEANUP PASSED

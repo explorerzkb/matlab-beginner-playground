@@ -1,0 +1,48 @@
+MATLABHI UNIFIED ENTRY FINAL DEVELOPMENT CHECK
+Date: 2026-09-15
+MATLAB: 25.2.0.2998904 (R2025b)
+Platform: PCWIN64 development machine, not the HONOR target laptop
+
+PASS: MATLAB Code Analyzer, zero issues
+PASS: all smoke-test groups
+PASS: pose default/fallback, performance profile and camera-mode selection
+PASS: continuous prologue
+PASS: all four keyboard input journeys
+  upper, delay 0, opening 0: 59.95 s
+  lower, delay 0, opening 0: 72.30 s
+  upper, delay 30, opening 1: 59.97 s
+  lower, delay 90, opening 1: 72.28 s
+
+Mechanism coverage included:
+  North Lake animals and 12 tethered boost landings
+  playground race normal/tea/loss/reset paths
+  network timeout hold and recovery
+  dense traffic, bridge traversal/reentry/occlusion
+  bicycle flight recovery and continuous camera
+  bus rear grace, vehicle damage, seven-checkpoint death rendering
+  explicit keyboard TestMode lifecycle
+
+FAIL: legacy keyboard forced-render >40 FPS gate on this development machine
+  north-lake:   35.7 FPS
+  network-race: 57.2 FPS
+  traffic:      38.4 FPS
+  bicycle:      41.4 FPS
+  campus:       29.0 FPS
+  minimum:      29.0 FPS
+
+The performance failure is retained and was not relabelled as a pass.
+Two pre-existing MATLAB processes remained open and were not terminated.
+This run is not evidence for the HONOR MagicBook Pro 14 2025 target.
+
+Separate default-entry live check:
+PASS: pose preview started, timer pressed K, keyboard game axes were upright,
+      game exited, and the camera reopened.
+No human calibration or physical action was performed.
+
+Separate final pose profile, scripted players and no camera inference:
+  north-lake / network / traffic / bicycle: 28.27 / 30.00 / 29.70 / 30.00 FPS
+  campus after final stride-3 adjustment: 27.50 FPS
+  physics: approximately 59 steps/s
+
+The target laptop still requires its own camera, power-mode, 30 FPS,
+software-latency and two-person playability validation.

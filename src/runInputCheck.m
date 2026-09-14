@@ -2,6 +2,10 @@ function continueGame = runInputCheck(fig, ax, cfg)
 %RUNINPUTCHECK Five-second visible two-player keyboard recognition check.
 
 continueGame = false;
+if strcmp(getappdata(fig,'inputMode'),'pose')
+    continueGame=runPoseCalibration(fig,ax,cfg);
+    return;
+end
 cla(ax);
 axis(ax, [0, 1, 0, 1]);
 axis(ax, 'off');

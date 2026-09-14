@@ -1,0 +1,3 @@
+POSE PREVIEW OVERLAY PASSED: mirrored upper-body skeleton and low-confidence marks
+CALIBRATION EXIT PASSED: keyboard switch and upright game coordinates
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES

@@ -17,6 +17,11 @@ input.player2Alternate.jump = 'i';
 input.player2Alternate.label = '备用：J / L 移动，I 跳跃';
 
 input.pause = 'escape';
+% The public entry first tries pose control.  Any unavailable dependency,
+% camera/model failure, or worker timeout falls back to keyboard in-place.
+input.mode = 'pose';
+input.toggleMode = 'k';
+input.recalibrate = 'c';
 input.reset = 'r';
 input.quit = 'q';
 input.useItem = 'space';

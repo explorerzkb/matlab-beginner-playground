@@ -26,6 +26,20 @@ input.pause = hasKey(keys, mappings.pause);
 input.reset = hasKey(keys, mappings.reset);
 input.quit = hasKey(keys, mappings.quit);
 input.useItem = hasKey(keys, mappings.useItem);
+input.toggleMode = hasKey(keys,mappings.toggleMode);
+input.recalibrate = hasKey(keys,mappings.recalibrate);
+if isgraphics(fig) && isappdata(fig,'poseSession')
+    session=getappdata(fig,'poseSession');
+    session=pollPoseSession(session,poseClock());
+    setappdata(fig,'poseSession',session);
+    if ~isempty(session.error)
+        % A failed camera/model must never strand the game in a pose pause.
+        fallbackPoseToKeyboard(fig,session.error);
+    end
+end
+[pose,input.poseMode]=readFigurePose(fig,poseClock(),false,true);
+input.safetyPause=pose.safetyPause;
+if input.poseMode, input.player=pose.player; end
 if isgraphics(fig) && isequal(getappdata(fig,'suppressItemUntilRelease'),true)
     if ~input.useItem
         setappdata(fig,'suppressItemUntilRelease',false);

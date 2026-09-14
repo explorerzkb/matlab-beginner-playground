@@ -1,0 +1,118 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+RESET t3.65 phase=waiting cp1 positions 24.62 -3.02 / 26.78 -8.08
+RESET t5.83 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=5.8 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=2
+route=undecided climbs=0/0 bus=0
+RESET t8.02 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=8.0 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=3
+route=undecided climbs=0/0 bus=0
+RESET t10.20 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t12.38 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=12.4 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=5
+route=undecided climbs=0/0 bus=0
+RESET t14.57 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=15.2 p1=[6.12 4.54] p2=[7.62 4.54] cp=1 net=login deaths=6
+route=undecided climbs=0/0 bus=0
+RESET t16.75 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t18.93 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=18.9 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=8
+route=undecided climbs=0/0 bus=0
+RESET t21.12 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=22.7 p1=[14.11 1.00] p2=[14.97 -1.50] cp=1 net=login deaths=9
+route=undecided climbs=0/0 bus=0
+RESET t23.30 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t25.48 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=25.5 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=11
+route=undecided climbs=0/0 bus=0
+RESET t27.67 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t29.85 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=29.8 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=13
+route=undecided climbs=0/0 bus=0
+RESET t32.03 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=32.0 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=14
+route=undecided climbs=0/0 bus=0
+RESET t34.22 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t36.40 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=36.4 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=16
+route=undecided climbs=0/0 bus=0
+RESET t38.58 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=39.5 p1=[8.78 5.31] p2=[10.28 5.31] cp=1 net=login deaths=17
+route=undecided climbs=0/0 bus=0
+RESET t40.77 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t42.95 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=42.9 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=19
+route=undecided climbs=0/0 bus=0
+RESET t45.13 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=47.0 p1=[14.99 -1.96] p2=[16.49 -7.15] cp=1 net=login deaths=20
+route=undecided climbs=0/0 bus=0
+RESET t47.32 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t49.50 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=49.5 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=22
+route=undecided climbs=0/0 bus=0
+RESET t51.68 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t53.87 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=53.9 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=24
+route=undecided climbs=0/0 bus=0
+RESET t56.05 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=56.3 p1=[3.45 1.00] p2=[4.95 1.00] cp=1 net=login deaths=25
+route=undecided climbs=0/0 bus=0
+RESET t58.23 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t60.42 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=60.4 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=27
+route=undecided climbs=0/0 bus=0
+RESET t62.60 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=63.8 p1=[11.45 3.29] p2=[12.95 3.29] cp=1 net=login deaths=28
+route=undecided climbs=0/0 bus=0
+RESET t64.78 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t66.97 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=67.0 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=30
+route=undecided climbs=0/0 bus=0
+RESET t69.15 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t71.33 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=71.3 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=32
+route=undecided climbs=0/0 bus=0
+RESET t73.52 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=73.5 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=33
+route=undecided climbs=0/0 bus=0
+RESET t75.70 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t77.88 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=77.9 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=35
+route=undecided climbs=0/0 bus=0
+RESET t80.07 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=80.6 p1=[6.12 4.54] p2=[7.62 4.54] cp=1 net=login deaths=36
+route=undecided climbs=0/0 bus=0
+RESET t82.25 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t84.43 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=84.4 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=38
+route=undecided climbs=0/0 bus=0
+RESET t86.62 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=88.2 p1=[14.11 1.00] p2=[14.97 -1.50] cp=1 net=login deaths=39
+route=undecided climbs=0/0 bus=0
+RESET t88.80 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t90.98 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=91.0 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=41
+route=undecided climbs=0/0 bus=0
+RESET t93.17 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t95.35 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=95.3 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=43
+route=undecided climbs=0/0 bus=0
+RESET t97.53 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=97.5 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=44
+route=undecided climbs=0/0 bus=0
+RESET t99.72 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+RESET t101.90 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=101.9 p1=[2.20 1.00] p2=[3.70 1.00] cp=1 net=login deaths=46
+route=undecided climbs=0/0 bus=0
+RESET t104.08 phase=waiting cp1 positions 16.05 -7.45 / 18.61 -12.41
+t=105.0 p1=[8.78 5.31] p2=[10.28 5.31] cp=1 net=login deaths=47
+route=undecided climbs=0/0 bus=0
+{错误使用 assert
+Input journey stalled before the Sports Center.
+
+出错 runGameplayJourney (第 132 行)
+assert(state.completed,'Input journey stalled before the Sports Center.');
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+出错 runPoseJourneyCheck (第 13 行)
+state=runGameplayJourney(route,0,false,'',@adapt);
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 

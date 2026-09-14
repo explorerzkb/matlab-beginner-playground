@@ -1,0 +1,122 @@
+MATLAB 25.2.0.2998904 (R2025b) | PCWIN64 | 11-Sep-2026 02:28:03
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+Running level-data checks...
+CAMPUS PRESENTATION PASSED: 6s hold, one-way wrap, world-anchored handscroll, continuous flight/reset views
+Running input-mapping checks...
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 0 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: INCOMPLETE
+
+
+WINDOWS VALIDATION COVERAGE
+Automatic pass at 100/125/150%: 1 / 1 / 1
+Full playthrough at 100/125/150%: 1 / 1 / 1
+Completed two-person sessions: 3 / 3
+Sessions with visual/control confirmation: 3 / 3
+Routes upper/lower: 1 / 1
+Player-2 keys primary/alternate: 1 / 1
+OVERALL TARGET-WINDOWS EVIDENCE: PASS
+
+Running shared physics and state checks...
+Running North Lake checks...
+ANIMAL BOOST LANDINGS PASSED: 12 tethered cases at gravity -25
+PLAYGROUND RACE PASSED: normal lead 0.542, normal 2.244s, tea 1.793s; loss and reset recover.
+Running campus-network checks...
+TIMEOUT HOLD PASSED: extra 1 second on actual harmless reset path
+Running traffic checks...
+V30 PASSED: tea-only bridge, arrival red, dense cars, ground impact, three-second immunity.
+DEPTH TRAFFIC PASSED: six cycles, constant lane X, ground-only contact
+BRIDGE REENTRY PASSED
+BRIDGE GROUND PASSAGE PASSED
+BRIDGE OCCLUSION PASSED: pier and near rail pixel comparisons
+V29 VISUAL PIXELS PASSED: lake rail, both unobscured large LEDs
+Running bicycle-flight and campus-bus checks...
+BUS REAR GRACE PASSED: five real paired jumps, bounded grace, middle/front/ground lethal
+Actual countdown screen skipped after 2.88 seconds including drawing
+COUNTDOWN SKIP PASSED: one-second hold, release reset, no item carryover
+VEHICLE DAMAGE PASSED: bus 3 hearts, roof safe, depth crossing, bridge safe.
+DEATH RENDER RECOVERY PASSED: 14 immediate reset frames, all seven checkpoints.
+FLIGHT RECOVERY PASSED: 7 height pairs x neutral/left/right inputs
+FLIGHT CAMERA PASSED: continuous launch/apex/landing; 29.8 forced render FPS
+RECOVERY SAFETY PASSED
+Running invisible continuous-world lifecycle check...
+ALL MATLAB SMOKE TESTS PASSED
+CONTINUOUS PROLOGUE PASSED
+t=10.0 p1=[76.55 -14.74] p2=[77.28 -19.93] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.28 phase=waiting cp3 positions 76.56 -20.97 / 77.28 -26.17
+t=20.0 p1=[132.12 6.50] p2=[132.16 6.50] cp=4 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=30.0 p1=[327.50 4.19] p2=[330.61 4.19] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=40.0 p1=[366.15 4.90] p2=[367.90 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=50.0 p1=[396.16 4.90] p2=[397.96 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=59.9 p1=[426.01 4.90] p2=[427.81 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=1
+INPUT JOURNEY PASSED: upper, delay 0, opening 0, 59.95s
+t=10.0 p1=[76.55 -14.74] p2=[77.28 -19.93] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.28 phase=waiting cp3 positions 76.56 -20.97 / 77.28 -26.17
+t=20.0 p1=[116.94 1.00] p2=[116.94 1.00] cp=4 net=success deaths=1
+route=undecided climbs=0/0 bus=0
+t=30.0 p1=[159.10 16.85] p2=[159.14 16.94] cp=5 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=40.0 p1=[337.34 4.90] p2=[337.62 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=50.0 p1=[358.99 8.45] p2=[360.63 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=60.0 p1=[389.12 4.90] p2=[390.76 8.44] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=70.0 p1=[419.13 4.90] p2=[420.96 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=72.3 p1=[426.03 4.90] p2=[427.86 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 0, opening 0, 72.30s
+t=11.5 p1=[76.24 -2.64] p2=[77.17 -7.84] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t12.35 phase=waiting cp3 positions 76.58 -20.97 / 77.25 -26.17
+t=21.5 p1=[126.62 6.50] p2=[126.66 6.50] cp=4 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=31.5 p1=[323.12 4.65] p2=[326.24 4.65] cp=6 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=41.5 p1=[370.71 4.90] p2=[372.27 8.09] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=51.5 p1=[400.68 4.90] p2=[402.48 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=60.0 p1=[426.03 4.90] p2=[427.83 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=1
+INPUT JOURNEY PASSED: upper, delay 30, opening 1, 59.97s
+RESET t7.45 phase=waiting cp1 positions 44.04 -1.88 / 43.92 3.22
+t=11.5 p1=[33.53 5.23] p2=[35.05 5.97] cp=1 net=login deaths=1
+route=undecided climbs=0/0 bus=0
+RESET t18.65 phase=waiting cp3 positions 76.59 -20.97 / 77.27 -26.17
+t=21.5 p1=[82.05 8.44] p2=[82.69 8.44] cp=3 net=success deaths=2
+route=undecided climbs=0/0 bus=0
+t=31.5 p1=[116.94 1.00] p2=[116.94 1.00] cp=4 net=success deaths=2
+route=undecided climbs=0/0 bus=0
+t=41.5 p1=[246.29 114.65] p2=[246.84 116.16] cp=5 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=51.5 p1=[363.59 4.90] p2=[365.39 4.90] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=61.5 p1=[393.70 4.90] p2=[395.50 4.90] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=71.5 p1=[423.70 4.90] p2=[425.50 4.90] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=0
+t=72.3 p1=[426.00 4.90] p2=[427.80 4.90] cp=7 net=success deaths=2
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 90, opening 1, 72.28s
+ALL FOUR INPUT JOURNEYS PASSED
+FORCED north-lake    19.3 FPS at 960x540
+FORCED network-race  43.5 FPS at 960x540
+FORCED traffic       33.4 FPS at 960x540
+FORCED bicycle       39.0 FPS at 960x540
+FORCED campus        32.3 FPS at 960x540
+LOCAL FORCED-RENDER MINIMUM: 19.3 FPS across all five pockets

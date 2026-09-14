@@ -1,0 +1,14 @@
+MATLAB 25.2.0.2998904 (R2025b) (PCWIN64)
+webcam: C:\ProgramData\MATLAB\SupportPackages\R2025b\toolbox\matlab\webcam\supportpackages\webcam.m
+TFLite: D:\MATLAB\R2025b\toolbox\shared\dlcoder_base\dlcoder_base\loadTFLiteModel.m
+TFLITE_PATH: 
+    {'HD Camera'}
+
+Camera check: 
+Interface probe: dl_tensorflow_lite:messages:IncorrectTFLiteModelPassed: Error using loadTFLiteModel. Unable to find the specified TensorFlow Lite model 'D:\Users\ZJH\Temp\matlabhi-dependency-probe-absent.tflite'. The TensorFlow Lite model should be specified as a full pathname.
+An absent-model error is expected; it does NOT prove model inference.
+POSE SYNTHETIC CHECKS PASSED (not human recognition/playability)
+E:\matlabHi-pose-control\src\stepPoseController.m:136 [ISCL] 要提高性能，请使用 'isscalar' 而不是长度比较。
+{错误使用 runCodeChecks (第 22 行)
+MATLAB Code Analyzer found 1 issue(s).
+} 

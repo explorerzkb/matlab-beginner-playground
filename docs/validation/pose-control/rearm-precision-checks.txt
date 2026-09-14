@@ -1,0 +1,76 @@
+POSE REARM PRECISION PASSED: relative/epoch clocks, true early rejection, next jump
+POSE SAMPLING PASSED: all (synthetic timing/angles, not human accuracy)
+POSE SYNTHETIC CHECKS PASSED (not human recognition/playability)
+POSE GAME INPUT PASSED: render/physics separation, no airborne queue, lifecycle epochs
+POSE TELEMETRY PASSED: separate rates, unique packet latency, pause flush
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+t=10.0 p1=[75.72 -25.59] p2=[77.15 -22.01] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.03 phase=waiting cp3 positions 75.77 -26.32 / 77.30 -22.75
+t=15.8 p1=[106.24 5.31] p2=[105.38 5.31] cp=3 net=success deaths=1
+route=undecided climbs=0/0 bus=0
+t=25.7 p1=[116.69 3.08] p2=[115.61 1.00] cp=4 net=success deaths=1
+route=undecided climbs=0/0 bus=0
+t=35.7 p1=[239.20 116.51] p2=[240.30 117.37] cp=5 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=45.7 p1=[347.56 4.90] p2=[346.91 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=55.7 p1=[376.47 8.74] p2=[378.44 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=65.7 p1=[408.67 4.90] p2=[409.08 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=0
+t=71.5 p1=[426.02 4.90] p2=[426.43 4.90] cp=7 net=success deaths=1
+route=upper climbs=0/0 bus=1
+INPUT JOURNEY PASSED: upper, delay 0, opening 0, 71.53s
+JOINT FIXTURE completed=1 | body jumps 25/27 | classified 25/27 | consumed 25/27
+                   route: 'upper'
+                strategy: 'predictive'
+               completed: 1
+                  poseHz: 10
+    deliveryDelaySeconds: 0.0833
+                 packets: 756
+      syntheticBodyJumps: [25 27]
+         classifiedJumps: [25 27]
+           consumedJumps: [25 27]
+             gameSeconds: 71.5333
+                failures: 1
+     syntheticJointsOnly: 1
+             sampleTrace: [330×11 double]
+            traceColumns: {1×11 cell}
+
+POSE JOINT JOURNEY PASSED: upper (no camera/model/human acceptance)
+t=10.0 p1=[75.72 -25.59] p2=[77.15 -22.01] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.03 phase=waiting cp3 positions 75.77 -26.32 / 77.30 -22.75
+t=15.8 p1=[106.24 5.31] p2=[105.38 5.31] cp=3 net=success deaths=1
+route=undecided climbs=0/0 bus=0
+t=25.7 p1=[129.54 1.00] p2=[128.53 1.00] cp=4 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=35.7 p1=[303.44 44.16] p2=[303.77 47.84] cp=5 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=45.7 p1=[346.51 4.90] p2=[352.60 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=55.7 p1=[377.00 4.90] p2=[379.55 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=65.7 p1=[406.83 4.90] p2=[408.87 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=72.1 p1=[426.03 4.90] p2=[428.07 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 0, opening 0, 72.15s
+JOINT FIXTURE completed=1 | body jumps 18/17 | classified 18/17 | consumed 18/17
+                   route: 'lower'
+                strategy: 'predictive'
+               completed: 1
+                  poseHz: 10
+    deliveryDelaySeconds: 0.0833
+                 packets: 763
+      syntheticBodyJumps: [18 17]
+         classifiedJumps: [18 17]
+           consumedJumps: [18 17]
+             gameSeconds: 72.1500
+                failures: 1
+     syntheticJointsOnly: 1
+             sampleTrace: [221×11 double]
+            traceColumns: {1×11 cell}
+
+POSE JOINT JOURNEY PASSED: lower (no camera/model/human acceptance)

@@ -1,0 +1,7 @@
+正在使用 'Processes' 配置文件启动并行池(parpool)...
+已连接到具有 1 个工作进程的并行池。
+PROCESS PIPELINE: 13.47 paired updates/s, 75.9 ms capture-call-to-consumer; poll 0.260 median / 13.282 max ms
+使用 'Processes' 配置文件的并行池正在关闭。
+CAMERA REOPEN AFTER WORKER SHUTDOWN PASSED
+BOUNDED QUEUE AND CLEANUP PASSED; not exposure-to-screen latency.
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES

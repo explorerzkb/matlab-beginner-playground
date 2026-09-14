@@ -1,0 +1,43 @@
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+t=10.0 p1=[75.72 -25.59] p2=[77.15 -22.01] cp=3 net=timeout deaths=0
+route=undecided climbs=0/0 bus=0
+RESET t10.03 phase=waiting cp3 positions 75.77 -26.32 / 77.30 -22.75
+t=15.8 p1=[106.24 5.31] p2=[105.38 5.31] cp=3 net=success deaths=1
+route=undecided climbs=0/0 bus=0
+t=25.7 p1=[129.54 1.00] p2=[128.53 1.00] cp=4 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=35.7 p1=[303.44 44.16] p2=[303.77 47.84] cp=5 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=45.7 p1=[346.77 4.90] p2=[352.52 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=55.7 p1=[376.96 4.90] p2=[378.52 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=65.7 p1=[407.13 4.90] p2=[408.01 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=0
+t=72.0 p1=[426.03 4.90] p2=[426.91 4.90] cp=7 net=success deaths=1
+route=lower climbs=0/0 bus=1
+INPUT JOURNEY PASSED: lower, delay 0, opening 0, 72.05s
+UNCLASSIFIED player 1 body attempt 12; trace columns listed in MAT
+47.416666666666664 1 12 0 3 47.116666666666667 11 11 0.000000 0.000000 1
+47.516666666666666 1 12 0.10000000000000142 3 47.116666666666667 11 11 0.065309 0.653095 1
+47.616666666666667 1 12 0.20000000000000284 3 NaN 11 11 0.105673 0.403635 1
+47.716666666666669 1 12 0.30000000000000426 3 NaN 11 11 0.105673 -0.000000 1
+47.81666666666667 1 12 0.40000000000000568 3 NaN 11 11 0.065309 -0.403635 1
+47.916666666666664 1 12 0.5 3 NaN 11 11 0.000000 -0.653095 1
+JOINT FIXTURE completed=1 | body jumps 18/18 | classified 17/18 | consumed 17/18
+                   route: 'lower'
+                strategy: 'predictive'
+               completed: 1
+                  poseHz: 10
+    deliveryDelaySeconds: 0.0833
+                 packets: 762
+      syntheticBodyJumps: [18 18]
+         classifiedJumps: [17 18]
+           consumedJumps: [17 18]
+             gameSeconds: 72.0500
+                failures: 1
+     syntheticJointsOnly: 1
+             sampleTrace: [226×11 double]
+            traceColumns: {1×11 cell}
+
+POSE JOINT JOURNEY PASSED: lower (no camera/model/human acceptance)

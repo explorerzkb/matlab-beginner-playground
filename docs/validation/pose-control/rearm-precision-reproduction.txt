@@ -1,0 +1,7 @@
+{错误使用 assert
+Rounded 0.3-second boundary missed rearm
+
+出错 testPoseRearmPrecision (第 19 行)
+    assert(all(strcmp({s.player.jumpPhase},'standing')),'Rounded 0.3-second boundary missed rearm');
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 

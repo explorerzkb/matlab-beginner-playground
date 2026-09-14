@@ -1,7 +1,7 @@
 function state = runPrologue(fig, ax, state, world, cfg)
 %RUNPROLOGUE Animate in the existing figure without replacing the world.
 state = stepPrologue(state, world, cfg, 0);
-java.util.concurrent.locks.LockSupport.parkNanos(int64(250000));
+gameFrameWait();
 clock = tic; previous = toc(clock); accumulator = 0;
 lastRender = -inf; previousPause = false;
 while ~state.prologue.complete && isgraphics(fig)
@@ -30,7 +30,7 @@ while ~state.prologue.complete && isgraphics(fig)
         drawnow;
         lastRender = now;
     end
-    java.util.concurrent.locks.LockSupport.parkNanos(int64(250000));
+    gameFrameWait();
 end
 state.input.previousPause = previousPause;
 end

@@ -1,0 +1,3 @@
+single paired still: 44.4 ms median / 49.9 max; per-player ceiling 22.51 Hz
+multi paired still: 200.0 ms median / 308.4 max; per-player ceiling 4.76 Hz
+PUBLIC COMPOSITE CHECKS PASSED; not live two-person accuracy or E2E latency.

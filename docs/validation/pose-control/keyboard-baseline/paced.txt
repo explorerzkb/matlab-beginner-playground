@@ -1,0 +1,13 @@
+PACED  north-lake     4.4 FPS at 960x540
+PACED  network-race  19.7 FPS at 960x540
+PACED  traffic       13.9 FPS at 960x540
+PACED  bicycle       15.8 FPS at 960x540
+PACED  campus        15.0 FPS at 960x540
+PACED FULL-DRAW MINIMUM: 4.4 FPS across all five pockets
+{错误使用 assert
+At least one paced visual pocket did not exceed 40 displayed updates per second.
+
+出错 runPacedRenderCheck (第 67 行)
+assert(all(sceneFps > 40), ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 

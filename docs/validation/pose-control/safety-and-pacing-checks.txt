@@ -1,0 +1,18 @@
+POSE SYNTHETIC CHECKS PASSED (not human recognition/playability)
+POSE GAME INPUT PASSED: render/physics separation, no airborne queue, lifecycle epochs
+MATLAB CODE ANALYZER PASSED WITH ZERO ISSUES
+正在使用 'Processes' 配置文件启动并行池(parpool)...
+已连接到具有 1 个工作进程的并行池。
+    GraphicsRenderer: 'WebGL'
+              Vendor: 'Google Inc. (Intel)'
+             Version: 'WebGL 2.0 (OpenGL ES 3.0 Chromium)'
+      RendererDevice: 'ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)'
+             Details: [1×1 struct]
+
+POSE DISPLAY north-lake   29.99 FPS | 59.79 steps/s | long>50ms 1 | max 58.6ms
+POSE DISPLAY network-race 30.00 FPS | 59.79 steps/s | long>50ms 1 | max 51.6ms
+POSE DISPLAY traffic      29.16 FPS | 59.72 steps/s | long>50ms 8 | max 66.3ms
+POSE DISPLAY bicycle      30.00 FPS | 59.79 steps/s | long>50ms 2 | max 52.2ms
+POSE DISPLAY campus       29.63 FPS | 59.46 steps/s | long>50ms 1 | max 61.5ms
+使用 'Processes' 配置文件的并行池正在关闭。
+Report only: no 40/50-FPS gate; not human acceptance or exact monitor presentation timing.

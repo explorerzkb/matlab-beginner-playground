@@ -53,6 +53,14 @@ if isfield(handles, 'raceRenderTime') && ...
     return;
 end
 set(handles.raceRunners(:),'Visible','on');
+animationTime=0;
+if strcmp(r.phase,'running') && any(r.runnerX<world.mechanic.race.finishX)
+    animationTime=r.elapsed;
+end
+geometryKey={r.phase,r.runnerX,animationTime,world.mechanic.race.laneY};
+geometryChanged=~isfield(handles,'raceGeometryKey') || ...
+    ~isequal(handles.raceGeometryKey,geometryKey);
+if geometryChanged
 theta=linspace(0,2*pi,18);
 for lane=8:-1:1
     scale=1.05-.045*(lane-1);
@@ -85,6 +93,8 @@ for lane=8:-1:1
     set(handles.raceRunners(lane,2),'XData',[x+scale*limbs(:,1); ...
         nan;hairX(:);nan;shoesX(:)],'YData',[y+scale*limbs(:,2); ...
         nan;hairY(:);nan;shoesY(:)]);
+end
+handles.raceGeometryKey=geometryKey;
 end
 if strcmp(r.phase,'waiting')
     caption='八道短跑 · 两只梨过线起跑 | 按住 Space 喝冰红茶';
