@@ -12,7 +12,7 @@ addpath(fullfile(projectRoot, 'levels'));
 addpath(fullfile(projectRoot, 'src'));
 cfg = gameConfig(projectRoot);
 cfg.pose = poseConfig();
-cfg.pose.modelPath = fullfile(projectRoot,'assets','game','models','movenet-single-lightning.tflite');
+cfg.pose.modelPath = cfg.assets.poseModel;
 if mod(numel(varargin), 2) ~= 0
     error('matlabHi:InvalidArguments', ...
         '可选参数必须使用名称/值成对传入，例如 startGame(''TestMode'', true)。');

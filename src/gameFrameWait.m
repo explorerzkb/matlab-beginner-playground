@@ -8,7 +8,10 @@ if nargin>0 && strcmp(action,'close')
 end
 if ispc
     if isempty(waiter)
-        NET.addAssembly(fullfile(fileparts(mfilename('fullpath')),'native','MatlabHiTiming.dll'));
+        projectRoot=fileparts(fileparts(mfilename('fullpath')));
+        assembly=fullfile(projectRoot,'assets','game','runtime','windows', ...
+            'MatlabHiTiming.dll');
+        NET.addAssembly(assembly);
         waiter=MatlabHi.HighResolutionWaiter();
     end
     waiter.Wait();

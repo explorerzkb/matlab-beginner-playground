@@ -16,8 +16,9 @@ def build():
              root / "docs" / "windows-validation.txt"]
     for folder in ("config", "levels", "src", "tests"):
         files.extend(sorted((root / folder).glob("*.m")))
+    runtime_suffixes = {".png", ".jpg", ".tflite", ".dll", ".txt", ".md"}
     files.extend(sorted(p for p in (root / "assets" / "game").rglob("*")
-                        if p.is_file() and p.suffix.lower() in (".png", ".jpg")))
+                        if p.is_file() and p.suffix.lower() in runtime_suffixes))
     manifest = {}
     contents = {}
     for file in files:
