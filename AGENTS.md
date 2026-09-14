@@ -11,11 +11,12 @@
 
 开发前按以下顺序读取：
 
-1. `docs/current-project-state.md`；
-2. `docs/game-spec-v1.md`；
-3. `docs/implementation-plan.md`；
-4. 涉及画面、场景、素材、建模或关卡空间时，必须继续读 `docs/visual-spatial-sop.md`；
-5. 现实校园场景继续读 `assets/reference/README.md`、场景索引，并实际打开索引点名的图片。
+1. `docs/handoff-next-device.md`；
+2. `docs/current-project-state.md`；
+3. `docs/game-spec-v1.md`；
+4. `docs/implementation-plan.md`；
+5. 涉及画面、场景、素材、建模或关卡空间时，必须继续读 `docs/visual-spatial-sop.md`；
+6. 现实校园场景继续读 `assets/reference/README.md`、场景索引，并实际打开索引点名的图片。
 
 如果这些文件互相冲突，以用户最新明确决定为最高优先级，其次依次为 `current-project-state.md`、`game-spec-v1.md`、`implementation-plan.md`。发现冲突时必须同步修正文档，不能自行从旧材料拼接需求。
 
@@ -29,7 +30,7 @@
 
 ## 显性项目记忆
 
-- 需求、决策、验证结果和待办必须保存在仓库内的当前有效文件中，不能只依赖聊天历史或隐式记忆。
+- 需求、决策、验证结果和待办必须保存在仓库内的当前有效文件中，不能只依赖聊天历史或隐式记忆。设备迁移所需的最短路径、环境边界和忽略项写入 `docs/handoff-next-device.md`。
 - 已冻结的玩法与范围写入 `docs/game-spec-v1.md`；实现阶段、验证证据和下一步写入 `docs/current-project-state.md`。
 - 发生需求变化时，先更新规格中的对应条目，并在状态文件记录日期、变化和原因。
 - 尚未确定的想法只能放入状态文件的“待验证”部分，不得混入已冻结规格。

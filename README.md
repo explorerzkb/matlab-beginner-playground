@@ -18,7 +18,7 @@ Windows 11 也可以双击 `startGame.bat`。它会优先使用系统 `PATH` 中
 
 目标 Windows 机的验收不再需要手抄数据：双击 `validateWindows.bat`，选择当前 100% / 125% / 150% 缩放比。它会跑完整自动回归、50 Hz 完整屏幕刷新节拍、连续三轮五场景最大绘制能力，再用引导界面检查六组真实四键／五键组合。日志保存到 `windows-validation-results/`。
 
-默认使用性能平衡档：960×540 窗口、普通背景每 6 个源像素采样一次，校园网页每 2 个源像素采样一次；角色轮廓、碰撞和 60 Hz 物理不降频。需要试用 1280×720 高画质档时运行：
+默认使用性能平衡档：960×540 窗口、普通背景每 6 个源像素采样一次，校园终段长卷每 3 个源像素采样一次；角色轮廓、碰撞和 60 Hz 物理不降频。需要试用 1280×720 高画质档时运行：
 
 ```matlab
 startGame('LowPowerMode', false)
@@ -91,6 +91,7 @@ runWindowsPlaytest
 
 完整实现状态与视觉证据见：
 
+- [`docs/handoff-next-device.md`](docs/handoff-next-device.md)
 - [`docs/current-project-state.md`](docs/current-project-state.md)
 - [`docs/visuals/performance-v17/review.md`](docs/visuals/performance-v17/review.md)
 - [`docs/visuals/performance-v17/`](docs/visuals/performance-v17/)
@@ -105,11 +106,12 @@ runWindowsPlaytest
 
 按以下顺序阅读，不要从历史区恢复旧需求：
 
-1. [`docs/current-project-state.md`](docs/current-project-state.md)：当前阶段、已验证证据和下一步；
-2. [`docs/game-spec-v1.md`](docs/game-spec-v1.md)：文件名因兼容保留，内容是当前连续世界规格；
-3. [`docs/implementation-plan.md`](docs/implementation-plan.md)：实施状态和剩余阶段门；
-4. [`docs/visual-spatial-sop.md`](docs/visual-spatial-sop.md)：画面、场景与空间证据规则；
-5. [`assets/reference/README.md`](assets/reference/README.md)：允许使用的设计参考及其边界。
+1. [`docs/handoff-next-device.md`](docs/handoff-next-device.md)：新设备从零接手、环境、目标机验证和忽略项；
+2. [`docs/current-project-state.md`](docs/current-project-state.md)：当前阶段、已验证证据和下一步；
+3. [`docs/game-spec-v1.md`](docs/game-spec-v1.md)：文件名因兼容保留，内容是当前连续世界规格；
+4. [`docs/implementation-plan.md`](docs/implementation-plan.md)：实施状态和剩余阶段门；
+5. [`docs/visual-spatial-sop.md`](docs/visual-spatial-sop.md)：画面、场景与空间证据规则；
+6. [`assets/reference/README.md`](assets/reference/README.md)：允许使用的设计参考及其边界。
 
 ## 项目结构
 
@@ -132,4 +134,4 @@ docs/                    当前规格、计划、视觉证据和状态
 archive/                 默认禁止读取的不可变历史快照
 ```
 
-当前开发分支为 `codex/gameplay-round-2`。未经用户明确要求不自动提交或推送；本仓库新提交只能使用 `explorerzkb@gmail.com`。
+当前唯一交付分支为 `main`，应从 `origin/main` 快进拉取。本仓库新提交只能使用 `explorerzkb@gmail.com`；设备迁移的完整接续说明见 `docs/handoff-next-device.md`。
