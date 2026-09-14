@@ -15,6 +15,8 @@ testPixelRectToWorld();
 fprintf('Running input-mapping checks...\n');
 testInputMappings();
 testPoseFallback();
+testPosePerformanceProfile();
+testPoseDeviceCompatibility();
 testPosePreviewOverlay();
 testGameImageCache();
 testWindowsValidationSummary();

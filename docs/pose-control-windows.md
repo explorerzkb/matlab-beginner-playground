@@ -19,6 +19,8 @@ Windows PowerShell：
 
 按 K 可切回键盘；在游戏中 K 可重新启动体感。C 重校准。Esc 暂停、长按 R 回检查点、Space 喝茶、Q 退出。体感独占左右和跳跃，键盘不与体感方向叠加。直接键盘启动使用 `startGame('InputMode','keyboard')`。
 
+默认连接 MATLAB 枚举到的第一个摄像头，并优先使用 640×480；设备不提供该模式时，会从 `AvailableResolutions` 自动选取最接近的低延迟模式，不再因硬编码分辨率退出。多摄像头可用索引或名称指定，例如 `startGame('PoseCamera',2)` 或 `startGame('PoseCamera','Integrated Camera')`。
+
 身份不确定时必须 C 重新校准，普通暂停或复活不能绕过；固定站位跟踪不支持两人交叉换位。退出或 K 切键盘自动保存数字性能记录至 `pose-validation-results/pose-*.mat`，不保存相机图片。
 
 游戏中 K 切入体感、C 重校准都会打开完整镜像检查；返回游戏时恢复正常纵轴和场景。每轮试跳检查必须是新事件，上局的跳跃不会替本轮完成检查。后台致命错误会安全暂停并自动释放本任务的会话／并行池，清理可能等待 MATLAB 关闭进程；按 K 可继续键盘游戏。
@@ -47,6 +49,8 @@ Windows PowerShell：
 可用 `checkPoseEnvironment` 重新检查版本、支持包、相机列表。支持包从 MATLAB Add-Ons 安装，或按 MathWorks MPM 文档安装。不要重复安装整个 MATLAB 以替代缺失支持包。
 
 Windows 11 的帧间等待另用随仓库提供的 `assets/game/runtime/windows/MatlabHiTiming.dll`，其完整 C# 源码和重建脚本在 `tools/windows/`。它只创建进程私有计时器，不改全局计时设置，不忙等。修改源码后关闭加载过该程序集的 MATLAB，再运行 `tools/windows/buildTiming.ps1` 重建；正常玩游戏不需要编译器。macOS 不加载该 DLL。
+
+DLL 缺失或与某台 Windows 机器不兼容时，主循环会警告一次并自动使用 JVM 可移植等待，游戏不会因此退出；该后备路径的节拍可能较慢，因此仍应保证正式包带有 DLL。模型只使用 CPU TFLite/XNNPACK 路线，不把 Intel Arc、NPU 或某个处理器型号写成运行条件。
 
 模型随源码在 `assets/game/models/`，运行完全离线，无 Python、外部账号或服务。首次创建独立 MATLAB 工作进程会有启动等待。若本 MATLAB 已有线程并行池，保留该池并报告错误；可 K 使用键盘，不会擅自删除用户并行任务。
 

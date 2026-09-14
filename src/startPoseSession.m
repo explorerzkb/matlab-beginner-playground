@@ -1,6 +1,17 @@
 function session = startPoseSession(cfg, fixture)
 %STARTPOSESESSION Start owned process resources before gameplay begins.
 if nargin<2, fixture=[]; end
+if isempty(which('parpool')) || isempty(which('loadTFLiteModel'))
+    error('matlabHi:PoseDependency', ...
+        'Pose requires Parallel Computing Toolbox and the MATLAB TFLite interface.');
+end
+if isempty(fixture) && isempty(which('webcam'))
+    error('matlabHi:PoseDependency', ...
+        'Pose requires MATLAB Support Package for USB Webcams.');
+end
+if ~isfile(cfg.modelPath)
+    error('matlabHi:PoseModelMissing','Pose model not found: %s',cfg.modelPath);
+end
 pool=gcp('nocreate'); owned=isempty(pool);
 if owned
     pool=parpool('Processes',1);

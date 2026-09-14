@@ -5,7 +5,9 @@ try
     model=loadPoseModel(cfg.modelPath,cfg.candidate,cfg);
     if isempty(fixture)
         camera=webcam(cfg.cameraIndex);
-        camera.Resolution='640x480';
+        resolution=selectPoseCameraResolution( ...
+            camera.AvailableResolutions,cfg.cameraResolution);
+        if ~isempty(resolution), camera.Resolution=resolution; end
         snapshot(camera); % hardware startup is outside the first sample
     end
     send(results,struct('kind','ready'));
@@ -21,7 +23,8 @@ try
             'points',points,'imageSize',size(frame),'inferenceSeconds',inference);
         % Calibration can request a small preview; gameplay never transfers it.
         if request.preview
-            packet.preview=imresize(frame,[180 240]);
+            packet.preview=imresize(frame,[180 240], ...
+                'bilinear','Antialiasing',false);
         end
         send(results,packet);
     end

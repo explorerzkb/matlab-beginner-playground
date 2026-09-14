@@ -2,6 +2,10 @@ function cfg = poseConfig()
 %POSECONFIG Experimental thresholds, in seconds/degrees/shoulder-width units.
 % All thresholds require two-person playtesting; none are measured accuracy.
 cfg.renderHz = 30;
+% Pose inference competes with rendering for CPU/GPU bandwidth.  The
+% balanced pose profile trades only background texture density.
+cfg.backgroundTextureStride = 6;
+cfg.campusHandscrollTextureStride = 2;
 cfg.confidence = 0.35;
 cfg.calibrationSeconds = 2.5;
 cfg.calibrationAngleRange = 6;
@@ -26,6 +30,7 @@ cfg.identityMargin = 0.08;
 cfg.minimumSeparation = 0.18;
 cfg.maxScaleRatio = 1.35;
 cfg.cameraIndex = 1;
+cfg.cameraResolution = '640x480';
 cfg.modelThreads = 2;
 cfg.workerTimeout = 2.0;
 cfg.startupTimeout = 15.0;

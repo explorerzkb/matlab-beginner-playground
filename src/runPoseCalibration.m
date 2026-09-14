@@ -12,7 +12,7 @@ text(ax,180,12,'玩家二','Color',[0 .85 1],'HorizontalAlignment','center');
 overlay=createOverlay(ax);
 text(ax,4,176,'黄 P1  青 P2  红× 低置信度','Color','white','FontSize',8);
 label=title(ax,'正在启动摄像头；K 切键盘，Q 退出','FontName',cfg.render.fontName);
-verified=false(2,3); lastRender=-inf;
+verified=false(2,3); lastRender=-inf; lastPreviewRequest=-inf;
 jumpBaseline=[0 0];
 if isappdata(fig,'poseSession')
     initialSession=getappdata(fig,'poseSession');
@@ -33,7 +33,12 @@ while isgraphics(fig)
         flushFigurePose(fig,true); verified=false(2,3); jumpBaseline=[0 0];
     end
     if isappdata(fig,'poseSession')
-        s=getappdata(fig,'poseSession'); s.previewRequested=true;
+        s=getappdata(fig,'poseSession');
+        now=poseClock();
+        if now-lastPreviewRequest>=1/15
+            s.previewRequested=true;
+            lastPreviewRequest=now;
+        end
         setappdata(fig,'poseSession',s);
         if strcmp(s.state.phase,'active')
             for i=1:2
@@ -47,7 +52,7 @@ while isgraphics(fig)
             message=sprintf('逐人左倾／右倾／试跳：P1 %d%d%d · P2 %d%d%d',verified(1,:),verified(2,:));
         end
         if ~isempty(s.error), message=s.error; end
-        if poseClock()-lastRender>=1/15
+        if now-lastRender>=1/15
             if ~isempty(s.preview), set(preview,'CData',s.preview(:,end:-1:1,:)); end
             if ~isempty(s.lastPacket)
                 updateOverlay(overlay,s.lastPacket,s.cfg.confidence);
@@ -55,7 +60,7 @@ while isgraphics(fig)
                 clearOverlay(overlay);
             end
             set(label,'String',{message,'头、肩、肘、腕完整入画；头顶留起跳余量 · K 键盘 · Q 退出'});
-            drawnow; lastRender=poseClock();
+            drawnow; lastRender=now;
         end
         if all(verified,'all')
             s.previewRequested=false; setappdata(fig,'poseSession',s);
@@ -64,7 +69,7 @@ while isgraphics(fig)
     else
         set(label,'String',{getappdata(fig,'poseError'),'K 切键盘 · Q 退出'}); drawnow;
     end
-    pause(0.005);
+    gameFrameWait();
 end
 end
 

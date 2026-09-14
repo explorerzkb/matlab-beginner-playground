@@ -26,6 +26,8 @@ for index = 1:2:numel(varargin)
             cfg.input.mode=validatestring(char(string(value)),{'keyboard','pose'});
         case 'posemodel'
             cfg.pose.modelPath=char(string(value));
+        case 'posecamera'
+            cfg.pose.cameraIndex=value;
         case 'testmode'
             cfg.runtime.testMode = logical(value);
         case 'lowpowermode'
@@ -47,13 +49,11 @@ for index = 1:2:numel(varargin)
     end
 end
 
-if strcmp(cfg.input.mode,'pose')
-    cfg.render.targetHz=cfg.pose.renderHz;
-end
 if ~cfg.runtime.lowPowerMode
     cfg.render.windowSize = [1280 720];
     cfg.render.backgroundTextureStride = 2;
 end
+cfg=configureInputPerformance(cfg);
 
 runGame(cfg);
 clear pathGuard;

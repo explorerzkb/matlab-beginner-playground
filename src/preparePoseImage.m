@@ -11,6 +11,9 @@ scale=min(inputSize./[crop(4) crop(3)]);
 resized=max(1,round([crop(4) crop(3)]*scale));
 pad=floor((inputSize-resized)/2);
 input=zeros([inputSize 3],'uint8');
-input(pad(1)+(1:resized(1)),pad(2)+(1:resized(2)),:)=imresize(region,resized);
+% Bilinear resize matches the model's normal image sampling while avoiding
+% the cost and latency spikes of MATLAB's default antialiased bicubic path.
+input(pad(1)+(1:resized(1)),pad(2)+(1:resized(2)),:)= ...
+    imresize(region,resized,'bilinear','Antialiasing',false);
 transform=struct('crop',crop,'input',inputSize,'resized',resized,'pad',pad);
 end

@@ -8,10 +8,12 @@ validateattributes(secondsPerScene,{'numeric'},{'scalar','finite','>=',2});
 validateattributes(scenes,{'numeric'},{'vector','integer','>=',1,'<=',5});
 root=fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(root,'src'),fullfile(root,'config'),fullfile(root,'levels'));
-cfg=gameConfig(root); cfg.render.targetHz=30;
+cfg=gameConfig(root);
+cfg.pose=poseConfig(); cfg.input.mode='pose';
+cfg=configureInputPerformance(cfg);
 session=[];
 if useCamera
-    pc=poseConfig(); pc.modelPath=fullfile(root,'assets','game','models','movenet-single-lightning.tflite');
+    pc=cfg.pose; pc.modelPath=cfg.assets.poseModel;
     session=startPoseSession(pc);
 end
 poolGuard=onCleanup(@() stopPoseSession(session));

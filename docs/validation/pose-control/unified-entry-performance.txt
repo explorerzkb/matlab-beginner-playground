@@ -1,0 +1,31 @@
+UNIFIED ENTRY / RESOURCE / SHORT PERFORMANCE CHECK
+Date: 2026-09-15
+Machine state: two pre-existing MATLAB processes remained running throughout.
+This is a paired stress sample, not an idle-machine or human acceptance result.
+
+Before optimization (5 seconds per scene, real camera/model, scripted players):
+north-lake  14.28 FPS | capture 5.55 pairs/s | capture-call-to-draw mean 222.2 ms
+traffic     17.10 FPS | capture 5.37 pairs/s | capture-call-to-draw mean 209.1 ms
+campus      10.45 FPS | capture 4.53 pairs/s | capture-call-to-draw mean 215.0 ms
+
+After optimization, same test shape and concurrent-process condition:
+north-lake  16.94 FPS | capture 6.58 pairs/s | capture-call-to-draw mean 146.1 ms
+traffic     18.18 FPS | capture 7.39 pairs/s | capture-call-to-draw mean 162.3 ms
+campus      22.27 FPS | capture 8.75 pairs/s | capture-call-to-draw mean 147.7 ms
+
+Changes under test:
+- pose background stride 6 and campus handscroll stride 2;
+- bilinear non-antialiased model/preview resize;
+- preview image transfer capped to its 15 Hz display demand;
+- calibration wait no longer invokes pause/drawnow;
+- model remains at two CPU threads after a 1/2/3/4/6/8-thread comparison.
+
+Automated checks passed after the change:
+- pose performance profile and fallback;
+- synthetic pose controller and sparse-sampling boundaries;
+- physics event consumption, overlay, telemetry and jump rearm precision;
+- MATLAB Code Analyzer: zero issues.
+
+The associated render-camera-1-20260915-*.mat files contain raw timing arrays.
+No camera image is stored. The measurements do not include physical action onset,
+camera exposure/internal buffering, or monitor presentation.

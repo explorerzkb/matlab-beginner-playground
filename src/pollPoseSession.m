@@ -43,6 +43,7 @@ if session.ready && ~session.inflight && ...
     request=struct('kind','next','id',session.nextId,'epoch',session.epoch, ...
         'preview',session.previewRequested);
     send(session.commands,request);
+    session.previewRequested=false;
     session.inflight=true; session.sentTime=now; session.lastRequest=now;
 end
 end
