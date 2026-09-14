@@ -6,6 +6,9 @@ assert(strcmp(cfg.mode,'pose'),'The unified entry no longer defaults to pose.');
 fig=figure('Visible','off'); guard=onCleanup(@() close(fig));
 installInputCallbacks(fig);
 setappdata(fig,'inputMode','pose');
+oldWarning=warning('query','matlabHi:PoseFallback');
+warning('off','matlabHi:PoseFallback');
+warningGuard=onCleanup(@() warning(oldWarning.state,'matlabHi:PoseFallback'));
 fallbackPoseToKeyboard(fig,'synthetic camera failure');
 assert(strcmp(getappdata(fig,'inputMode'),'keyboard'));
 assert(strcmp(getappdata(fig,'poseError'),'synthetic camera failure'));
@@ -17,5 +20,6 @@ ax=axes(fig); original=ax.YDir;
 ready=runPoseCalibration(fig,ax,struct('input',cfg,'render',struct('fontName','Arial')));
 assert(ready && strcmp(ax.YDir,original), ...
     'Calibration did not return cleanly after keyboard fallback.');
+clear warningGuard;
 fprintf('POSE FALLBACK PASSED: default pose, direct keyboard recovery\n');
 end
