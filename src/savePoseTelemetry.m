@@ -8,6 +8,11 @@ try
     stamp=char(datetime('now','Format','yyyyMMdd-HHmmss-SSS'));
     report=session.telemetry;
     report.error=session.error;
+    report.cameraName=''; report.cameraResolution='';
+    if isfield(session,'cameraName'), report.cameraName=session.cameraName; end
+    if isfield(session,'cameraResolution')
+        report.cameraResolution=session.cameraResolution;
+    end
     report.names={'north-lake','network-race','traffic','bicycle','campus'};
     duration=report.lastCapture-report.firstCapture;
     report.captureCallHz=NaN; report.perPlayerPoseHz=[NaN NaN];

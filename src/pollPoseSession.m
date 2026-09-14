@@ -5,6 +5,10 @@ if ~isempty(packet)
     switch packet.kind
         case 'ready'
             session.ready=true;
+            if isfield(packet,'cameraName'), session.cameraName=packet.cameraName; end
+            if isfield(packet,'cameraResolution')
+                session.cameraResolution=packet.cameraResolution;
+            end
         case 'error'
             session.error=packet.message;
             session.inflight=false;

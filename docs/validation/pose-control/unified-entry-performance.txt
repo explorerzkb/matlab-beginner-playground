@@ -14,7 +14,7 @@ traffic     18.18 FPS | capture 7.39 pairs/s | capture-call-to-draw mean 162.3 m
 campus      22.27 FPS | capture 8.75 pairs/s | capture-call-to-draw mean 147.7 ms
 
 Changes under test:
-- pose background stride 6 and campus handscroll stride 2;
+- pose background stride 6 and campus handscroll stride 2 in this paired run;
 - bilinear non-antialiased model/preview resize;
 - preview image transfer capped to its 15 Hz display demand;
 - calibration wait no longer invokes pause/drawnow;
@@ -29,3 +29,15 @@ Automated checks passed after the change:
 The associated render-camera-1-20260915-*.mat files contain raw timing arrays.
 No camera image is stored. The measurements do not include physical action onset,
 camera exposure/internal buffering, or monitor presentation.
+
+Final configuration note: the campus handscroll stride was subsequently raised
+from 2 to 3 for additional target-device headroom; a separate no-camera campus
+sample measured 27.50 FPS with 59.38 physics steps/s (5 seconds, same non-target
+Windows machine). The full no-camera five-pocket short run before that final
+campus adjustment was 28.27 / 30.00 / 29.70 / 30.00 / 26.73 FPS.
+
+Full logic regression passed: Code Analyzer, all smoke mechanics, continuous
+prologue, and four keyboard journeys (59.95 / 72.30 / 59.97 / 72.28 seconds).
+The legacy keyboard forced-render gate did not pass on this non-target machine:
+35.7 / 57.2 / 38.4 / 41.4 / 29.0 FPS. The failure is intentionally retained in
+docs/validation/unified-entry-final/latest-run.txt and is not a HONOR target result.

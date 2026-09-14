@@ -5,7 +5,7 @@ cfg=gameConfig(root); cfg.pose=poseConfig();
 cfg.input.mode='pose'; cfg=configureInputPerformance(cfg);
 assert(cfg.render.targetHz==30);
 assert(cfg.render.backgroundTextureStride==6);
-assert(cfg.render.campusHandscrollTextureStride==2);
+assert(cfg.render.campusHandscrollTextureStride==3);
 
 cfg=gameConfig(root); cfg.pose=poseConfig(); cfg.input.mode='keyboard';
 cfg=configureInputPerformance(cfg);

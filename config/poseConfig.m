@@ -5,7 +5,7 @@ cfg.renderHz = 30;
 % Pose inference competes with rendering for CPU/GPU bandwidth.  The
 % balanced pose profile trades only background texture density.
 cfg.backgroundTextureStride = 6;
-cfg.campusHandscrollTextureStride = 2;
+cfg.campusHandscrollTextureStride = 3;
 cfg.confidence = 0.35;
 cfg.calibrationSeconds = 2.5;
 cfg.calibrationAngleRange = 6;

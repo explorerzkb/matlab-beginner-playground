@@ -1,5 +1,5 @@
 function runPoseModeSwitchCheck()
-%RUNPOSEMODESWITCHCHECK Real keyboard game -> camera calibration -> keyboard.
+%RUNPOSEMODESWITCHCHECK Real default pose calibration -> keyboard game.
 % Timer supplies debug keys; it does not simulate successful human calibration.
 root=fileparts(fileparts(mfilename('fullpath'))); addpath(root);
 oldFigures=findall(groot,'Type','figure');

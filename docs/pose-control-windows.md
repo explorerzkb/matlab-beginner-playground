@@ -7,19 +7,25 @@
 MATLAB 命令窗口：
 
 ```matlab
-cd('E:/matlabHi-pose-control')
+% 先把 MATLAB“当前文件夹”切到解压后的项目根目录
 startGame
 ```
 
 Windows PowerShell：
 
 ```powershell
-& 'D:/MATLAB/R2025b/bin/matlab.exe' -sd '项目目录' -r "startGame"
+& '<MATLAB安装目录>/bin/matlab.exe' -sd '<项目目录>' -r "startGame"
 ```
 
 按 K 可切回键盘；在游戏中 K 可重新启动体感。C 重校准。Esc 暂停、长按 R 回检查点、Space 喝茶、Q 退出。体感独占左右和跳跃，键盘不与体感方向叠加。直接键盘启动使用 `startGame('InputMode','keyboard')`。
 
 默认连接 MATLAB 枚举到的第一个摄像头，并优先使用 640×480；设备不提供该模式时，会从 `AvailableResolutions` 自动选取最接近的低延迟模式，不再因硬编码分辨率退出。多摄像头可用索引或名称指定，例如 `startGame('PoseCamera',2)` 或 `startGame('PoseCamera','Integrated Camera')`。
+
+## 目标机与多设备边界
+
+用户最终运行设备为荣耀 MagicBook Pro 14 2025、第 2 代 Core Ultra 9。荣耀官方列出的对应处理器是 Ultra 9 285H；Intel 官方参数为 16 核 16 线程、Intel Arc 140T 核显。当前实现仍走 MATLAB 原生 CPU TFLite，不要求 Arc 或 NPU，也不会根据品牌／核心数改判定阈值。目标机验收请同时记录相机名称、程序实际协商到的分辨率、电源状态和荣耀性能模式；这些字段中的相机名称与分辨率会写入 `pose-validation-results`。
+
+荣耀说明该机高能模式需插电后通过 Fn+P 或荣耀电脑管家开启。性能复测应注明使用智能还是高能模式，不能把高能模式数字写成默认电池状态。官方资料：[荣耀产品页](https://www.honor.com/cn/laptops/honor-magicbook-pro-14/)、[Intel Ultra 9 285H 参数](https://www.intel.com/content/www/us/en/products/sku/241747/intel-core-ultra-9-processor-285h-24m-cache-up-to-5-40-ghz/specifications.html)。
 
 身份不确定时必须 C 重新校准，普通暂停或复活不能绕过；固定站位跟踪不支持两人交叉换位。退出或 K 切键盘自动保存数字性能记录至 `pose-validation-results/pose-*.mat`，不保存相机图片。
 

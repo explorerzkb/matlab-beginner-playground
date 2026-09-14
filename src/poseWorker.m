@@ -3,14 +3,18 @@ function poseWorker(commands, results, cfg, fixture)
 % No images or camera handles cross into gameplay. No unbounded frame queue.
 try
     model=loadPoseModel(cfg.modelPath,cfg.candidate,cfg);
+    cameraName='fixture'; cameraResolution='fixture';
     if isempty(fixture)
         camera=webcam(cfg.cameraIndex);
         resolution=selectPoseCameraResolution( ...
             camera.AvailableResolutions,cfg.cameraResolution);
         if ~isempty(resolution), camera.Resolution=resolution; end
+        cameraName=char(string(camera.Name));
+        cameraResolution=char(string(camera.Resolution));
         snapshot(camera); % hardware startup is outside the first sample
     end
-    send(results,struct('kind','ready'));
+    send(results,struct('kind','ready','cameraName',cameraName, ...
+        'cameraResolution',cameraResolution));
     while true
         request=poll(commands,30);
         if isempty(request) || strcmp(request.kind,'stop'), break; end
