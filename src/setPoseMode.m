@@ -10,7 +10,7 @@ if strcmp(mode,'pose')
         session=startPoseSession(cfg.pose);
         setappdata(fig,'poseSession',session);
     catch exception
-        setappdata(fig,'poseError',exception.message);
+        fallbackPoseToKeyboard(fig,exception.message);
     end
 end
 end

@@ -33,9 +33,8 @@ if isgraphics(fig) && isappdata(fig,'poseSession')
     session=pollPoseSession(session,poseClock());
     setappdata(fig,'poseSession',session);
     if ~isempty(session.error)
-        % Fatal worker errors end the session; input remains safely paused.
-        setappdata(fig,'poseError',session.error);
-        stopFigurePose(fig);
+        % A failed camera/model must never strand the game in a pose pause.
+        fallbackPoseToKeyboard(fig,session.error);
     end
 end
 [pose,input.poseMode]=readFigurePose(fig,poseClock(),false,true);

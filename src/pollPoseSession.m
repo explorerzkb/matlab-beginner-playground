@@ -25,6 +25,10 @@ if ~isempty(packet)
     end
 end
 if ~isempty(session.error), return; end
+if ~session.ready && now-session.startedTime>session.cfg.startupTimeout
+    session.error='Camera/model startup timed out; keyboard fallback enabled.';
+    return;
+end
 if strcmp(session.future.State,'finished')
     session.error='Pose worker stopped; switch to keyboard or restart pose session.';
     return;

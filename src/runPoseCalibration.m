@@ -21,6 +21,11 @@ end
 while isgraphics(fig)
     input=readInputSnapshot(fig,cfg.input);
     if input.quit || getappdata(fig,'closeRequested'), return; end
+    if ~input.poseMode
+        % Immediate and asynchronous startup failures both land here.
+        ready=true;
+        return;
+    end
     if input.toggleMode
         setPoseMode(fig,cfg,'keyboard'); ready=true; return;
     end

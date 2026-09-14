@@ -28,6 +28,7 @@ cfg.maxScaleRatio = 1.35;
 cfg.cameraIndex = 1;
 cfg.modelThreads = 2;
 cfg.workerTimeout = 2.0;
+cfg.startupTimeout = 15.0;
 cfg.requestHz = 30;
 cfg.modelPath = '';
 cfg.candidate = 'single';

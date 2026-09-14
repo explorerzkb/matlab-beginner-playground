@@ -94,6 +94,15 @@ while ~state.completed && ~state.requestQuit && isgraphics(fig)
     frameDelta = min(rawFrameDelta, cfg.runtime.maxFrameDelta);
     previousTime = nowTime;
     input = readInputSnapshot(fig, cfg.input);
+    % Automatic pose fallback can change mode without a K key edge.  Keep
+    % keyboard rendering at its normal rate as soon as that happens.
+    wantedRenderHz=50;
+    if input.poseMode, wantedRenderHz=cfg.pose.renderHz; end
+    if cfg.render.targetHz~=wantedRenderHz
+        cfg.render.targetHz=wantedRenderHz;
+        renderInterval=1/wantedRenderHz;
+        nextRenderTime=nowTime;
+    end
     if input.toggleMode && ~previousToggle
         if input.poseMode, mode='keyboard'; else, mode='pose'; end
         setPoseMode(fig,cfg,mode);

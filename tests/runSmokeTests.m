@@ -14,6 +14,7 @@ testCampusPresentation();
 testPixelRectToWorld();
 fprintf('Running input-mapping checks...\n');
 testInputMappings();
+testPoseFallback();
 testPosePreviewOverlay();
 testGameImageCache();
 testWindowsValidationSummary();
