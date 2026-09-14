@@ -5,8 +5,9 @@
 # Keep local for layout reference only; never include in Git or release assets.
 assets/reference/private/
 
-# Rebuildable local validation packages.
+# Rebuildable local validation packages; regenerate instead of transferring.
 dist/
+# Machine-specific performance and human-play telemetry; regenerate per device.
 windows-validation-results/
 pose-validation-results/
 # Regenerated baseline screenshots are local diagnostics, not new game art.

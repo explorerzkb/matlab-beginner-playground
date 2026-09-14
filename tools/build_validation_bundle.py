@@ -10,10 +10,17 @@ def build():
     output = root / "dist"
     output.mkdir(exist_ok=True)
     files = [root / "startGame.m", root / "startGame.bat",
+             root / "checkPoseEnvironment.m",
              root / "runWindowsValidation.m", root / "validateWindows.bat",
              root / "runWindowsPlaytest.m",
              root / "summarizeWindowsValidation.m",
-             root / "docs" / "windows-validation.txt"]
+             root / "README.md", root / "AGENTS.md",
+             root / "docs" / "windows-validation.txt",
+             root / "docs" / "handoff-next-device.md",
+             root / "docs" / "current-project-state.md",
+             root / "docs" / "game-spec-v1.md",
+             root / "docs" / "implementation-plan.md",
+             root / "docs" / "pose-control-windows.md"]
     for folder in ("config", "levels", "src", "tests"):
         files.extend(sorted((root / folder).glob("*.m")))
     runtime_suffixes = {".png", ".jpg", ".tflite", ".dll", ".txt", ".md"}
@@ -27,6 +34,8 @@ def build():
         relative = file.relative_to(root).as_posix()
         if relative == "docs/windows-validation.txt":
             relative = "README.txt"
+        elif relative == "docs/handoff-next-device.md":
+            relative = "HANDOFF.md"
         contents[relative] = file
         manifest[relative] = hashlib.sha256(file.read_bytes()).hexdigest()
     destination = output / "matlabHi-windows-validation.zip"
